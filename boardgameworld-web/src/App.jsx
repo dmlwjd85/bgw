@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
@@ -39,6 +39,11 @@ const shuffleArray = (array) => {
   return newArray;
 };
 
+/** 테이블 최대 인원 (인간 + AI 합산) */
+const MAX_TABLE_PLAYERS = 6;
+
+const generateAiUid = () => `ai-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
 // --- 게임 로직: 더 마인드 ---
 const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
   let deck = Array.from({ length: 100 }, (_, i) => i + 1);
@@ -64,6 +69,38 @@ const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
 
 // --- 게임 로직: 우노 ---
 const COLORS = ['red', 'blue', 'green', 'yellow'];
+
+/** 초보 AI용: 패에서 낼 만한 우노 카드 인덱스 (없으면 -1) */
+const findBeginnerUnoPlayIndex = (hand, topCard, currentColor, drawPhase) => {
+  if (!hand?.length) return -1;
+  if (drawPhase) {
+    const c = hand[drawPhase.cardIndex];
+    if (c && canPlayUnoCard(c, topCard, currentColor)) return drawPhase.cardIndex;
+    return -1;
+  }
+  for (let i = 0; i < hand.length; i++) {
+    if (canPlayUnoCard(hand[i], topCard, currentColor)) return i;
+  }
+  return -1;
+};
+
+/** 초보 AI: 와일드 플레이 시 선호 색 (패에 가장 많은 색) */
+const pickUnoWildColorForAi = (hand, excludeIndex) => {
+  const counts = { red: 0, blue: 0, green: 0, yellow: 0 };
+  hand.forEach((c, i) => {
+    if (i === excludeIndex || c.color === 'black') return;
+    if (counts[c.color] !== undefined) counts[c.color]++;
+  });
+  let best = 'red';
+  let m = -1;
+  COLORS.forEach((c) => {
+    if (counts[c] > m) {
+      m = counts[c];
+      best = c;
+    }
+  });
+  return best;
+};
 
 const generateUnoDeck = () => {
   const deck = [];
@@ -199,6 +236,7 @@ export default function App() {
   const [roomData, setRoomData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [wildColorSelector, setWildColorSelector] = useState(null);
+  const hostAiTimerRef = useRef(null);
 
   const tableStyle = useMemo(
     () => ({
@@ -312,10 +350,40 @@ export default function App() {
     setRoomData(null);
   };
 
+  /** 방장만: 인원 부족 시 초보 AI 플레이어 추가 */
+  const handleAddAiPlayer = async () => {
+    if (!roomData || !roomData.players.find((p) => p.uid === user.uid)?.isHost) return;
+    if (roomData.status !== 'lobby') return;
+    if (roomData.players.length >= MAX_TABLE_PLAYERS) return alert(`최대 ${MAX_TABLE_PLAYERS}명까지입니다.`);
+    const aiCount = roomData.players.filter((p) => p.isAi).length;
+    const newPlayer = {
+      uid: generateAiUid(),
+      name: `초보 AI ${aiCount + 1}`,
+      isHost: false,
+      isAi: true
+    };
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    await updateDoc(roomRef, { players: [...roomData.players, newPlayer] });
+  };
+
+  /** 방장만: 마지막으로 추가한 AI부터 제거 */
+  const handleRemoveAiPlayer = async () => {
+    if (!roomData || !roomData.players.find((p) => p.uid === user.uid)?.isHost) return;
+    if (roomData.status !== 'lobby') return;
+    const players = [...roomData.players];
+    const idx = [...players].reverse().findIndex((p) => p.isAi);
+    if (idx === -1) return alert('제거할 AI가 없습니다.');
+    const realIdx = players.length - 1 - idx;
+    players.splice(realIdx, 1);
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    await updateDoc(roomRef, { players });
+  };
+
   const handleStartGame = async (gameType) => {
     if (!roomData || !roomData.players.find((p) => p.uid === user.uid)?.isHost) return;
-    if (roomData.players.length < 2 && gameType !== 'themind') return alert('우노는 최소 2명이 필요합니다.');
-    if (roomData.players.length < 2 && gameType === 'themind') return alert('더 마인드는 2명 이상 권장됩니다.');
+    const n = roomData.players.length;
+    if (gameType === 'uno' && n < 2) return alert('우노는 최소 2명(인간 또는 AI)이 필요합니다.');
+    if (gameType === 'themind' && n < 2) return alert('더 마인드는 최소 2명(인간 또는 AI)이 필요합니다.');
 
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     let initialGameState = {};
@@ -330,12 +398,13 @@ export default function App() {
     });
   };
 
-  // --- 더 마인드 액션 ---
-  const playTheMindCard = async (card) => {
-    if (!roomData || roomData.gameState.status !== 'playing') return;
+  // --- 더 마인드 액션 (actingUid: AI 턴 시 방장이 대리 실행, rd: 최신 방 데이터) ---
+  const playTheMindCard = async (card, actingUid = user.uid, rd = roomData) => {
+    if (!rd || rd.gameState.status !== 'playing') return;
 
-    const state = roomData.gameState;
+    const state = rd.gameState;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    if (!state.hands[actingUid]?.includes(card)) return;
 
     let allCards = [];
     Object.values(state.hands).forEach((hand) => {
@@ -345,7 +414,7 @@ export default function App() {
     const lowestCard = Math.min(...allCards);
 
     const newHands = { ...state.hands };
-    newHands[user.uid] = newHands[user.uid].filter((c) => c !== card);
+    newHands[actingUid] = newHands[actingUid].filter((c) => c !== card);
     const newPlayedCards = [...state.playedCards, card];
 
     const updates = {
@@ -354,8 +423,10 @@ export default function App() {
       'gameState.shurikenVotes': []
     };
 
+    const actorName = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
+
     if (card === lowestCard) {
-      updates['gameState.message'] = `${roomData.players.find((p) => p.uid === user.uid).name}님이 ${card}를 냈습니다.`;
+      updates['gameState.message'] = `${actorName}님이 ${card}를 냈습니다.`;
 
       const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
       if (remainingCards === 0) {
@@ -388,13 +459,13 @@ export default function App() {
   };
 
   /** 수리검: 모두 동의 시 각자 패에서 가장 낮은 수 1장씩 버림 */
-  const voteShuriken = async () => {
-    if (!roomData || roomData.gameState.status !== 'playing') return;
-    const state = roomData.gameState;
+  const voteShuriken = async (actingUid = user.uid, rd = roomData) => {
+    if (!rd || rd.gameState.status !== 'playing') return;
+    const state = rd.gameState;
     const votes = new Set(state.shurikenVotes || []);
-    votes.add(user.uid);
+    votes.add(actingUid);
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const allUids = roomData.players.map((p) => p.uid);
+    const allUids = rd.players.map((p) => p.uid);
     if (votes.size < allUids.length || (state.shurikens || 0) < 1) {
       await updateDoc(roomRef, { 'gameState.shurikenVotes': [...votes] });
       return;
@@ -438,11 +509,11 @@ export default function App() {
   };
 
   // --- 우노: 첫 와일드 색 선택 ---
-  const setInitialUnoColor = async (color) => {
-    const state = roomData.gameState;
+  const setInitialUnoColor = async (color, actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     if (!state.needsInitialWildColor) return;
-    const current = roomData.players[state.turnIndex];
-    if (current.uid !== user.uid) return;
+    const current = rd.players[state.turnIndex];
+    if (current.uid !== actingUid) return;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     await updateDoc(roomRef, {
       'gameState.currentColor': color,
@@ -451,11 +522,12 @@ export default function App() {
     });
   };
 
-  const declareUno = async () => {
-    const state = roomData.gameState;
+  const declareUno = async (actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const ud = { ...(state.unoDeclared || {}), [user.uid]: true };
-    await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${roomData.players.find((p) => p.uid === user.uid).name}님이 UNO!를 외쳤습니다.` });
+    const ud = { ...(state.unoDeclared || {}), [actingUid]: true };
+    const dn = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
+    await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${dn}님이 UNO!를 외쳤습니다.` });
   };
 
   /** 다른 플레이어가 UNO를 안 외친 채 1장만 남겼을 때 도전 — 공식: 잡히면 2장 */
@@ -483,43 +555,52 @@ export default function App() {
     });
   };
 
-  const playUnoCard = async (cardIndex, overrideColor = null) => {
-    const state = roomData.gameState;
+  const playUnoCard = async (cardIndex, overrideColor = null, actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const currentPlayer = roomData.players[state.turnIndex];
+    const currentPlayer = rd.players[state.turnIndex];
+    const isSelfHuman = actingUid === user.uid;
 
     if (state.pendingWild4) {
-      alert('Wild +4를 받거나 도전을 먼저 해결해 주세요.');
+      if (isSelfHuman) alert('Wild +4를 받거나 도전을 먼저 해결해 주세요.');
       return;
     }
 
     if (state.needsInitialWildColor) {
-      alert('먼저 시작 색을 정해 주세요.');
+      if (isSelfHuman) alert('먼저 시작 색을 정해 주세요.');
       return;
     }
 
-    if (currentPlayer.uid !== user.uid) return alert('지금은 당신의 차례가 아닙니다.');
+    if (currentPlayer.uid !== actingUid) {
+      if (isSelfHuman) alert('지금은 당신의 차례가 아닙니다.');
+      return;
+    }
 
-    const hand = state.hands[user.uid];
+    const hand = state.hands[actingUid];
     const card = hand[cardIndex];
     const topCard = state.discardPile[state.discardPile.length - 1];
 
-    if (state.drawPhase && state.drawPhase.uid === user.uid) {
-      if (cardIndex !== state.drawPhase.cardIndex) return alert('방금 뽑은 카드만 낼 수 있습니다.');
+    if (state.drawPhase && state.drawPhase.uid === actingUid) {
+      if (cardIndex !== state.drawPhase.cardIndex) {
+        if (isSelfHuman) alert('방금 뽑은 카드만 낼 수 있습니다.');
+        return;
+      }
     }
 
     const isWild = card.color === 'black';
     if (!canPlayUnoCard(card, topCard, state.currentColor)) {
-      return alert('규칙상 낼 수 없는 카드입니다.');
-    }
-
-    if (isWild && !overrideColor) {
-      setWildColorSelector({ cardIndex });
+      if (isSelfHuman) alert('규칙상 낼 수 없는 카드입니다.');
       return;
     }
 
-    if (hand.length === 1 && !state.unoDeclared?.[user.uid]) {
-      return alert('마지막 한 장을 내기 전에 UNO! 버튼을 눌러 주세요.');
+    if (isWild && !overrideColor) {
+      if (isSelfHuman) setWildColorSelector({ cardIndex });
+      return;
+    }
+
+    if (hand.length === 1 && !state.unoDeclared?.[actingUid]) {
+      if (isSelfHuman) alert('마지막 한 장을 내기 전에 UNO! 버튼을 눌러 주세요.');
+      return;
     }
 
     const othersBeforeWild = hand.filter((_, idx) => idx !== cardIndex);
@@ -531,7 +612,7 @@ export default function App() {
     newHand.splice(cardIndex, 1);
 
     let newDeck = [...state.deck];
-    let newHands = { ...state.hands, [user.uid]: newHand };
+    let newHands = { ...state.hands, [actingUid]: newHand };
     let newDiscardPile = [...state.discardPile, card];
     let newDirection = state.direction;
     let nextTurnDelta = 1;
@@ -539,10 +620,10 @@ export default function App() {
     let message = `${currentPlayer.name}님이 카드를 냈습니다.`;
     const newUnoDeclared = { ...(state.unoDeclared || {}) };
 
-    if (newHand.length === 1) newUnoDeclared[user.uid] = false;
-    else newUnoDeclared[user.uid] = false;
+    if (newHand.length === 1) newUnoDeclared[actingUid] = false;
+    else newUnoDeclared[actingUid] = false;
 
-    const n = roomData.players.length;
+    const n = rd.players.length;
     const nextIdx = (idx, delta = 1) => (idx + delta * newDirection + n * 16) % n;
 
     if (newHand.length === 0) {
@@ -566,7 +647,7 @@ export default function App() {
     } else if (card.value === 'draw2') {
       nextTurnDelta = 2;
       const targetIndex = nextIdx(state.turnIndex, 1);
-      const targetUid = roomData.players[targetIndex].uid;
+      const targetUid = rd.players[targetIndex].uid;
       const rep = replenishDeck(newDeck, newDiscardPile);
       newDeck = rep.deck;
       newDiscardPile = rep.discardPile;
@@ -579,15 +660,15 @@ export default function App() {
       newDeck = rep.deck;
       newDiscardPile = rep.discardPile;
       const fourCards = newDeck.splice(0, 4);
-      const targetUid = roomData.players[targetIndex].uid;
+      const targetUid = rd.players[targetIndex].uid;
       const pendingWild4 = {
-        victimUid: user.uid,
+        victimUid: actingUid,
         targetUid,
         hadPlayableColor: wild4HadPlayableColor,
         fourCards,
         chosenColor: newColor
       };
-      message = `Wild +4 — ${roomData.players[targetIndex].name}님이 받기 또는 도전을 선택하세요.`;
+      message = `Wild +4 — ${rd.players[targetIndex].name}님이 받기 또는 도전을 선택하세요.`;
       const newTurnIndexWild = targetIndex;
 
       const repFinal = replenishDeck(newDeck, newDiscardPile);
@@ -634,15 +715,25 @@ export default function App() {
   };
 
   /** 공식: 한 장 뽑은 뒤 낼 수 있으면 그 카드만 낼 수 있고, 아니면 턴 종료 */
-  const drawUnoCard = async () => {
-    const state = roomData.gameState;
+  const drawUnoCard = async (actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const currentPlayer = roomData.players[state.turnIndex];
+    const currentPlayer = rd.players[state.turnIndex];
+    const isSelfHuman = actingUid === user.uid;
 
-    if (state.pendingWild4) return alert('Wild +4 처리를 먼저 해 주세요.');
+    if (state.pendingWild4) {
+      if (isSelfHuman) alert('Wild +4 처리를 먼저 해 주세요.');
+      return;
+    }
     if (state.needsInitialWildColor) return;
-    if (currentPlayer.uid !== user.uid) return alert('지금은 당신의 차례가 아닙니다.');
-    if (state.drawPhase?.uid === user.uid) return alert('이미 카드를 뽑았습니다. 같은 카드를 내거나 턴을 넘기세요.');
+    if (currentPlayer.uid !== actingUid) {
+      if (isSelfHuman) alert('지금은 당신의 차례가 아닙니다.');
+      return;
+    }
+    if (state.drawPhase?.uid === actingUid) {
+      if (isSelfHuman) alert('이미 카드를 뽑았습니다. 같은 카드를 내거나 턴을 넘기세요.');
+      return;
+    }
 
     let newDeck = [...state.deck];
     let newDiscardPile = [...state.discardPile];
@@ -651,15 +742,15 @@ export default function App() {
     newDiscardPile = rep.discardPile;
 
     if (newDeck.length === 0) {
-      alert('낼 카드가 더 없습니다.');
+      if (isSelfHuman) alert('낼 카드가 더 없습니다.');
       return;
     }
 
     const drawnCard = newDeck.shift();
     const newHands = { ...state.hands };
-    newHands[user.uid] = [...newHands[user.uid], drawnCard];
+    newHands[actingUid] = [...newHands[actingUid], drawnCard];
     const topCard = newDiscardPile[newDiscardPile.length - 1];
-    const idx = newHands[user.uid].length - 1;
+    const idx = newHands[actingUid].length - 1;
     const playable = canPlayUnoCard(drawnCard, topCard, state.currentColor);
 
     if (playable) {
@@ -667,11 +758,11 @@ export default function App() {
         'gameState.hands': newHands,
         'gameState.deck': newDeck,
         'gameState.discardPile': newDiscardPile,
-        'gameState.drawPhase': { uid: user.uid, cardIndex: idx },
+        'gameState.drawPhase': { uid: actingUid, cardIndex: idx },
         'gameState.message': '뽑은 카드를 낼 수 있습니다. 내려면 해당 카드를 누르고, 아니면 턴 넘기기를 누르세요.'
       });
     } else {
-      const newTurnIndex = (state.turnIndex + state.direction + roomData.players.length) % roomData.players.length;
+      const newTurnIndex = (state.turnIndex + state.direction + rd.players.length) % rd.players.length;
       await updateDoc(roomRef, {
         'gameState.hands': newHands,
         'gameState.deck': newDeck,
@@ -683,12 +774,12 @@ export default function App() {
     }
   };
 
-  const passAfterDraw = async () => {
-    const state = roomData.gameState;
+  const passAfterDraw = async (actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     if (state.pendingWild4) return;
-    if (state.drawPhase?.uid !== user.uid) return;
+    if (state.drawPhase?.uid !== actingUid) return;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const newTurnIndex = (state.turnIndex + state.direction + roomData.players.length) % roomData.players.length;
+    const newTurnIndex = (state.turnIndex + state.direction + rd.players.length) % rd.players.length;
     await updateDoc(roomRef, {
       'gameState.turnIndex': newTurnIndex,
       'gameState.drawPhase': null,
@@ -697,13 +788,13 @@ export default function App() {
   };
 
   /** Wild +4: 다음 플레이어가 4장을 받기로 함 (뽑기 전 도전 규칙 반영) */
-  const acceptWild4Pending = async () => {
-    const state = roomData.gameState;
+  const acceptWild4Pending = async (actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     const p = state.pendingWild4;
-    if (!p || p.targetUid !== user.uid) return;
+    if (!p || p.targetUid !== actingUid) return;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const n = roomData.players.length;
-    const ti = roomData.players.findIndex((x) => x.uid === p.targetUid);
+    const n = rd.players.length;
+    const ti = rd.players.findIndex((x) => x.uid === p.targetUid);
     const newHands = { ...state.hands };
     newHands[p.targetUid] = [...newHands[p.targetUid], ...p.fourCards];
     const newTurnIndex = (ti + state.direction + n * 8) % n;
@@ -719,13 +810,13 @@ export default function App() {
    * Wild +4 도전: 낸 사람이 현재 선언 색과 같은 색 카드를 낼 수 있었는지(hadPlayableColor)에 따라
    * 성공 시 낸 사람이 4장, 실패 시 도전자가 4장+추가 2장(공식 변형에 맞춘 패널티)
    */
-  const challengeWild4Pending = async () => {
-    const state = roomData.gameState;
+  const challengeWild4Pending = async (actingUid = user.uid, rd = roomData) => {
+    const state = rd.gameState;
     const p = state.pendingWild4;
-    if (!p || p.targetUid !== user.uid) return;
+    if (!p || p.targetUid !== actingUid) return;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const n = roomData.players.length;
-    const ti = roomData.players.findIndex((x) => x.uid === p.targetUid);
+    const n = rd.players.length;
+    const ti = rd.players.findIndex((x) => x.uid === p.targetUid);
     let newDeck = [...state.deck];
     let newDiscardPile = [...state.discardPile];
     let newHands = { ...state.hands };
@@ -763,6 +854,108 @@ export default function App() {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     await updateDoc(roomRef, { status: 'lobby', game: 'none', gameState: {} });
   };
+
+  /** 방장 화면에서만: 초보 AI의 더 마인드·우노 턴을 자동 처리합니다. */
+  useEffect(() => {
+    if (!roomCode || !user?.uid || !roomData) return;
+    const isHost = roomData.players?.find((p) => p.uid === user.uid)?.isHost;
+    if (!isHost) return;
+    if (roomData.status !== 'playing') return;
+
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const delayMs = 720;
+
+    if (hostAiTimerRef.current) clearTimeout(hostAiTimerRef.current);
+    hostAiTimerRef.current = setTimeout(async () => {
+      hostAiTimerRef.current = null;
+      const snap = await getDoc(roomRef);
+      if (!snap.exists()) return;
+      let rd = snap.data();
+      if (rd.status !== 'playing') return;
+      const state = rd.gameState;
+      if (!state || state.status !== 'playing') return;
+
+      if (rd.game === 'themind') {
+        let allCards = [];
+        Object.values(state.hands || {}).forEach((h) => {
+          allCards = allCards.concat(h);
+        });
+        if (allCards.length === 0) return;
+        const lowestCard = Math.min(...allCards);
+        const holder = rd.players.find((p) => state.hands[p.uid]?.includes(lowestCard));
+        if (holder?.isAi) {
+          await playTheMindCard(lowestCard, holder.uid, rd);
+          return;
+        }
+        if ((state.shurikens || 0) > 0) {
+          for (let step = 0; step < 8; step++) {
+            const s2 = await getDoc(roomRef);
+            rd = s2.data();
+            if (!rd || rd.status !== 'playing' || rd.game !== 'themind') return;
+            const st = rd.gameState;
+            const votes = new Set(st.shurikenVotes || []);
+            const nextAi = rd.players.find((p) => p.isAi && !votes.has(p.uid));
+            if (!nextAi) break;
+            await voteShuriken(nextAi.uid, rd);
+          }
+        }
+        return;
+      }
+
+      if (rd.game === 'uno') {
+        const cur = rd.players[state.turnIndex];
+        if (!cur?.isAi) return;
+
+        if (state.needsInitialWildColor) {
+          const pick = COLORS[Math.floor(Math.random() * COLORS.length)];
+          await setInitialUnoColor(pick, cur.uid, rd);
+          return;
+        }
+
+        if (state.pendingWild4?.targetUid === cur.uid) {
+          await acceptWild4Pending(cur.uid, rd);
+          return;
+        }
+
+        const hand = state.hands[cur.uid];
+        const topCard = state.discardPile[state.discardPile.length - 1];
+
+        if (state.drawPhase?.uid === cur.uid) {
+          const idx = findBeginnerUnoPlayIndex(hand, topCard, state.currentColor, state.drawPhase);
+          if (idx >= 0) {
+            const card = hand[idx];
+            const wildColor = card.color === 'black' ? pickUnoWildColorForAi(hand, idx) : null;
+            await playUnoCard(idx, wildColor, cur.uid, rd);
+          } else {
+            await passAfterDraw(cur.uid, rd);
+          }
+          return;
+        }
+
+        if (hand?.length === 1 && !state.unoDeclared?.[cur.uid]) {
+          await declareUno(cur.uid, rd);
+          return;
+        }
+
+        const idx = findBeginnerUnoPlayIndex(hand, topCard, state.currentColor, null);
+        if (idx >= 0) {
+          const card = hand[idx];
+          const wildColor = card.color === 'black' ? pickUnoWildColorForAi(hand, idx) : null;
+          await playUnoCard(idx, wildColor, cur.uid, rd);
+          return;
+        }
+
+        await drawUnoCard(cur.uid, rd);
+      }
+    }, delayMs);
+
+    return () => {
+      if (hostAiTimerRef.current) {
+        clearTimeout(hostAiTimerRef.current);
+        hostAiTimerRef.current = null;
+      }
+    };
+  }, [roomData, roomCode, user?.uid]);
 
   if (loading) {
     return (
@@ -860,32 +1053,101 @@ export default function App() {
           </div>
           <div className="p-6">
             <h3 className="font-semibold text-stone-300 mb-3">착석한 플레이어 ({roomData.players.length}명)</h3>
-            <ul className="flex flex-wrap gap-2 mb-8">
-              {roomData.players.map((p, i) => (
-                <li key={i} className="bg-stone-900/70 border border-amber-900/40 px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
+            <ul className="flex flex-wrap gap-2 mb-4">
+              {roomData.players.map((p) => (
+                <li key={p.uid} className="bg-stone-900/70 border border-amber-900/40 px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
                   {p.isHost && <span className="text-amber-400">★</span>}
+                  {p.isAi && (
+                    <span className="text-sky-300" title="초보 AI">
+                      🤖
+                    </span>
+                  )}
                   {p.name}
                   {p.uid === user.uid && <span className="text-stone-500">(나)</span>}
                 </li>
               ))}
             </ul>
+            {isHost && (
+              <div className="flex flex-wrap gap-2 mb-8 justify-center sm:justify-start">
+                <button
+                  type="button"
+                  onClick={handleAddAiPlayer}
+                  disabled={roomData.players.length >= MAX_TABLE_PLAYERS}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-sky-900/40 border border-sky-500/40 text-sky-100 hover:bg-sky-800/50 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  초보 AI 추가
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveAiPlayer}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-stone-800/90 border border-stone-600 text-stone-300 hover:bg-stone-700"
+                >
+                  AI 한 명 제거
+                </button>
+              </div>
+            )}
+            {!isHost && <div className="mb-6" />}
             {isHost ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
+                  type="button"
                   onClick={() => handleStartGame('themind')}
-                  className="text-left p-6 rounded-xl border border-indigo-400/30 transition hover:scale-[1.02]"
+                  className="text-left rounded-xl border border-indigo-400/30 transition hover:scale-[1.02] overflow-hidden flex flex-col sm:flex-row"
                   style={{ background: 'linear-gradient(145deg, #312e81 0%, #1e1b4b 100%)' }}
                 >
-                  <h3 className="text-lg font-serif font-bold text-indigo-100 mb-2">더 마인드</h3>
-                  <p className="text-sm text-indigo-200/90">말 없이 1부터 순서대로. 실패 시 낮은 카드가 사라지고 생명이 줄어듭니다. 수리검으로 한 번에 맞출 수도 있습니다.</p>
+                  <div
+                    className="h-36 sm:w-44 sm:min-h-[140px] shrink-0 flex items-center justify-center border-b sm:border-b-0 sm:border-r border-indigo-500/25"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 35% 25%, rgba(165,180,252,0.45), transparent 50%), linear-gradient(165deg, #3730a3 0%, #1e1b4b 100%)'
+                    }}
+                    aria-hidden
+                  >
+                    <div className="flex gap-1.5 items-end justify-center px-3">
+                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center -rotate-6 border border-white/40">
+                        1
+                      </span>
+                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center translate-y-1 border border-white/40">
+                        2
+                      </span>
+                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center rotate-6 border border-white/40">
+                        3
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-5 sm:p-6 flex flex-col justify-center">
+                    <h3 className="text-lg font-serif font-bold text-indigo-100 mb-2">더 마인드</h3>
+                    <p className="text-sm text-indigo-200/90 leading-relaxed">
+                      말 없이 1부터 순서대로. 실패 시 낮은 카드가 사라지고 생명이 줄어듭니다. 수리검으로 한 번에 맞출 수도 있습니다.
+                    </p>
+                  </div>
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleStartGame('uno')}
-                  className="text-left p-6 rounded-xl border border-red-500/30 transition hover:scale-[1.02]"
+                  className="text-left rounded-xl border border-red-500/30 transition hover:scale-[1.02] overflow-hidden flex flex-col sm:flex-row"
                   style={{ background: 'linear-gradient(145deg, #7f1d1d 0%, #450a0a 100%)' }}
                 >
-                  <h3 className="text-lg font-serif font-bold text-red-100 mb-2">우노</h3>
-                  <p className="text-sm text-red-200/90">색·숫자 맞추기, 스킵·리버스·드로우, 와일드. 한 장 남으면 UNO!를 외치세요.</p>
+                  <div
+                    className="h-36 sm:w-44 sm:min-h-[140px] shrink-0 flex items-center justify-center border-b sm:border-b-0 sm:border-r border-red-500/25"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 50% 30%, rgba(252,165,165,0.35), transparent 55%), linear-gradient(165deg, #991b1b 0%, #450a0a 100%)'
+                    }}
+                    aria-hidden
+                  >
+                    <div className="flex -space-x-3 rotate-[-8deg]">
+                      <span className="w-10 h-14 rounded-md bg-red-600 shadow-lg border-2 border-white/30 flex items-center justify-center text-white font-black text-lg">7</span>
+                      <span className="w-10 h-14 rounded-md bg-blue-600 shadow-lg border-2 border-white/30 flex items-center justify-center text-white font-black text-lg z-10">4</span>
+                      <span className="w-10 h-14 rounded-md bg-emerald-600 shadow-lg border-2 border-white/30 flex items-center justify-center text-white font-black text-lg">★</span>
+                    </div>
+                  </div>
+                  <div className="p-5 sm:p-6 flex flex-col justify-center">
+                    <h3 className="text-lg font-serif font-bold text-red-100 mb-2">우노</h3>
+                    <p className="text-sm text-red-200/90 leading-relaxed">
+                      색·숫자 맞추기, 스킵·리버스·드로우, 와일드. 한 장 남으면 UNO!를 외치세요.
+                    </p>
+                  </div>
                 </button>
               </div>
             ) : (
@@ -984,7 +1246,10 @@ export default function App() {
             .filter((p) => p.uid !== user.uid)
             .map((p) => (
               <div key={p.uid} className="text-xs text-center px-3 py-2 rounded-lg bg-black/35 border border-emerald-900/40">
-                <div className="text-emerald-100/90 mb-1">{p.name}</div>
+                <div className="text-emerald-100/90 mb-1 flex items-center justify-center gap-1">
+                  {p.isAi && <span title="AI">🤖</span>}
+                  <span>{p.name}</span>
+                </div>
                 <div>남은 카드 {state.hands[p.uid]?.length ?? 0}</div>
               </div>
             ))}
@@ -1064,7 +1329,10 @@ export default function App() {
                 i === state.turnIndex ? 'border-amber-400 bg-amber-400/20 text-amber-100 scale-105' : 'border-emerald-900/40 bg-black/25 text-stone-300'
               }`}
             >
-              <div className="text-xs font-semibold truncate max-w-[6rem]">{p.name}</div>
+              <div className="text-xs font-semibold truncate max-w-[6rem] flex items-center justify-center gap-1">
+                {p.isAi && <span title="AI">🤖</span>}
+                <span>{p.name}</span>
+              </div>
               <div className="text-[11px] opacity-90">{state.hands[p.uid]?.length}장</div>
               {p.uid !== user.uid && state.hands[p.uid]?.length === 1 && !state.unoDeclared?.[p.uid] && (
                 <button type="button" className="mt-1 text-[10px] text-red-300 underline" onClick={() => challengeUno(p.uid)}>
