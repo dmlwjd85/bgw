@@ -2,15 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
-import {
-  startBgm,
-  stopBgm,
-  resumeAudioContext,
-  playSfx,
-  setMuted as setAudioMutedGlobal,
-  getMuted,
-  initMutedFromStorage
-} from './gameAudio.js';
+import { resumeAudioContext, playSfx, setMuted as setAudioMutedGlobal, getMuted, initMutedFromStorage } from './gameAudio.js';
 
 // --- Firebase 초기화 (Vite 환경 변수 또는 __firebase_config 폴백) ---
 function loadFirebaseConfig() {
@@ -406,10 +398,14 @@ export default function App() {
       };
     }
     if (roomData?.game === 'themind') {
+      const bu = import.meta.env.BASE_URL || '/';
       return {
-        background:
-          'radial-gradient(ellipse 90% 60% at 70% 10%, rgba(99, 102, 241, 0.16), transparent 50%), linear-gradient(185deg, #0c0c12 0%, #14141c 50%, #060608 100%)',
-        boxShadow: 'inset 0 0 100px rgba(0,0,0,0.55)'
+        backgroundColor: '#06040a',
+        backgroundImage: `linear-gradient(180deg, rgba(6,4,12,0.88) 0%, rgba(10,4,8,0.82) 45%, rgba(0,0,0,0.92) 100%), url(${bu}mind-titan-hq.svg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center bottom',
+        backgroundAttachment: 'fixed',
+        boxShadow: 'inset 0 0 120px rgba(0,0,0,0.65)'
       };
     }
     return {
@@ -433,29 +429,6 @@ export default function App() {
     window.addEventListener('pointerdown', fn, { once: true });
     return () => window.removeEventListener('pointerdown', fn);
   }, []);
-
-  /** 화면(로비·플레이)에 맞춰 BGM 전환 */
-  useEffect(() => {
-    if (loading) return;
-    if (!roomData) {
-      startBgm('lobby');
-      return () => stopBgm();
-    }
-    if (roomData.status === 'lobby') {
-      startBgm('lobby');
-      return () => stopBgm();
-    }
-    if (roomData.status === 'playing' && roomData.game === 'uno') {
-      startBgm('uno');
-      return () => stopBgm();
-    }
-    if (roomData.status === 'playing' && roomData.game === 'themind') {
-      startBgm('themind');
-      return () => stopBgm();
-    }
-    startBgm('lobby');
-    return () => stopBgm();
-  }, [loading, roomData?.status, roomData?.game, roomData]);
 
   /** 우노: 덱에 카드가 쌓이면 효과음 */
   useEffect(() => {
@@ -1502,8 +1475,8 @@ export default function App() {
         resumeAudioContext();
         toggleAudioMute();
       }}
-      aria-label={audioMuted ? '배경음 켜기' : '배경음 끄기'}
-      title={audioMuted ? '소리 켜기' : '소리 끄기'}
+      aria-label={audioMuted ? '효과음 켜기' : '효과음 끄기'}
+      title={audioMuted ? '효과음 켜기' : '효과음 끄기'}
     >
       {audioMuted ? '🔇' : '🔊'}
     </button>
@@ -1641,32 +1614,34 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleStartGame('themind')}
-                  className="text-left rounded-xl border border-indigo-400/30 transition hover:scale-[1.02] overflow-hidden flex flex-col sm:flex-row"
-                  style={{ background: 'linear-gradient(145deg, #312e81 0%, #1e1b4b 100%)' }}
+                  className="text-left rounded-xl border border-red-600/40 transition hover:scale-[1.02] overflow-hidden flex flex-col sm:flex-row"
+                  style={{ background: 'linear-gradient(145deg, #1a0a0e 0%, #0a0608 100%)' }}
                 >
                   <div
-                    className="h-36 sm:w-44 sm:min-h-[140px] shrink-0 flex items-center justify-center border-b sm:border-b-0 sm:border-r border-indigo-500/25"
+                    className="h-36 sm:w-44 sm:min-h-[140px] shrink-0 flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-red-900/40 px-2"
                     style={{
-                      background:
-                        'radial-gradient(circle at 35% 25%, rgba(165,180,252,0.45), transparent 50%), linear-gradient(165deg, #3730a3 0%, #1e1b4b 100%)'
+                      backgroundImage: `linear-gradient(180deg, rgba(229,9,20,0.12), transparent 60%), url(${import.meta.env.BASE_URL || '/'}mind-titan-hq.svg)`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center bottom'
                     }}
                     aria-hidden
                   >
-                    <div className="flex gap-1.5 items-end justify-center px-3">
-                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center -rotate-6 border border-white/40">
+                    <span className="text-[9px] text-red-300/80 tracking-[0.2em] uppercase mb-2">Titan HQ</span>
+                    <div className="flex gap-1.5 items-end justify-center">
+                      <span className="nf-title w-9 h-14 rounded-md shadow-lg text-2xl flex items-center justify-center -rotate-6 border-2 border-red-600/90 text-amber-200 bg-gradient-to-b from-zinc-900 to-black">
                         1
                       </span>
-                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center translate-y-1 border border-white/40">
+                      <span className="nf-title w-9 h-14 rounded-md shadow-lg text-2xl flex items-center justify-center translate-y-1 border-2 border-red-600/90 text-amber-200 bg-gradient-to-b from-zinc-900 to-black">
                         2
                       </span>
-                      <span className="w-9 h-14 rounded-md bg-white/95 shadow-lg text-indigo-950 font-black text-xl flex items-center justify-center rotate-6 border border-white/40">
+                      <span className="nf-title w-9 h-14 rounded-md shadow-lg text-2xl flex items-center justify-center rotate-6 border-2 border-red-600/90 text-amber-200 bg-gradient-to-b from-zinc-900 to-black">
                         3
                       </span>
                     </div>
                   </div>
                   <div className="p-5 sm:p-6 flex flex-col justify-center">
-                    <h3 className="text-lg font-serif font-bold text-indigo-100 mb-2">더 마인드</h3>
-                    <p className="text-sm text-indigo-200/90 leading-relaxed">
+                    <h3 className="nf-title text-xl text-red-100 mb-2 tracking-wide">더 마인드</h3>
+                    <p className="text-sm text-stone-300 leading-relaxed">
                       말 없이 1부터 순서대로. 실패 시 낮은 카드가 사라지고 생명이 줄어듭니다. 수리검으로 한 번에 맞출 수도 있습니다.
                     </p>
                   </div>
@@ -1743,9 +1718,14 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm">
+        <div className="mind-titan-header flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl backdrop-blur-sm">
           <div className="flex flex-wrap justify-between items-center gap-2">
-            <div className="nf-title text-xl sm:text-2xl text-indigo-200 tracking-wide">THE MIND</div>
+            <div>
+              <div className="nf-title text-xl sm:text-2xl text-red-100 tracking-wide drop-shadow-[0_0_12px_rgba(229,9,20,0.35)]">
+                THE MIND
+              </div>
+              <p className="text-[10px] sm:text-xs text-red-300/70 tracking-widest mt-0.5 uppercase">Titan HQ · 작전 테이블</p>
+            </div>
             <button
               type="button"
               onClick={handleLeaveGameAsAi}
@@ -1755,43 +1735,48 @@ export default function App() {
             </button>
           </div>
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
-            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
+            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               레벨 <strong className="text-amber-300">{state.level}</strong> / {THE_MIND_MAX_LEVEL}
             </span>
-            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
+            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               생명 {state.lives > 0 ? '❤️'.repeat(state.lives) : '—'}
             </span>
-            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
+            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               수리검 {state.shurikens ?? 1}
             </span>
           </div>
         </div>
 
-        <div className="text-center my-3 px-2 text-sm text-emerald-100/90 min-h-[2.5rem] leading-snug">{state.message}</div>
+        <div className="text-center my-3 px-2 text-sm text-amber-100/90 min-h-[2.5rem] leading-snug drop-shadow-sm">{state.message}</div>
 
         <div className="flex-1 flex flex-col items-center justify-center mb-6">
-          <div
-            className="relative w-52 h-64 sm:w-60 sm:h-72 rounded-2xl flex items-center justify-center border-4 border-dashed border-emerald-600/50"
-            style={{ background: 'rgba(0,0,0,0.2)', boxShadow: 'inset 0 0 40px rgba(0,0,0,0.25)' }}
-          >
+          <div className="mind-titan-play-zone relative w-52 h-64 sm:w-60 sm:h-72 flex flex-col items-center justify-center px-3">
             {state.playedCards.length > 0 ? (
-              <span className="text-6xl sm:text-7xl font-black text-white drop-shadow-lg">{state.playedCards[state.playedCards.length - 1]}</span>
+              <span className="mind-titan-stack-num nf-title text-6xl sm:text-7xl text-amber-100 relative z-[1]">
+                {state.playedCards[state.playedCards.length - 1]}
+              </span>
             ) : (
-              <span className="text-emerald-300/70 text-center text-sm px-4">여기에 카드가 쌓입니다</span>
+              <span className="text-center text-sm text-stone-400 px-3 leading-relaxed relative z-[1]">
+                본부 작전 구역
+                <br />
+                <span className="text-[11px] text-red-400/60">카드가 쌓이면 숫자가 표시됩니다</span>
+              </span>
             )}
-            <span className="absolute -bottom-9 text-emerald-200/80 text-xs">총 {state.playedCards.length}장</span>
+            <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-amber-200/75 text-xs tracking-wide">
+              총 {state.playedCards.length}장
+            </span>
           </div>
 
           {state.status === 'playing' && state.shurikens > 0 && (
             <div className="mt-14 flex flex-col items-center gap-2">
-              <p className="text-xs text-emerald-200/80 text-center max-w-sm">
-                수리검: 모두 동의하면 각자 패에서 <strong className="text-amber-200">가장 낮은 숫자 1장</strong>을 버립니다.
+              <p className="text-xs text-stone-300 text-center max-w-sm">
+                수리검: 모두 동의하면 각자 패에서 <strong className="text-amber-300">가장 낮은 숫자 1장</strong>을 버립니다.
               </p>
               <button
                 type="button"
                 onClick={voteShuriken}
                 disabled={voted}
-                className={`px-5 py-2 rounded-full text-sm font-semibold border ${voted ? 'opacity-50 border-stone-600' : 'border-amber-500/80 bg-amber-900/40 hover:bg-amber-800/50'}`}
+                className={`px-5 py-2 rounded-full text-sm font-semibold border ${voted ? 'opacity-50 border-stone-600' : 'border-red-600/70 bg-red-950/50 hover:bg-red-900/55 text-amber-100'}`}
               >
                 {voted ? '동의함' : '수리검 사용에 동의'}
               </button>
@@ -1823,8 +1808,8 @@ export default function App() {
           {roomData.players
             .filter((p) => p.uid !== user.uid)
             .map((p) => (
-              <div key={p.uid} className="text-xs text-center px-3 py-2 rounded-lg bg-black/35 border border-emerald-900/40">
-                <div className="text-emerald-100/90 mb-1 flex items-center justify-center gap-1">
+              <div key={p.uid} className="mind-titan-opponent text-xs text-center px-3 py-2 rounded-lg">
+                <div className="text-amber-100/90 mb-1 flex items-center justify-center gap-1">
                   {p.isAi && <span title="AI">🤖</span>}
                   <span>{p.name}</span>
                 </div>
@@ -1833,8 +1818,8 @@ export default function App() {
             ))}
         </div>
 
-        <div className="mt-auto rounded-t-3xl border-t border-emerald-800/50 p-3 sm:p-5 bg-black/35">
-          <p className="text-center text-emerald-200/80 text-[11px] sm:text-xs mb-3 sm:mb-4 px-1">
+        <div className="mt-auto rounded-t-3xl border-t border-red-900/40 p-3 sm:p-5 bg-black/50 backdrop-blur-md">
+          <p className="text-center text-amber-200/75 text-[11px] sm:text-xs mb-3 sm:mb-4 px-1">
             내 패 — 전체 중 지금 낼 수 있는 건 가장 작은 수뿐입니다 (말·신호 금지).
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-h-[40vh] overflow-y-auto overscroll-contain pb-1">
@@ -1844,13 +1829,12 @@ export default function App() {
                 type="button"
                 onClick={() => playTheMindCard(card)}
                 disabled={state.status !== 'playing'}
-                className="min-w-[3.5rem] w-[22vw] max-w-[4.5rem] h-24 sm:w-[4.5rem] sm:h-32 rounded-xl flex items-center justify-center text-xl sm:text-2xl font-black text-stone-900 shadow-lg border-2 border-white/30 transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation"
-                style={{ background: 'linear-gradient(145deg, #faf8f5 0%, #e8e0d5 100%)' }}
+                className="mind-titan-card min-w-[3.5rem] w-[22vw] max-w-[4.5rem] h-24 sm:w-[4.5rem] sm:h-32 rounded-xl flex items-center justify-center text-2xl sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0"
               >
                 {card}
               </button>
             ))}
-            {myHand.length === 0 && <span className="text-emerald-300/60 h-24 flex items-center">이 레벨에서 패가 없습니다.</span>}
+            {myHand.length === 0 && <span className="text-amber-200/50 h-24 flex items-center">이 레벨에서 패가 없습니다.</span>}
           </div>
         </div>
       </div>

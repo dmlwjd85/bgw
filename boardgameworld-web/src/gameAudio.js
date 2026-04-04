@@ -1,15 +1,12 @@
 /**
- * 게임 BGM / 효과음 — Web Audio API (외부 미디어 파일 없이 동작)
- * 잔잔한 사인파 레이어로 분위기만 보조합니다.
+ * 게임 효과음 — Web Audio API (외부 미디어 파일 없이 동작)
+ * 배경음악(BGM)은 사용하지 않습니다.
  */
 
 const STORAGE_KEY = 'bgw-audio-muted';
 
 let ctx = null;
-let bgmGain = null;
-let bgmOscillators = [];
 let muted = false;
-const BGM_LEVEL = 0.042;
 
 function getCtx() {
   if (!ctx) {
@@ -37,59 +34,12 @@ export function resumeAudioContext() {
   return Promise.resolve();
 }
 
-export function stopBgm() {
-  bgmOscillators.forEach((o) => {
-    try {
-      o.stop();
-    } catch {
-      /* 이미 정지 */
-    }
-  });
-  bgmOscillators = [];
-  bgmGain = null;
-}
-
-/** 로비 / 우노 / 더 마인드 — 주파수 조합만 다르게 */
-export function startBgm(variant) {
-  resumeAudioContext();
-  stopBgm();
-  if (!variant || variant === 'none') return;
-
-  const freqs =
-    variant === 'lobby'
-      ? [110, 164.81, 207.65]
-      : variant === 'uno'
-        ? [130.81, 196, 246.94]
-        : variant === 'themind'
-          ? [92.5, 138.59, 185]
-          : null;
-  if (!freqs) return;
-
-  const c = getCtx();
-  bgmGain = c.createGain();
-  bgmGain.gain.value = muted ? 0 : BGM_LEVEL;
-
-  freqs.forEach((f, i) => {
-    const o = c.createOscillator();
-    o.type = 'sine';
-    o.frequency.value = f;
-    o.detune.value = (i - 1) * 6;
-    o.connect(bgmGain);
-    o.start();
-    bgmOscillators.push(o);
-  });
-  bgmGain.connect(c.destination);
-}
-
 export function setMuted(next) {
   muted = next;
   try {
     localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
   } catch {
     /* 무시 */
-  }
-  if (bgmGain) {
-    bgmGain.gain.linearRampToValueAtTime(next ? 0 : BGM_LEVEL, getCtx().currentTime + 0.05);
   }
 }
 
