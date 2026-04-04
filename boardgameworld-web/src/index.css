@@ -7,3 +7,25 @@
   padding-top: max(0.5rem, env(safe-area-inset-top));
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
+
+.mind-confetti-piece {
+  position: absolute;
+  top: -20px;
+  border-radius: 2px;
+  opacity: 0.95;
+  pointer-events: none;
+  animation-name: mindConfettiPop;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes mindConfettiPop {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--mind-drift, 0), 110vh, 0) rotate(var(--mind-rot, 720deg));
+    opacity: 0.65;
+  }
+}

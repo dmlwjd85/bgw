@@ -27,6 +27,45 @@ const appId =
 /** 더 마인드 공식: 마지막 목표 레벨 */
 const THE_MIND_MAX_LEVEL = 12;
 
+/** 가상 플레이어: 낼 카드 숫자 1~100에 비례해 최대 20초까지 대기 후 플레이 */
+const THE_MIND_AI_DELAY_MAX_MS = 20000;
+const getTheMindAiPlayDelayMs = (cardValue) => {
+  const n = Math.max(1, Math.min(100, Number(cardValue) || 1));
+  return Math.min(THE_MIND_AI_DELAY_MAX_MS, Math.max(250, (n / 100) * THE_MIND_AI_DELAY_MAX_MS));
+};
+
+const MIND_CONFETTI_COLORS = ['#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#fb7185', '#fde047', '#4ade80', '#f97316'];
+
+/** 레벨 클리어 축하 컨페티(팡팡) */
+function triggerMindLevelConfetti(container) {
+  if (!container || typeof document === 'undefined') return;
+  container.innerHTML = '';
+  const count = 100;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.55;
+    const duration = 2.2 + Math.random() * 2.2;
+    const drift = (Math.random() - 0.5) * 160;
+    const rot = Math.random() * 1080 - 540;
+    const w = 5 + Math.random() * 9;
+    const h = 7 + Math.random() * 14;
+    el.className = 'mind-confetti-piece';
+    el.style.left = `${left}%`;
+    el.style.width = `${w}px`;
+    el.style.height = `${h}px`;
+    el.style.background = MIND_CONFETTI_COLORS[i % MIND_CONFETTI_COLORS.length];
+    el.style.animationDuration = `${duration}s`;
+    el.style.animationDelay = `${delay}s`;
+    el.style.setProperty('--mind-drift', `${drift}px`);
+    el.style.setProperty('--mind-rot', `${rot}deg`);
+    container.appendChild(el);
+  }
+  window.setTimeout(() => {
+    if (container) container.innerHTML = '';
+  }, 5200);
+}
+
 // --- 유틸리티 함수 ---
 const generateRoomCode = () => Math.random().toString(36).substring(2, 6).toUpperCase();
 
@@ -266,6 +305,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [wildColorSelector, setWildColorSelector] = useState(null);
   const hostAiTimerRef = useRef(null);
+  const mindAiDelayRef = useRef(null);
+  const mindCelebrationRef = useRef(null);
+  const lastMindCelebrateKeyRef = useRef(null);
 
   const tableStyle = useMemo(
     () => ({
@@ -943,6 +985,25 @@ export default function App() {
     await updateDoc(roomRef, { status: 'lobby', game: 'none', gameState: {} });
   };
 
+  useEffect(() => {
+    lastMindCelebrateKeyRef.current = null;
+  }, [roomCode]);
+
+  /** 레벨 클리어·전체 클리어 시 축하 컨페티 */
+  useEffect(() => {
+    if (!roomData || roomData.game !== 'themind') return;
+    const st = roomData.gameState;
+    if (!st) return;
+    if (st.status !== 'level_cleared' && st.status !== 'won') return;
+    const key = `${roomCode}-${st.status}-${st.level ?? 0}`;
+    if (lastMindCelebrateKeyRef.current === key) return;
+    lastMindCelebrateKeyRef.current = key;
+    const t = window.setTimeout(() => {
+      triggerMindLevelConfetti(mindCelebrationRef.current);
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [roomCode, roomData?.game, roomData?.gameState?.status, roomData?.gameState?.level]);
+
   /** 첫 번째 인간 플레이어 화면에서만: AI 턴을 한 곳에서만 실행해 충돌을 줄입니다. */
   useEffect(() => {
     if (!roomCode || !user?.uid || !roomData) return;
@@ -951,9 +1012,20 @@ export default function App() {
     if (!firstHuman || firstHuman.uid !== user.uid) return;
 
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const delayMs = 720;
 
-    if (hostAiTimerRef.current) clearTimeout(hostAiTimerRef.current);
+    const clearAiTimers = () => {
+      if (hostAiTimerRef.current) {
+        clearTimeout(hostAiTimerRef.current);
+        hostAiTimerRef.current = null;
+      }
+      if (mindAiDelayRef.current) {
+        clearTimeout(mindAiDelayRef.current);
+        mindAiDelayRef.current = null;
+      }
+    };
+
+    clearAiTimers();
+
     hostAiTimerRef.current = setTimeout(async () => {
       hostAiTimerRef.current = null;
       const snap = await getDoc(roomRef);
@@ -964,13 +1036,23 @@ export default function App() {
       if (!state || state.status !== 'playing') return;
 
       if (rd.game === 'themind') {
-        /* AI는 인간 패를 보지 않고, 자신의 패에서만 최소값을 내려 시도합니다(오판 가능). */
+        /* AI는 인간 패를 보지 않고 자신의 최소 카드만 내려 시도. 대기 시간은 카드 숫자(1~100)에 비례(최대 20초). */
         const aiWithHand = rd.players.filter((p) => p.isAi && (state.hands[p.uid]?.length ?? 0) > 0);
         if (aiWithHand.length > 0) {
           const pick = aiWithHand[Math.floor(Math.random() * aiWithHand.length)];
           const h = state.hands[pick.uid];
           const myMin = Math.min(...h);
-          await playTheMindCard(myMin, pick.uid, rd);
+          const delayMs = getTheMindAiPlayDelayMs(myMin);
+          mindAiDelayRef.current = setTimeout(async () => {
+            mindAiDelayRef.current = null;
+            const snap2 = await getDoc(roomRef);
+            if (!snap2.exists()) return;
+            const rd2 = snap2.data();
+            if (rd2.status !== 'playing' || rd2.game !== 'themind') return;
+            const st2 = rd2.gameState;
+            if (!st2 || st2.status !== 'playing') return;
+            await playTheMindCard(myMin, pick.uid, rd2);
+          }, delayMs);
           return;
         }
         if ((state.shurikens || 0) > 0) {
@@ -1033,13 +1115,10 @@ export default function App() {
 
         await drawUnoCard(cur.uid, rd);
       }
-    }, delayMs);
+    }, 100);
 
     return () => {
-      if (hostAiTimerRef.current) {
-        clearTimeout(hostAiTimerRef.current);
-        hostAiTimerRef.current = null;
-      }
+      clearAiTimers();
     };
   }, [roomData, roomCode, user?.uid]);
 
@@ -1260,9 +1339,25 @@ export default function App() {
 
     return (
       <div
-        className="min-h-[100dvh] flex flex-col font-sans text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5"
+        className="min-h-[100dvh] flex flex-col font-sans text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 relative"
         style={tableStyle}
       >
+        <div
+          ref={mindCelebrationRef}
+          className="fixed inset-0 z-[85] pointer-events-none overflow-hidden"
+          aria-hidden
+        />
+        {(state.status === 'level_cleared' || state.status === 'won') && (
+          <div className="fixed inset-0 z-[82] pointer-events-none flex flex-col items-center justify-start sm:justify-center pt-[20vh] sm:pt-0 px-4">
+            <div className="text-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]">
+              <p className="text-3xl sm:text-5xl font-black text-amber-200 font-serif tracking-tight">
+                {state.status === 'won' ? '전체 클리어!' : `레벨 ${state.level} 클리어!`}
+              </p>
+              <p className="mt-3 text-lg sm:text-2xl text-emerald-100 font-semibold">축하합니다!</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl border border-emerald-900/50 bg-black/25">
           <div className="flex flex-wrap justify-between items-center gap-2">
             <div className="font-serif text-lg sm:text-xl text-emerald-100 tracking-wide">The Mind</div>
