@@ -44,6 +44,35 @@ const MAX_TABLE_PLAYERS = 6;
 
 const generateAiUid = () => `ai-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+/** 게임 중 플레이어가 나가 AI로 바뀔 때 gameState의 uid 참조를 옮깁니다. */
+const migrateGameStateUid = (oldUid, newUid, gs, gameType) => {
+  if (!gs) return gs;
+  const next = { ...gs, hands: { ...gs.hands } };
+  if (next.hands[oldUid] !== undefined) {
+    next.hands[newUid] = next.hands[oldUid];
+    delete next.hands[oldUid];
+  }
+  if (gameType === 'themind') {
+    next.shurikenVotes = (gs.shurikenVotes || []).map((u) => (u === oldUid ? newUid : u));
+  }
+  if (gameType === 'uno') {
+    next.unoDeclared = gs.unoDeclared ? { ...gs.unoDeclared } : {};
+    if (next.unoDeclared[oldUid] !== undefined) {
+      next.unoDeclared[newUid] = next.unoDeclared[oldUid];
+      delete next.unoDeclared[oldUid];
+    }
+    if (next.drawPhase?.uid === oldUid) {
+      next.drawPhase = { ...next.drawPhase, uid: newUid };
+    }
+    if (next.pendingWild4) {
+      next.pendingWild4 = { ...next.pendingWild4 };
+      if (next.pendingWild4.victimUid === oldUid) next.pendingWild4.victimUid = newUid;
+      if (next.pendingWild4.targetUid === oldUid) next.pendingWild4.targetUid = newUid;
+    }
+  }
+  return next;
+};
+
 // --- 게임 로직: 더 마인드 ---
 const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
   let deck = Array.from({ length: 100 }, (_, i) => i + 1);
@@ -377,6 +406,65 @@ export default function App() {
     players.splice(realIdx, 1);
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     await updateDoc(roomRef, { players });
+  };
+
+  /** 게임 중 나가기: 내 자리를 초보 AI로 바꾸고 로비 화면으로 돌아갑니다. */
+  const handleLeaveGameAsAi = async () => {
+    if (!roomCode || !user?.uid) return;
+    if (!window.confirm('게임에서 나갑니다. 이 자리는 AI가 이어갑니다. 계속할까요?')) return;
+
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    if (rd.status !== 'playing') return;
+
+    const idx = rd.players.findIndex((p) => p.uid === user.uid);
+    if (idx === -1) return;
+
+    const leaving = rd.players[idx];
+    const newUid = generateAiUid();
+    const baseName = leaving.name.replace(/\s*\(AI\)\s*$/, '').trim();
+    const newPlayer = {
+      uid: newUid,
+      name: `${baseName || '플레이어'} (AI)`,
+      isAi: true,
+      isHost: false
+    };
+
+    let newPlayers = [...rd.players];
+    newPlayers[idx] = newPlayer;
+
+    if (leaving.isHost) {
+      const humanIdx = newPlayers.findIndex((p) => !p.isAi);
+      newPlayers = newPlayers.map((p, i) => ({
+        ...p,
+        isHost: humanIdx >= 0 ? i === humanIdx : i === 0
+      }));
+    }
+
+    const newGs = migrateGameStateUid(user.uid, newUid, rd.gameState, rd.game);
+    const humansLeft = newPlayers.filter((p) => !p.isAi);
+
+    if (humansLeft.length === 0) {
+      await updateDoc(roomRef, {
+        players: newPlayers,
+        status: 'lobby',
+        game: 'none',
+        gameState: {}
+      });
+      setRoomCode('');
+      setRoomData(null);
+      alert('남은 플레이어가 모두 AI입니다. 테이블을 로비로 되돌렸습니다.');
+      return;
+    }
+
+    await updateDoc(roomRef, {
+      players: newPlayers,
+      gameState: newGs
+    });
+    setRoomCode('');
+    setRoomData(null);
   };
 
   const handleStartGame = async (gameType) => {
@@ -855,12 +943,12 @@ export default function App() {
     await updateDoc(roomRef, { status: 'lobby', game: 'none', gameState: {} });
   };
 
-  /** 방장 화면에서만: 초보 AI의 더 마인드·우노 턴을 자동 처리합니다. */
+  /** 첫 번째 인간 플레이어 화면에서만: AI 턴을 한 곳에서만 실행해 충돌을 줄입니다. */
   useEffect(() => {
     if (!roomCode || !user?.uid || !roomData) return;
-    const isHost = roomData.players?.find((p) => p.uid === user.uid)?.isHost;
-    if (!isHost) return;
     if (roomData.status !== 'playing') return;
+    const firstHuman = roomData.players?.find((p) => !p.isAi);
+    if (!firstHuman || firstHuman.uid !== user.uid) return;
 
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     const delayMs = 720;
@@ -876,15 +964,13 @@ export default function App() {
       if (!state || state.status !== 'playing') return;
 
       if (rd.game === 'themind') {
-        let allCards = [];
-        Object.values(state.hands || {}).forEach((h) => {
-          allCards = allCards.concat(h);
-        });
-        if (allCards.length === 0) return;
-        const lowestCard = Math.min(...allCards);
-        const holder = rd.players.find((p) => state.hands[p.uid]?.includes(lowestCard));
-        if (holder?.isAi) {
-          await playTheMindCard(lowestCard, holder.uid, rd);
+        /* AI는 인간 패를 보지 않고, 자신의 패에서만 최소값을 내려 시도합니다(오판 가능). */
+        const aiWithHand = rd.players.filter((p) => p.isAi && (state.hands[p.uid]?.length ?? 0) > 0);
+        if (aiWithHand.length > 0) {
+          const pick = aiWithHand[Math.floor(Math.random() * aiWithHand.length)];
+          const h = state.hands[pick.uid];
+          const myMin = Math.min(...h);
+          await playTheMindCard(myMin, pick.uid, rd);
           return;
         }
         if ((state.shurikens || 0) > 0) {
@@ -1173,23 +1259,35 @@ export default function App() {
     const allVotedReady = roomData.players.every((p) => votes.has(p.uid));
 
     return (
-      <div className="min-h-screen flex flex-col font-sans text-stone-100 p-3 sm:p-5" style={tableStyle}>
-        <div className="flex flex-wrap justify-between items-center gap-3 px-4 py-3 rounded-xl border border-emerald-900/50 bg-black/25">
-          <div className="font-serif text-xl text-emerald-100 tracking-wide">The Mind</div>
-          <div className="flex flex-wrap gap-3 text-sm">
-            <span className="px-3 py-1 rounded-lg bg-black/30 border border-emerald-800/60">
+      <div
+        className="min-h-[100dvh] flex flex-col font-sans text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5"
+        style={tableStyle}
+      >
+        <div className="flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl border border-emerald-900/50 bg-black/25">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <div className="font-serif text-lg sm:text-xl text-emerald-100 tracking-wide">The Mind</div>
+            <button
+              type="button"
+              onClick={handleLeaveGameAsAi}
+              className="min-h-[44px] shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto max-sm:order-last"
+            >
+              게임 중 나가기 → AI가 이어감
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
+            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
               레벨 <strong className="text-amber-300">{state.level}</strong> / {THE_MIND_MAX_LEVEL}
             </span>
-            <span className="px-3 py-1 rounded-lg bg-black/30 border border-emerald-800/60">
+            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
               생명 {state.lives > 0 ? '❤️'.repeat(state.lives) : '—'}
             </span>
-            <span className="px-3 py-1 rounded-lg bg-black/30 border border-emerald-800/60">
+            <span className="px-3 py-1.5 rounded-lg bg-black/30 border border-emerald-800/60">
               수리검 {state.shurikens ?? 1}
             </span>
           </div>
         </div>
 
-        <div className="text-center my-3 px-2 text-sm text-emerald-100/90 min-h-[2.5rem]">{state.message}</div>
+        <div className="text-center my-3 px-2 text-sm text-emerald-100/90 min-h-[2.5rem] leading-snug">{state.message}</div>
 
         <div className="flex-1 flex flex-col items-center justify-center mb-6">
           <div
@@ -1255,16 +1353,18 @@ export default function App() {
             ))}
         </div>
 
-        <div className="rounded-t-3xl border-t border-emerald-800/50 p-5 bg-black/35">
-          <p className="text-center text-emerald-200/80 text-xs mb-4">내 패 — 전체 중 지금 낼 수 있는 건 가장 작은 수뿐입니다 (말·신호 금지).</p>
-          <div className="flex flex-wrap justify-center gap-3">
+        <div className="mt-auto rounded-t-3xl border-t border-emerald-800/50 p-3 sm:p-5 bg-black/35">
+          <p className="text-center text-emerald-200/80 text-[11px] sm:text-xs mb-3 sm:mb-4 px-1">
+            내 패 — 전체 중 지금 낼 수 있는 건 가장 작은 수뿐입니다 (말·신호 금지).
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-h-[40vh] overflow-y-auto overscroll-contain pb-1">
             {myHand.map((card, idx) => (
               <button
                 key={`${card}-${idx}`}
                 type="button"
                 onClick={() => playTheMindCard(card)}
                 disabled={state.status !== 'playing'}
-                className="w-16 h-24 sm:w-[4.5rem] sm:h-32 rounded-xl flex items-center justify-center text-2xl font-black text-stone-900 shadow-lg border-2 border-white/30 transition hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0"
+                className="min-w-[3.5rem] w-[22vw] max-w-[4.5rem] h-24 sm:w-[4.5rem] sm:h-32 rounded-xl flex items-center justify-center text-xl sm:text-2xl font-black text-stone-900 shadow-lg border-2 border-white/30 transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation"
                 style={{ background: 'linear-gradient(145deg, #faf8f5 0%, #e8e0d5 100%)' }}
               >
                 {card}
@@ -1309,19 +1409,35 @@ export default function App() {
     };
 
     return (
-      <div className="min-h-screen flex flex-col p-3 sm:p-5 text-stone-100" style={tableStyle}>
-        <div className="flex flex-wrap justify-between items-center gap-2 mb-3">
-          <div className="text-sm px-3 py-1.5 rounded-lg bg-black/35 border border-emerald-900/50">
-            방향: {state.direction === 1 ? '시계 방향 →' : '반시계 ←'}
+      <div
+        className="min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100"
+        style={tableStyle}
+      >
+        <div className="flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="text-xs sm:text-sm px-3 py-2 rounded-lg bg-black/35 border border-emerald-900/50">
+              방향: {state.direction === 1 ? '시계 →' : '반시계 ←'}
+            </div>
+            {isHost && (
+              <button
+                type="button"
+                onClick={backToLobby}
+                className="text-xs px-3 py-2 rounded-lg border border-stone-600 text-stone-400 hover:text-amber-200 min-h-[44px]"
+              >
+                방장: 로비로
+              </button>
+            )}
           </div>
-          {isHost && (
-            <button type="button" onClick={backToLobby} className="text-xs text-stone-400 underline hover:text-amber-200">
-              방장: 게임 종료 후 로비
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleLeaveGameAsAi}
+            className="min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto sm:max-w-xs"
+          >
+            게임 중 나가기 → AI가 이어감
+          </button>
         </div>
 
-        <div className="flex justify-center gap-2 mb-4 overflow-x-auto pb-1">
+        <div className="flex justify-center gap-2 mb-3 sm:mb-4 overflow-x-auto pb-2 -mx-1 px-1">
           {roomData.players.map((p, i) => (
             <div
               key={p.uid}
@@ -1362,13 +1478,13 @@ export default function App() {
 
         <div className="text-center text-sm text-emerald-100/90 mb-4 min-h-[2rem] px-2">{state.message}</div>
 
-        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-8 mb-6">
+        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 mb-4 sm:mb-6">
           <div className="flex flex-col items-center">
             <button
               type="button"
               onClick={drawUnoCard}
               disabled={!isMyTurn || state.status !== 'playing' || state.needsInitialWildColor || !!state.pendingWild4}
-              className="w-24 h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition hover:scale-105 disabled:opacity-40"
+              className="w-[5.5rem] h-[8.5rem] sm:w-24 sm:h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition active:scale-95 sm:hover:scale-105 disabled:opacity-40 touch-manipulation min-h-[120px]"
               style={{ background: 'linear-gradient(145deg, #dc2626 0%, #991b1b 100%)' }}
             >
               <span className="text-amber-200 font-black text-xl -rotate-12" style={{ fontFamily: 'Georgia, serif' }}>
@@ -1410,7 +1526,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="rounded-t-3xl border-t border-emerald-900/50 p-4 bg-black/40">
+        <div className="mt-auto rounded-t-3xl border-t border-emerald-900/50 p-3 sm:p-4 bg-black/40">
           <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
             <span className="text-sm font-semibold text-emerald-100">내 패 ({myHand.length}장)</span>
             {isMyTurn && <span className="text-amber-300 text-sm font-semibold animate-pulse">내 차례</span>}
@@ -1437,7 +1553,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="flex overflow-x-auto pb-3 gap-2 px-1">
+          <div className="flex overflow-x-auto pb-2 gap-2 px-0.5 max-h-[42vh] sm:max-h-none overscroll-x-contain touch-pan-x">
             {myHand.map((card, idx) => {
               const playable =
                 isMyTurn &&
@@ -1452,7 +1568,7 @@ export default function App() {
                   type="button"
                   onClick={() => playUnoCard(idx)}
                   disabled={!playable || state.status !== 'playing'}
-                  className={`flex-shrink-0 ${getCardStyle(card)} ${dim ? 'opacity-45' : ''} ${playable ? 'hover:-translate-y-2 cursor-pointer' : 'cursor-not-allowed'}`}
+                  className={`flex-shrink-0 touch-manipulation ${getCardStyle(card)} ${dim ? 'opacity-45' : ''} ${playable ? 'sm:hover:-translate-y-2 active:scale-95 cursor-pointer' : 'cursor-not-allowed'}`}
                 >
                   {getCardFace(card)}
                 </button>
