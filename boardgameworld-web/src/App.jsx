@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import {
+  startBgm,
+  stopBgm,
+  resumeAudioContext,
+  playSfx,
+  setMuted as setAudioMutedGlobal,
+  getMuted,
+  initMutedFromStorage
+} from './gameAudio.js';
 
 // --- Firebase 초기화 (Vite 환경 변수 또는 __firebase_config 폴백) ---
 function loadFirebaseConfig() {
@@ -208,6 +217,60 @@ const canPlayUnoCard = (card, topCard, currentColor) => {
   return card.color === currentColor || card.value === topCard.value;
 };
 
+/** 우노 초보용: 다음 행동 안내 메시지 + 하이라이트 대상 */
+function getUnoPlayerHint(state, roomData, userId, wildColorOpen) {
+  if (!state || state.status !== 'playing') return null;
+  if (wildColorOpen) {
+    return { message: '이어질 색을 하나 선택하세요.', highlight: 'wildModal', cardIndices: [] };
+  }
+  const isMyTurn = roomData.players[state.turnIndex]?.uid === userId;
+  const myHand = state.hands[userId] || [];
+  const topCard = state.discardPile[state.discardPile.length - 1];
+
+  if (!isMyTurn) {
+    return { message: '상대 플레이어 차례입니다. 잠시만 기다려 주세요.', highlight: null, cardIndices: [] };
+  }
+
+  if (state.pendingWild4?.targetUid === userId) {
+    return { message: 'Wild +4 — 「4장 받기」 또는 「도전」을 눌러 주세요.', highlight: 'wild4', cardIndices: [] };
+  }
+
+  if (state.needsInitialWildColor) {
+    return { message: '첫 카드가 와일드입니다. 아래 색 버튼으로 시작 색을 고르세요.', highlight: 'colors', cardIndices: [] };
+  }
+
+  if (state.drawPhase?.uid === userId) {
+    const idx = findBeginnerUnoPlayIndex(myHand, topCard, state.currentColor, state.drawPhase);
+    if (idx >= 0) {
+      return { message: '방금 뽑은 카드를 내려면 그 카드를 누르세요.', highlight: 'hand', cardIndices: [idx] };
+    }
+    return { message: '낼 수 없으면 「턴 넘기기」를 눌러 주세요.', highlight: 'pass', cardIndices: [] };
+  }
+
+  if (myHand.length === 1 && !state.unoDeclared?.[userId]) {
+    return { message: '카드 한 장만 남았습니다! 먼저 노란 「UNO!」 버튼을 누르세요.', highlight: 'uno', cardIndices: [] };
+  }
+
+  const playableIndices = [];
+  for (let i = 0; i < myHand.length; i++) {
+    const ok =
+      canPlayUnoCard(myHand[i], topCard, state.currentColor) &&
+      (!state.drawPhase || (state.drawPhase.uid === userId && i === state.drawPhase.cardIndex));
+    if (ok) playableIndices.push(i);
+  }
+
+  if (playableIndices.length > 0) {
+    const winningPlay = myHand.length === 1 && state.unoDeclared?.[userId];
+    return {
+      message: winningPlay ? '이 카드를 내고 승리해 보세요!' : '규칙에 맞는 카드를 한 장 눌러 내세요.',
+      highlight: 'hand',
+      cardIndices: playableIndices
+    };
+  }
+
+  return { message: '낼 카드가 없습니다. 왼쪽 빨간 덱을 눌러 카드를 가져가세요.', highlight: 'deck', cardIndices: [] };
+}
+
 const replenishDeck = (deck, discardPile) => {
   let d = [...deck];
   let disc = [...discardPile];
@@ -319,14 +382,142 @@ export default function App() {
   const mindAiDelayRef = useRef(null);
   const mindCelebrationRef = useRef(null);
   const lastMindCelebrateKeyRef = useRef(null);
+  const [audioMuted, setAudioMuted] = useState(() => getMuted());
+  const sfxDiscardLenRef = useRef(0);
+  const sfxTurnRef = useRef(null);
+  const sfxMindPlayedRef = useRef(0);
+  const sfxHandLenRef = useRef(null);
+  const sfxGameOverRef = useRef(false);
 
-  const tableStyle = useMemo(
-    () => ({
-      background: 'radial-gradient(ellipse at center, #1e6b4a 0%, #0d3d2a 55%, #061a12 100%)',
-      boxShadow: 'inset 0 0 120px rgba(0,0,0,0.35)'
-    }),
-    []
-  );
+  /** 넷플릭스 틴 스타일 + 게임별 포인트 컬러 */
+  const tableStyle = useMemo(() => {
+    if (roomData?.game === 'uno') {
+      return {
+        background:
+          'radial-gradient(ellipse 100% 70% at 50% 0%, rgba(229, 9, 20, 0.14), transparent 55%), linear-gradient(180deg, #0a0a0a 0%, #141414 45%, #050505 100%)',
+        boxShadow: 'inset 0 0 100px rgba(0,0,0,0.5)'
+      };
+    }
+    if (roomData?.game === 'themind') {
+      return {
+        background:
+          'radial-gradient(ellipse 90% 60% at 70% 10%, rgba(99, 102, 241, 0.16), transparent 50%), linear-gradient(185deg, #0c0c12 0%, #14141c 50%, #060608 100%)',
+        boxShadow: 'inset 0 0 100px rgba(0,0,0,0.55)'
+      };
+    }
+    return {
+      background: 'linear-gradient(180deg, #0d0d0d 0%, #141414 100%)',
+      boxShadow: 'inset 0 0 80px rgba(0,0,0,0.45)'
+    };
+  }, [roomData?.game]);
+
+  const toggleAudioMute = useCallback(() => {
+    const next = !audioMuted;
+    setAudioMuted(next);
+    setAudioMutedGlobal(next);
+  }, [audioMuted]);
+
+  useEffect(() => {
+    initMutedFromStorage();
+  }, []);
+
+  useEffect(() => {
+    const fn = () => resumeAudioContext();
+    window.addEventListener('pointerdown', fn, { once: true });
+    return () => window.removeEventListener('pointerdown', fn);
+  }, []);
+
+  /** 화면(로비·플레이)에 맞춰 BGM 전환 */
+  useEffect(() => {
+    if (loading) return;
+    if (!roomData) {
+      startBgm('lobby');
+      return () => stopBgm();
+    }
+    if (roomData.status === 'lobby') {
+      startBgm('lobby');
+      return () => stopBgm();
+    }
+    if (roomData.status === 'playing' && roomData.game === 'uno') {
+      startBgm('uno');
+      return () => stopBgm();
+    }
+    if (roomData.status === 'playing' && roomData.game === 'themind') {
+      startBgm('themind');
+      return () => stopBgm();
+    }
+    startBgm('lobby');
+    return () => stopBgm();
+  }, [loading, roomData?.status, roomData?.game, roomData]);
+
+  /** 우노: 덱에 카드가 쌓이면 효과음 */
+  useEffect(() => {
+    if (roomData?.game !== 'uno' || roomData?.gameState?.status !== 'playing') return;
+    const len = roomData.gameState?.discardPile?.length ?? 0;
+    if (len > sfxDiscardLenRef.current && sfxDiscardLenRef.current > 0) {
+      playSfx('play');
+    }
+    sfxDiscardLenRef.current = len;
+  }, [roomData?.game, roomData?.gameState?.discardPile?.length, roomData?.gameState?.status]);
+
+  /** 우노: 내 차례가 되면 효과음 */
+  useEffect(() => {
+    if (roomData?.game !== 'uno' || !user?.uid || roomData?.gameState?.status !== 'playing') return;
+    const uid = roomData.players[roomData.gameState.turnIndex]?.uid;
+    const ti = roomData.gameState.turnIndex;
+    if (uid === user.uid && sfxTurnRef.current !== null && sfxTurnRef.current !== ti) {
+      playSfx('turn');
+    }
+    sfxTurnRef.current = ti;
+  }, [roomData?.game, roomData?.gameState?.turnIndex, roomData?.players, user?.uid, roomData?.gameState?.status]);
+
+  /** 우노: 패가 늘어나면(뽑기) 효과음 */
+  useEffect(() => {
+    if (roomData?.game !== 'uno' || !user?.uid) return;
+    const h = roomData.gameState?.hands?.[user.uid]?.length;
+    if (h === undefined) return;
+    if (sfxHandLenRef.current !== null && h > sfxHandLenRef.current) {
+      playSfx('draw');
+    }
+    sfxHandLenRef.current = h;
+  }, [roomData?.game, roomData?.gameState?.hands, user?.uid]);
+
+  /** 더 마인드: 카드가 놓일 때 효과음 */
+  useEffect(() => {
+    if (roomData?.game !== 'themind') return;
+    const n = roomData?.gameState?.playedCards?.length ?? 0;
+    if (n > sfxMindPlayedRef.current && sfxMindPlayedRef.current > 0) {
+      playSfx('play');
+    }
+    sfxMindPlayedRef.current = n;
+  }, [roomData?.game, roomData?.gameState?.playedCards?.length]);
+
+  /** 게임 오버 시 짧은 승리/종료 멜로디 */
+  useEffect(() => {
+    if (roomData?.gameState?.status === 'gameover' && !sfxGameOverRef.current) {
+      sfxGameOverRef.current = true;
+      playSfx('win');
+    }
+    if (roomData?.gameState?.status === 'playing') {
+      sfxGameOverRef.current = false;
+    }
+  }, [roomData?.gameState?.status]);
+
+  useEffect(() => {
+    sfxDiscardLenRef.current = 0;
+    sfxTurnRef.current = null;
+    sfxMindPlayedRef.current = 0;
+    sfxHandLenRef.current = null;
+    sfxGameOverRef.current = false;
+  }, [roomCode]);
+
+  /** 우노 초보 안내(훅은 항상 동일 순서로 호출) */
+  const unoHint = useMemo(() => {
+    if (!roomData || roomData.status !== 'playing' || roomData.game !== 'uno' || !user?.uid) return null;
+    const st = roomData.gameState;
+    if (!st) return null;
+    return getUnoPlayerHint(st, roomData, user.uid, !!wildColorSelector);
+  }, [roomData, user?.uid, wildColorSelector]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -675,6 +866,7 @@ export default function App() {
     const ud = { ...(state.unoDeclared || {}), [actingUid]: true };
     const dn = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
     await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${dn}님이 UNO!를 외쳤습니다.` });
+    playSfx('uno');
   };
 
   /** 다른 플레이어가 UNO를 안 외친 채 1장만 남겼을 때 도전 — 공식: 잡히면 2장 */
@@ -1192,12 +1384,29 @@ export default function App() {
     };
   }, [roomData, roomCode, user?.uid]);
 
+  const muteFab = (
+    <button
+      type="button"
+      className="fixed bottom-4 right-4 z-[200] flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/75 text-xl shadow-lg backdrop-blur-sm transition hover:bg-zinc-900/95"
+      onClick={() => {
+        resumeAudioContext();
+        toggleAudioMute();
+      }}
+      aria-label={audioMuted ? '배경음 켜기' : '배경음 끄기'}
+      title={audioMuted ? '소리 켜기' : '소리 끄기'}
+    >
+      {audioMuted ? '🔇' : '🔊'}
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-stone-200" style={{ background: '#2c1810' }}>
-        <div className="text-center">
-          <div className="text-2xl font-serif tracking-wide mb-2">Board Game World</div>
-          <div className="text-sm opacity-80">불러오는 중…</div>
+      <div className="nf-root nf-page-bg min-h-screen flex items-center justify-center text-stone-200">
+        {muteFab}
+        <div className="text-center px-4">
+          <div className="nf-red-bar mx-auto mb-6 w-24" />
+          <div className="nf-title text-4xl sm:text-5xl text-white mb-2">BOARD GAME WORLD</div>
+          <div className="text-sm text-stone-400">불러오는 중…</div>
         </div>
       </div>
     );
@@ -1205,20 +1414,19 @@ export default function App() {
 
   if (!userName && !roomData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-stone-100" style={{ background: 'linear-gradient(165deg, #3d2914 0%, #1a0f08 100%)' }}>
-        <div
-          className="w-full max-w-md rounded-2xl p-8 border border-amber-900/40 shadow-2xl"
-          style={{ background: 'linear-gradient(180deg, #4a3728 0%, #2d2118 100%)', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}
-        >
+      <div className="nf-root nf-page-bg min-h-screen flex flex-col items-center justify-center p-4 text-stone-100">
+        {muteFab}
+        <div className="nf-panel w-full max-w-md rounded-xl p-8">
+          <div className="nf-red-bar mb-6" />
           <div className="text-center mb-6">
-            <p className="text-xs uppercase tracking-[0.35em] text-amber-200/80 mb-2">Tabletop Lounge</p>
-            <h1 className="text-3xl font-serif font-bold text-amber-100">보드게임 월드</h1>
+            <p className="text-xs uppercase tracking-[0.4em] text-red-500/90 mb-2">TABLETOP</p>
+            <h1 className="nf-title text-4xl text-white">보드게임 월드</h1>
             <p className="text-sm text-stone-400 mt-2">더 마인드 · 우노를 같은 테이블에서 즐기세요.</p>
           </div>
           <p className="text-stone-300 text-sm mb-4 text-center">다른 플레이어에게 보일 닉네임을 입력하세요.</p>
           <input
             type="text"
-            className="w-full p-3 rounded-xl mb-4 text-center text-lg bg-stone-900/80 border border-amber-900/50 text-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-600/60"
+            className="w-full p-3 rounded-lg mb-4 text-center text-lg bg-zinc-900/90 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-red-600/70"
             placeholder="이름 (예: 민수)"
             onKeyDown={(e) => {
               if (e.key === 'Enter') setUserName(e.target.value);
@@ -1233,39 +1441,33 @@ export default function App() {
 
   if (!roomCode || !roomData) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-stone-100" style={{ background: 'linear-gradient(165deg, #3d2914 0%, #1a0f08 100%)' }}>
-        <div
-          className="w-full max-w-md rounded-2xl p-8 border border-amber-900/40"
-          style={{ background: 'linear-gradient(180deg, #4a3728 0%, #2d2118 100%)' }}
-        >
-          <h2 className="text-xl font-serif text-center text-amber-100 mb-6">환영합니다, {userName}님</h2>
+      <div className="nf-root nf-page-bg min-h-screen flex flex-col items-center justify-center p-4 text-stone-100">
+        {muteFab}
+        <div className="nf-panel w-full max-w-md rounded-xl p-8">
+          <div className="nf-red-bar mb-6" />
+          <h2 className="nf-title text-3xl text-center text-white mb-6">환영합니다, {userName}님</h2>
           <div className="space-y-6">
             <button
               onClick={handleCreateRoom}
-              className="w-full py-4 rounded-xl font-semibold text-stone-900 transition hover:brightness-110"
-              style={{ background: 'linear-gradient(180deg, #d4a574 0%, #a67c52 100%)', boxShadow: '0 4px 14px rgba(0,0,0,0.35)' }}
+              className="nf-btn-primary w-full py-4 rounded-lg font-semibold text-white"
             >
               새 테이블 열기
             </button>
             <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-stone-600" />
+              <div className="flex-grow border-t border-white/10" />
               <span className="flex-shrink-0 mx-4 text-stone-500 text-sm">또는 입장</span>
-              <div className="flex-grow border-t border-stone-600" />
+              <div className="flex-grow border-t border-white/10" />
             </div>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
-                className="flex-1 p-3 rounded-xl text-center font-mono text-xl uppercase bg-stone-900/80 border border-amber-900/50 text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-600/60"
+                className="flex-1 p-3 rounded-lg text-center font-mono text-xl uppercase bg-zinc-900/90 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-red-600/60"
                 placeholder="코드 4자"
                 maxLength={4}
               />
-              <button
-                onClick={handleJoinRoom}
-                className="px-6 rounded-xl font-semibold text-white"
-                style={{ background: 'linear-gradient(180deg, #2d6a4f 0%, #1b4332 100%)' }}
-              >
+              <button onClick={handleJoinRoom} className="nf-btn-primary px-6 rounded-lg font-semibold text-white shrink-0">
                 입장
               </button>
             </div>
@@ -1278,11 +1480,13 @@ export default function App() {
   if (roomData.status === 'lobby') {
     const isHost = roomData.players.find((p) => p.uid === user.uid)?.isHost;
     return (
-      <div className="min-h-screen p-4 flex flex-col items-center text-stone-100" style={{ background: 'linear-gradient(165deg, #3d2914 0%, #1a0f08 100%)' }}>
-        <div className="w-full max-w-3xl mt-6 rounded-2xl border border-amber-900/40 overflow-hidden" style={{ background: 'linear-gradient(180deg, #4a3728 0%, #2d2118 100%)' }}>
-          <div className="p-6 flex flex-wrap justify-between items-center gap-4 border-b border-amber-900/30">
-            <h2 className="text-2xl font-serif text-amber-100">로비</h2>
-            <div className="px-5 py-2 rounded-lg font-mono text-xl tracking-[0.2em] border border-amber-700/50 bg-stone-900/60 text-amber-200">
+      <div className="nf-root nf-page-bg min-h-screen p-4 flex flex-col items-center text-stone-100">
+        {muteFab}
+        <div className="nf-panel w-full max-w-3xl mt-6 rounded-xl overflow-hidden">
+          <div className="nf-red-bar" />
+          <div className="p-6 flex flex-wrap justify-between items-center gap-4 border-b border-white/5">
+            <h2 className="nf-title text-3xl text-white tracking-wide">로비</h2>
+            <div className="px-5 py-2 rounded-lg font-mono text-xl tracking-[0.2em] border border-red-600/40 bg-black/40 text-red-100">
               {roomData.code}
             </div>
           </div>
@@ -1409,9 +1613,10 @@ export default function App() {
 
     return (
       <div
-        className="min-h-[100dvh] flex flex-col font-sans text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 relative"
+        className="nf-root min-h-[100dvh] flex flex-col text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 relative"
         style={tableStyle}
       >
+        {muteFab}
         <div
           ref={mindCelebrationRef}
           className="fixed inset-0 z-[85] pointer-events-none overflow-hidden"
@@ -1428,9 +1633,9 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl border border-emerald-900/50 bg-black/25">
+        <div className="flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl border border-white/10 bg-black/35 backdrop-blur-sm">
           <div className="flex flex-wrap justify-between items-center gap-2">
-            <div className="font-serif text-lg sm:text-xl text-emerald-100 tracking-wide">The Mind</div>
+            <div className="nf-title text-xl sm:text-2xl text-indigo-200 tracking-wide">THE MIND</div>
             <button
               type="button"
               onClick={handleLeaveGameAsAi}
@@ -1575,12 +1780,15 @@ export default function App() {
 
     return (
       <div
-        className="min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100"
+        className="nf-root min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100"
         style={tableStyle}
       >
+        {muteFab}
+        <div className="nf-red-bar mb-3 max-w-xs opacity-80" />
         <div className="flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="text-xs sm:text-sm px-3 py-2 rounded-lg bg-black/35 border border-emerald-900/50">
+            <div className="nf-title text-lg sm:text-xl text-white tracking-wide pr-2">UNO</div>
+            <div className="text-xs sm:text-sm px-3 py-2 rounded-lg bg-black/45 border border-white/10">
               방향: {state.direction === 1 ? '시계 →' : '반시계 ←'}
             </div>
             {isHost && (
@@ -1607,7 +1815,7 @@ export default function App() {
             <div
               key={p.uid}
               className={`flex-shrink-0 px-3 py-2 rounded-xl text-center min-w-[5.5rem] border ${
-                i === state.turnIndex ? 'border-amber-400 bg-amber-400/20 text-amber-100 scale-105' : 'border-emerald-900/40 bg-black/25 text-stone-300'
+                i === state.turnIndex ? 'border-red-500 bg-red-600/25 text-red-100 scale-105 shadow-[0_0_20px_rgba(229,9,20,0.25)]' : 'border-white/10 bg-black/30 text-stone-300'
               }`}
             >
               <div className="text-xs font-semibold truncate max-w-[6rem] flex items-center justify-center gap-1">
@@ -1624,9 +1832,19 @@ export default function App() {
           ))}
         </div>
 
+        {state.status === 'playing' && unoHint && (
+          <div className="uno-hint-pop mx-auto mb-3 max-w-lg rounded-lg px-4 py-3 text-center shadow-lg">
+            <p className="text-sm font-semibold leading-snug text-white">{unoHint.message}</p>
+          </div>
+        )}
+
         {state.needsInitialWildColor && roomData.players[state.turnIndex]?.uid === user.uid && (
-          <div className="mb-4 p-4 rounded-xl bg-black/45 border border-amber-600/40 text-center">
-            <p className="text-sm text-amber-100 mb-3">첫 카드가 와일드입니다. 시작 색을 고르세요.</p>
+          <div
+            className={`mb-4 p-4 rounded-xl bg-black/55 border text-center ${
+              unoHint?.highlight === 'colors' ? 'hint-ring border-red-500/60' : 'border-white/10'
+            }`}
+          >
+            <p className="text-sm text-stone-100 mb-3">첫 카드가 와일드입니다. 시작 색을 고르세요.</p>
             <div className="flex flex-wrap justify-center gap-2">
               {COLORS.map((c) => (
                 <button
@@ -1641,10 +1859,12 @@ export default function App() {
           </div>
         )}
 
-        <div className="text-center text-sm text-emerald-100/90 mb-4 min-h-[2rem] px-2">{state.message}</div>
+        <div className="text-center text-sm text-stone-300/95 mb-4 min-h-[2rem] px-2">{state.message}</div>
 
         <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 mb-4 sm:mb-6">
-          <div className="flex flex-col items-center">
+          <div
+            className={`flex flex-col items-center ${unoHint?.highlight === 'deck' ? 'hint-ring p-2 rounded-2xl' : ''}`}
+          >
             <button
               type="button"
               onClick={() => drawUnoCard()}
@@ -1660,7 +1880,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-col items-center relative">
-            <div className="absolute -top-10 whitespace-nowrap text-xs font-semibold bg-black/55 px-3 py-1 rounded-full border border-emerald-800/60">
+            <div className="absolute -top-10 whitespace-nowrap text-xs font-semibold bg-black/70 px-3 py-1 rounded-full border border-red-900/50 text-red-100/95">
               현재 색: {colorKo[state.currentColor] || state.currentColor}
             </div>
             <div className={getCardStyle(topCard) + ' pointer-events-none'}>
@@ -1670,7 +1890,11 @@ export default function App() {
         </div>
 
         {state.pendingWild4 && state.pendingWild4.targetUid === user.uid && (
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-4 p-4 rounded-xl bg-amber-950/50 border border-amber-600/40">
+          <div
+            className={`flex flex-col sm:flex-row justify-center items-center gap-3 mb-4 p-4 rounded-xl bg-zinc-950/80 border ${
+              unoHint?.highlight === 'wild4' ? 'hint-ring border-red-500/70' : 'border-red-900/40'
+            }`}
+          >
             <p className="text-sm text-amber-100 text-center">Wild +4 — 4장을 받거나, 상대가 블러프였는지 도전하세요.</p>
             <div className="flex gap-2">
               <button
@@ -1691,14 +1915,14 @@ export default function App() {
           </div>
         )}
 
-        <div className="mt-auto rounded-t-3xl border-t border-emerald-900/50 p-3 sm:p-4 bg-black/40">
+        <div className="mt-auto rounded-t-3xl border-t border-white/10 p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
           <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
-            <span className="text-sm font-semibold text-emerald-100">내 패 ({myHand.length}장)</span>
-            {isMyTurn && <span className="text-amber-300 text-sm font-semibold animate-pulse">내 차례</span>}
+            <span className="text-sm font-semibold text-stone-100">내 패 ({myHand.length}장)</span>
+            {isMyTurn && <span className="text-red-400 text-sm font-semibold animate-pulse">내 차례</span>}
           </div>
 
           {myHand.length === 1 && !state.unoDeclared?.[user.uid] && (
-            <div className="mb-3 flex justify-center">
+            <div className={`mb-3 flex justify-center ${unoHint?.highlight === 'uno' ? 'hint-ring rounded-full p-1' : ''}`}>
               <button
                 type="button"
                 onClick={() => declareUno()}
@@ -1711,8 +1935,8 @@ export default function App() {
           )}
 
           {state.drawPhase?.uid === user.uid && (
-            <div className="mb-3 flex justify-center gap-3">
-              <button type="button" onClick={() => passAfterDraw()} className="px-4 py-2 rounded-lg bg-stone-700 text-sm hover:bg-stone-600">
+            <div className={`mb-3 flex justify-center gap-3 ${unoHint?.highlight === 'pass' ? 'hint-ring rounded-xl py-1 px-2' : ''}`}>
+              <button type="button" onClick={() => passAfterDraw()} className="px-4 py-2 rounded-lg bg-zinc-700 text-sm hover:bg-zinc-600 text-white">
                 턴 넘기기 (뽑은 카드 안 냄)
               </button>
             </div>
@@ -1727,13 +1951,15 @@ export default function App() {
                 canPlayUnoCard(card, topCard, state.currentColor) &&
                 (!state.drawPhase || (state.drawPhase.uid === user.uid && idx === state.drawPhase.cardIndex));
               const dim = !playable && isMyTurn;
+              const hintCard =
+                unoHint?.highlight === 'hand' && (unoHint.cardIndices || []).includes(idx) && playable;
               return (
                 <button
                   key={`${card.id}-${idx}`}
                   type="button"
                   onClick={() => playUnoCard(idx)}
                   disabled={!playable || state.status !== 'playing'}
-                  className={`flex-shrink-0 touch-manipulation ${getCardStyle(card)} ${dim ? 'opacity-45' : ''} ${playable ? 'sm:hover:-translate-y-2 active:scale-95 cursor-pointer' : 'cursor-not-allowed'}`}
+                  className={`flex-shrink-0 touch-manipulation ${getCardStyle(card)} ${dim ? 'opacity-45' : ''} ${playable ? 'sm:hover:-translate-y-2 active:scale-95 cursor-pointer' : 'cursor-not-allowed'} ${hintCard ? 'hint-ring' : ''}`}
                 >
                   {getCardFace(card)}
                 </button>
@@ -1743,9 +1969,13 @@ export default function App() {
         </div>
 
         {wildColorSelector && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-stone-900 border border-amber-700/50 p-6 rounded-2xl text-center max-w-sm w-full">
-              <h3 className="text-lg font-serif text-amber-100 mb-4">와일드 색 선택</h3>
+          <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-50 p-4">
+            <div
+              className={`nf-panel p-6 rounded-xl text-center max-w-sm w-full ${
+                unoHint?.highlight === 'wildModal' ? 'hint-ring border-red-600/50' : ''
+              }`}
+            >
+              <h3 className="nf-title text-xl text-white mb-4 tracking-wide">와일드 색 선택</h3>
               <div className="grid grid-cols-2 gap-3">
                 {COLORS.map((c) => (
                   <button
@@ -1779,8 +2009,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-900 text-stone-400">
-      오류가 났습니다. 새로고침 해 주세요.
+    <div className="nf-root nf-page-bg min-h-screen flex flex-col items-center justify-center px-4 text-stone-400">
+      {muteFab}
+      <p className="text-center text-stone-300">오류가 났습니다. 새로고침 해 주세요.</p>
     </div>
   );
 }

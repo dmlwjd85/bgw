@@ -2,6 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: #0d0d0d;
+}
+
+/* 넷플릭스 틴(Titan) 느낌: 다크 베이스 + 레드 악센트, 시네마틱 타이포 */
+.nf-root {
+  font-family: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+}
+.nf-title {
+  font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+  letter-spacing: 0.08em;
+}
+.nf-page-bg {
+  background:
+    radial-gradient(ellipse 130% 90% at 50% -25%, rgba(229, 9, 20, 0.2), transparent 52%),
+    linear-gradient(185deg, #0b0b0b 0%, #141414 38%, #000000 100%);
+}
+.nf-panel {
+  background: linear-gradient(180deg, rgba(30, 30, 30, 0.98) 0%, rgba(20, 20, 20, 0.99) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+}
+.nf-red-bar {
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #e50914 20%, #e50914 80%, transparent 100%);
+  border-radius: 2px;
+}
+.nf-btn-primary {
+  background: linear-gradient(180deg, #e50914 0%, #b20710 100%);
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.35);
+}
+.nf-btn-primary:hover {
+  filter: brightness(1.08);
+}
+.uno-hint-pop {
+  pointer-events: none;
+  border-left: 4px solid #e50914;
+  background: linear-gradient(90deg, rgba(229, 9, 20, 0.12), rgba(0, 0, 0, 0.55));
+}
+.hint-ring {
+  animation: nfHintPulse 1.35s ease-in-out infinite;
+  outline: 3px solid rgba(229, 9, 20, 0.95);
+  outline-offset: 3px;
+  border-radius: 0.75rem;
+  z-index: 5;
+}
+@keyframes nfHintPulse {
+  0%,
+  100% {
+    outline-width: 3px;
+    outline-color: rgba(229, 9, 20, 0.85);
+  }
+  50% {
+    outline-width: 4px;
+    outline-color: rgba(229, 9, 20, 1);
+  }
+}
+
 /* 모바일 노치·홈 인디케이터 대응 */
 .safe-area-y {
   padding-top: max(0.5rem, env(safe-area-inset-top));
