@@ -383,6 +383,13 @@ export default function App() {
   const mindCelebrationRef = useRef(null);
   const lastMindCelebrateKeyRef = useRef(null);
   const [audioMuted, setAudioMuted] = useState(() => getMuted());
+  /** 우노: 하스스톤식 전투 연출 */
+  const [unoShake, setUnoShake] = useState(null);
+  const [unoBattleFlash, setUnoBattleFlash] = useState(null);
+  const [unoBattleBanner, setUnoBattleBanner] = useState(null);
+  const [discardSlamKey, setDiscardSlamKey] = useState(0);
+  const [unoTurnPulseIndex, setUnoTurnPulseIndex] = useState(null);
+  const unoPrevSnapRef = useRef(null);
   const sfxDiscardLenRef = useRef(0);
   const sfxTurnRef = useRef(null);
   const sfxMindPlayedRef = useRef(0);
@@ -509,7 +516,110 @@ export default function App() {
     sfxMindPlayedRef.current = 0;
     sfxHandLenRef.current = null;
     sfxGameOverRef.current = false;
+    unoPrevSnapRef.current = null;
+    setUnoShake(null);
+    setUnoBattleFlash(null);
+    setUnoBattleBanner(null);
+    setUnoTurnPulseIndex(null);
+    setDiscardSlamKey(0);
   }, [roomCode]);
+
+  /** 우노: 카드 플레이·턴 이동 감지 → 진동·플래시·배너 (직관적 공격/턴 흐름) */
+  useEffect(() => {
+    if (roomData?.game !== 'uno' || !roomData.gameState || roomData.gameState.status !== 'playing') {
+      unoPrevSnapRef.current = null;
+      return;
+    }
+    const gs = roomData.gameState;
+    const players = roomData.players;
+    const n = players.length;
+    if (!n || !gs.discardPile?.length) return;
+
+    const snap = {
+      discardLen: gs.discardPile.length,
+      turnIndex: gs.turnIndex,
+      direction: gs.direction
+    };
+
+    const prev = unoPrevSnapRef.current;
+    if (!prev) {
+      unoPrevSnapRef.current = snap;
+      return;
+    }
+
+    const nextIdx = (i, dir, step = 1) => (i + step * dir + n * 32) % n;
+
+    if (snap.discardLen > prev.discardLen) {
+      const card = gs.discardPile[gs.discardPile.length - 1];
+      const playedBy = prev.turnIndex;
+      const fromName = players[playedBy]?.name ?? '?';
+
+      let shake = 'light';
+      let from = playedBy;
+      let to = null;
+      let banner = `${fromName}님이 카드를 냈습니다`;
+
+      if (card.value === 'draw2') {
+        shake = 'heavy';
+        to = nextIdx(playedBy, prev.direction, 1);
+        banner = `⚔ ${fromName} → ${players[to]?.name ?? '?'} : 드로우 2!`;
+      } else if (card.value === 'wild4') {
+        shake = 'heavy';
+        const ti = players.findIndex((p) => p.uid === gs.pendingWild4?.targetUid);
+        if (ti >= 0) {
+          to = ti;
+          banner = `💥 ${fromName} → ${players[to]?.name ?? '?'} : Wild +4!`;
+        } else {
+          banner = `💥 ${fromName}님 Wild +4!`;
+        }
+      } else if (card.value === 'skip') {
+        shake = 'medium';
+        to = nextIdx(playedBy, prev.direction, 1);
+        banner = `⏭ ${players[to]?.name ?? '?'} 스킵!`;
+      } else if (card.value === 'reverse') {
+        shake = 'medium';
+        banner = `🔄 방향 반전! (${n === 2 ? '턴 교환' : '순서 뒤집힘'})`;
+        from = playedBy;
+        to = null;
+      } else if (card.color === 'black' && card.value === 'wild') {
+        shake = 'medium';
+        banner = `✦ ${fromName}님 와일드!`;
+      }
+
+      setUnoShake(shake);
+      window.setTimeout(() => setUnoShake(null), 720);
+      setDiscardSlamKey((k) => k + 1);
+
+      if (to !== null && to !== undefined && to !== from) {
+        setUnoBattleFlash({ from, to });
+        window.setTimeout(() => setUnoBattleFlash(null), 1150);
+      } else {
+        setUnoBattleFlash({ from, to: null });
+        window.setTimeout(() => setUnoBattleFlash(null), 750);
+      }
+
+      setUnoBattleBanner(banner);
+
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        if (shake === 'heavy') navigator.vibrate([38, 28, 48]);
+        else if (shake === 'medium') navigator.vibrate([24, 18]);
+        else navigator.vibrate(14);
+      }
+    } else if (snap.turnIndex !== prev.turnIndex && snap.discardLen === prev.discardLen) {
+      setUnoTurnPulseIndex(snap.turnIndex);
+      window.setTimeout(() => setUnoTurnPulseIndex(null), 620);
+      setUnoShake('light');
+      window.setTimeout(() => setUnoShake(null), 420);
+    }
+
+    unoPrevSnapRef.current = snap;
+  }, [roomData, roomData?.game, roomData?.gameState, roomData?.players]);
+
+  useEffect(() => {
+    if (!unoBattleBanner) return undefined;
+    const t = window.setTimeout(() => setUnoBattleBanner(null), 2800);
+    return () => window.clearTimeout(t);
+  }, [unoBattleBanner]);
 
   /** 우노 초보 안내(훅은 항상 동일 순서로 호출) */
   const unoHint = useMemo(() => {
@@ -1780,10 +1890,18 @@ export default function App() {
 
     return (
       <div
-        className="nf-root min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100"
+        className={`nf-root min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100 ${unoShake ? `uno-screen-shake-${unoShake}` : ''}`}
         style={tableStyle}
       >
         {muteFab}
+        {unoBattleBanner && (
+          <div
+            className="uno-battle-banner pointer-events-none fixed top-12 sm:top-14 left-1/2 z-[90] max-w-[min(94vw,26rem)] -translate-x-1/2 rounded-xl border border-amber-400/45 bg-gradient-to-b from-zinc-900/98 to-black/92 px-4 py-2.5 text-center text-sm font-bold leading-snug text-amber-100 shadow-[0_8px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(251,191,36,0.15)]"
+            role="status"
+          >
+            {unoBattleBanner}
+          </div>
+        )}
         <div className="nf-red-bar mb-3 max-w-xs opacity-80" />
         <div className="flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -1810,13 +1928,21 @@ export default function App() {
           </button>
         </div>
 
+        <div
+          className={`mb-2 h-1.5 rounded-full overflow-hidden mx-1 ${state.direction === 1 ? 'uno-dir-flow' : 'uno-dir-flow uno-dir-flow-ccw'}`}
+          title={state.direction === 1 ? '턴 진행: 시계 방향' : '턴 진행: 반시계 방향'}
+          aria-hidden
+        />
+
         <div className="flex justify-center gap-2 mb-3 sm:mb-4 overflow-x-auto pb-2 -mx-1 px-1">
           {roomData.players.map((p, i) => (
             <div
               key={p.uid}
-              className={`flex-shrink-0 px-3 py-2 rounded-xl text-center min-w-[5.5rem] border ${
+              className={`relative flex-shrink-0 px-3 py-2 rounded-xl text-center min-w-[5.5rem] border transition-[transform,box-shadow] duration-200 ${
                 i === state.turnIndex ? 'border-red-500 bg-red-600/25 text-red-100 scale-105 shadow-[0_0_20px_rgba(229,9,20,0.25)]' : 'border-white/10 bg-black/30 text-stone-300'
-              }`}
+              } ${unoBattleFlash?.from === i ? 'uno-player-battle-from z-[2]' : ''} ${
+                unoBattleFlash?.to === i ? 'uno-player-battle-to z-[2]' : ''
+              } ${unoTurnPulseIndex === i ? 'uno-turn-whoosh z-[2]' : ''}`}
             >
               <div className="text-xs font-semibold truncate max-w-[6rem] flex items-center justify-center gap-1">
                 {p.isAi && <span title="AI">🤖</span>}
@@ -1883,9 +2009,10 @@ export default function App() {
             <div className="absolute -top-10 whitespace-nowrap text-xs font-semibold bg-black/70 px-3 py-1 rounded-full border border-red-900/50 text-red-100/95">
               현재 색: {colorKo[state.currentColor] || state.currentColor}
             </div>
-            <div className={getCardStyle(topCard) + ' pointer-events-none'}>
+            <div key={discardSlamKey} className={getCardStyle(topCard) + ' pointer-events-none uno-discard-slam'}>
               <span>{getCardFace(topCard)}</span>
             </div>
+            <span className="mt-2 text-[10px] uppercase tracking-[0.2em] text-amber-200/70">플레이 존</span>
           </div>
         </div>
 

@@ -62,6 +62,180 @@ body {
   }
 }
 
+/* --- 우노: 하스스톤식 배틀 연출 --- */
+.uno-screen-shake-light {
+  animation: unoScreenShakeLight 0.38s ease-out;
+}
+.uno-screen-shake-medium {
+  animation: unoScreenShakeMed 0.48s ease-out;
+}
+.uno-screen-shake-heavy {
+  animation: unoScreenShakeHeavy 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@keyframes unoScreenShakeLight {
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-2px, 1px);
+  }
+  40% {
+    transform: translate(2px, -1px);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes unoScreenShakeMed {
+  0% {
+    transform: translate(0, 0);
+  }
+  15% {
+    transform: translate(-5px, 3px) rotate(-0.4deg);
+  }
+  35% {
+    transform: translate(5px, -3px) rotate(0.4deg);
+  }
+  55% {
+    transform: translate(-4px, 2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes unoScreenShakeHeavy {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  10% {
+    transform: translate(-8px, 5px) rotate(-0.8deg) scale(1.002);
+  }
+  25% {
+    transform: translate(9px, -6px) rotate(0.9deg) scale(1.003);
+  }
+  45% {
+    transform: translate(-7px, 4px) rotate(-0.5deg);
+  }
+  70% {
+    transform: translate(4px, -3px);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.uno-discard-slam {
+  animation: unoDiscardSlam 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes unoDiscardSlam {
+  0% {
+    transform: scale(1.15) translateY(-18px) rotate(-6deg);
+    filter: brightness(1.35) drop-shadow(0 0 18px rgba(250, 204, 21, 0.75));
+  }
+  55% {
+    transform: scale(1) translateY(0) rotate(0deg);
+    filter: brightness(1.08) drop-shadow(0 0 10px rgba(250, 204, 21, 0.35));
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    filter: brightness(1);
+  }
+}
+
+.uno-player-battle-from {
+  animation: unoBattleFromGlow 1.1s ease-out;
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.95),
+    0 0 24px rgba(250, 204, 21, 0.55),
+    inset 0 0 20px rgba(250, 204, 21, 0.12);
+}
+.uno-player-battle-to {
+  animation: unoBattleToPulse 1.15s ease-out;
+  box-shadow:
+    0 0 0 2px rgba(239, 68, 68, 0.95),
+    0 0 28px rgba(239, 68, 68, 0.55),
+    inset 0 0 18px rgba(239, 68, 68, 0.15);
+}
+@keyframes unoBattleFromGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.9);
+  }
+  40% {
+    box-shadow:
+      0 0 0 3px rgba(250, 204, 21, 0.85),
+      0 0 32px rgba(250, 204, 21, 0.65);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+  }
+}
+@keyframes unoBattleToPulse {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.uno-turn-whoosh {
+  animation: unoTurnWhoosh 0.55s ease-out;
+}
+@keyframes unoTurnWhoosh {
+  0% {
+    filter: brightness(1.4) drop-shadow(0 0 12px rgba(96, 165, 250, 0.9));
+    transform: scale(1.06);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+.uno-battle-banner {
+  animation: unoBannerPop 0.35s ease-out;
+}
+@keyframes unoBannerPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.uno-dir-flow {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(229, 9, 20, 0.15),
+    rgba(229, 9, 20, 0.35),
+    rgba(229, 9, 20, 0.15),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: unoDirFlow 2.8s linear infinite;
+}
+.uno-dir-flow-ccw {
+  animation-direction: reverse;
+}
+@keyframes unoDirFlow {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* 모바일 노치·홈 인디케이터 대응 */
 .safe-area-y {
   padding-top: max(0.5rem, env(safe-area-inset-top));
