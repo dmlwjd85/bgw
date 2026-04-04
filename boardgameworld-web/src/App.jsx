@@ -29,10 +29,21 @@ const THE_MIND_MAX_LEVEL = 12;
 
 /** 가상 플레이어: 낼 카드 숫자 1~100에 비례해 최대 20초까지 대기 후 플레이 */
 const THE_MIND_AI_DELAY_MAX_MS = 20000;
+/** 레벨 시작 직후: 사람이 1·2 카드에 반응할 시간 */
+const THE_MIND_LEVEL_START_GRACE_MS = 1000;
+/** 인간 패가 모두 비었을 때만 AI끼리 남은 경우 — 빠르게 레벨 종료 */
+const THE_MIND_ONLY_AI_DELAY_CAP_MS = 220;
+
 const getTheMindAiPlayDelayMs = (cardValue) => {
   const n = Math.max(1, Math.min(100, Number(cardValue) || 1));
   return Math.min(THE_MIND_AI_DELAY_MAX_MS, Math.max(250, (n / 100) * THE_MIND_AI_DELAY_MAX_MS));
 };
+
+/** 우노 AI: 행동 사이 대기(인지하기 쉽게) */
+const UNO_AI_STEP_DELAY_MS = 1050;
+const UNO_AI_AFTER_DECLARE_MS = 750;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const MIND_CONFETTI_COLORS = ['#f472b6', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#fb7185', '#fde047', '#4ade80', '#f97316'];
 
@@ -639,12 +650,15 @@ export default function App() {
   };
 
   // --- 우노: 첫 와일드 색 선택 ---
-  const setInitialUnoColor = async (color, actingUid = user.uid, rd = roomData) => {
+  const setInitialUnoColor = async (color, actingUid = user.uid, _rd = null) => {
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
     const state = rd.gameState;
     if (!state.needsInitialWildColor) return;
     const current = rd.players[state.turnIndex];
     if (current.uid !== actingUid) return;
-    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     await updateDoc(roomRef, {
       'gameState.currentColor': color,
       'gameState.needsInitialWildColor': false,
@@ -652,9 +666,12 @@ export default function App() {
     });
   };
 
-  const declareUno = async (actingUid = user.uid, rd = roomData) => {
-    const state = rd.gameState;
+  const declareUno = async (actingUid = user.uid, _rd = roomData) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    const state = rd.gameState;
     const ud = { ...(state.unoDeclared || {}), [actingUid]: true };
     const dn = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
     await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${dn}님이 UNO!를 외쳤습니다.` });
@@ -685,9 +702,12 @@ export default function App() {
     });
   };
 
-  const playUnoCard = async (cardIndex, overrideColor = null, actingUid = user.uid, rd = roomData) => {
-    const state = rd.gameState;
+  const playUnoCard = async (cardIndex, overrideColor = null, actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    const state = rd.gameState;
     const currentPlayer = rd.players[state.turnIndex];
     const isSelfHuman = actingUid === user.uid;
 
@@ -845,9 +865,12 @@ export default function App() {
   };
 
   /** 공식: 한 장 뽑은 뒤 낼 수 있으면 그 카드만 낼 수 있고, 아니면 턴 종료 */
-  const drawUnoCard = async (actingUid = user.uid, rd = roomData) => {
-    const state = rd.gameState;
+  const drawUnoCard = async (actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    const state = rd.gameState;
     const currentPlayer = rd.players[state.turnIndex];
     const isSelfHuman = actingUid === user.uid;
 
@@ -904,11 +927,14 @@ export default function App() {
     }
   };
 
-  const passAfterDraw = async (actingUid = user.uid, rd = roomData) => {
+  const passAfterDraw = async (actingUid = user.uid, _rd = null) => {
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
     const state = rd.gameState;
     if (state.pendingWild4) return;
     if (state.drawPhase?.uid !== actingUid) return;
-    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     const newTurnIndex = (state.turnIndex + state.direction + rd.players.length) % rd.players.length;
     await updateDoc(roomRef, {
       'gameState.turnIndex': newTurnIndex,
@@ -918,11 +944,14 @@ export default function App() {
   };
 
   /** Wild +4: 다음 플레이어가 4장을 받기로 함 (뽑기 전 도전 규칙 반영) */
-  const acceptWild4Pending = async (actingUid = user.uid, rd = roomData) => {
+  const acceptWild4Pending = async (actingUid = user.uid, _rd = null) => {
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
     const state = rd.gameState;
     const p = state.pendingWild4;
     if (!p || p.targetUid !== actingUid) return;
-    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     const n = rd.players.length;
     const ti = rd.players.findIndex((x) => x.uid === p.targetUid);
     const newHands = { ...state.hands };
@@ -940,11 +969,14 @@ export default function App() {
    * Wild +4 도전: 낸 사람이 현재 선언 색과 같은 색 카드를 낼 수 있었는지(hadPlayableColor)에 따라
    * 성공 시 낸 사람이 4장, 실패 시 도전자가 4장+추가 2장(공식 변형에 맞춘 패널티)
    */
-  const challengeWild4Pending = async (actingUid = user.uid, rd = roomData) => {
+  const challengeWild4Pending = async (actingUid = user.uid, _rd = null) => {
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
     const state = rd.gameState;
     const p = state.pendingWild4;
     if (!p || p.targetUid !== actingUid) return;
-    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     const n = rd.players.length;
     const ti = rd.players.findIndex((x) => x.uid === p.targetUid);
     let newDeck = [...state.deck];
@@ -1026,6 +1058,8 @@ export default function App() {
 
     clearAiTimers();
 
+    const aiBootDelayMs = roomData?.game === 'uno' ? 420 : 100;
+
     hostAiTimerRef.current = setTimeout(async () => {
       hostAiTimerRef.current = null;
       const snap = await getDoc(roomRef);
@@ -1042,7 +1076,13 @@ export default function App() {
           const pick = aiWithHand[Math.floor(Math.random() * aiWithHand.length)];
           const h = state.hands[pick.uid];
           const myMin = Math.min(...h);
-          const delayMs = getTheMindAiPlayDelayMs(myMin);
+          const humansWithCards = rd.players.some((p) => !p.isAi && (state.hands[p.uid]?.length ?? 0) > 0);
+          const onlyAiHaveCards = !humansWithCards && aiWithHand.length > 0;
+          let delayMs = getTheMindAiPlayDelayMs(myMin);
+          if ((state.playedCards?.length ?? 0) === 0) delayMs += THE_MIND_LEVEL_START_GRACE_MS;
+          if (onlyAiHaveCards) {
+            delayMs = Math.min(THE_MIND_ONLY_AI_DELAY_CAP_MS, 70 + Math.round((myMin / 100) * 150));
+          }
           mindAiDelayRef.current = setTimeout(async () => {
             mindAiDelayRef.current = null;
             const snap2 = await getDoc(roomRef);
@@ -1071,51 +1111,81 @@ export default function App() {
       }
 
       if (rd.game === 'uno') {
-        const cur = rd.players[state.turnIndex];
+        await sleep(UNO_AI_STEP_DELAY_MS);
+        const snapU = await getDoc(roomRef);
+        if (!snapU.exists()) return;
+        rd = snapU.data();
+        if (rd.status !== 'playing' || rd.game !== 'uno') return;
+        let stateU = rd.gameState;
+        if (!stateU || stateU.status !== 'playing') return;
+
+        const cur = rd.players[stateU.turnIndex];
         if (!cur?.isAi) return;
 
-        if (state.needsInitialWildColor) {
+        if (stateU.needsInitialWildColor) {
+          await sleep(400);
           const pick = COLORS[Math.floor(Math.random() * COLORS.length)];
-          await setInitialUnoColor(pick, cur.uid, rd);
+          await setInitialUnoColor(pick, cur.uid);
           return;
         }
 
-        if (state.pendingWild4?.targetUid === cur.uid) {
-          await acceptWild4Pending(cur.uid, rd);
+        if (stateU.pendingWild4?.targetUid === cur.uid) {
+          await sleep(500);
+          await acceptWild4Pending(cur.uid);
           return;
         }
 
-        const hand = state.hands[cur.uid];
-        const topCard = state.discardPile[state.discardPile.length - 1];
+        let hand = stateU.hands[cur.uid];
+        const topCard = stateU.discardPile[stateU.discardPile.length - 1];
 
-        if (state.drawPhase?.uid === cur.uid) {
-          const idx = findBeginnerUnoPlayIndex(hand, topCard, state.currentColor, state.drawPhase);
+        if (stateU.drawPhase?.uid === cur.uid) {
+          await sleep(UNO_AI_STEP_DELAY_MS);
+          const idx = findBeginnerUnoPlayIndex(hand, topCard, stateU.currentColor, stateU.drawPhase);
           if (idx >= 0) {
             const card = hand[idx];
             const wildColor = card.color === 'black' ? pickUnoWildColorForAi(hand, idx) : null;
-            await playUnoCard(idx, wildColor, cur.uid, rd);
+            await playUnoCard(idx, wildColor, cur.uid);
           } else {
-            await passAfterDraw(cur.uid, rd);
+            await passAfterDraw(cur.uid);
           }
           return;
         }
 
-        if (hand?.length === 1 && !state.unoDeclared?.[cur.uid]) {
-          await declareUno(cur.uid, rd);
+        if (hand?.length === 1 && !stateU.unoDeclared?.[cur.uid]) {
+          await declareUno(cur.uid);
+          await sleep(UNO_AI_AFTER_DECLARE_MS);
+          const snapAfter = await getDoc(roomRef);
+          if (!snapAfter.exists()) return;
+          const rdA = snapAfter.data();
+          if (rdA.status !== 'playing' || rdA.game !== 'uno') return;
+          const stA = rdA.gameState;
+          if (!stA || stA.status !== 'playing') return;
+          const curA = rdA.players[stA.turnIndex];
+          if (!curA?.isAi || curA.uid !== cur.uid) return;
+          hand = stA.hands[cur.uid];
+          const topA = stA.discardPile[stA.discardPile.length - 1];
+          const idxA = findBeginnerUnoPlayIndex(hand, topA, stA.currentColor, stA.drawPhase);
+          if (idxA >= 0) {
+            const card = hand[idxA];
+            const wildColor = card.color === 'black' ? pickUnoWildColorForAi(hand, idxA) : null;
+            await playUnoCard(idxA, wildColor, cur.uid);
+          }
           return;
         }
 
-        const idx = findBeginnerUnoPlayIndex(hand, topCard, state.currentColor, null);
+        const idx = findBeginnerUnoPlayIndex(hand, topCard, stateU.currentColor, null);
         if (idx >= 0) {
+          await sleep(UNO_AI_STEP_DELAY_MS);
           const card = hand[idx];
           const wildColor = card.color === 'black' ? pickUnoWildColorForAi(hand, idx) : null;
-          await playUnoCard(idx, wildColor, cur.uid, rd);
+          await playUnoCard(idx, wildColor, cur.uid);
           return;
         }
 
-        await drawUnoCard(cur.uid, rd);
+        await sleep(UNO_AI_STEP_DELAY_MS);
+        await drawUnoCard(cur.uid);
       }
-    }, 100);
+    }, aiBootDelayMs);
 
     return () => {
       clearAiTimers();
@@ -1577,7 +1647,7 @@ export default function App() {
           <div className="flex flex-col items-center">
             <button
               type="button"
-              onClick={drawUnoCard}
+              onClick={() => drawUnoCard()}
               disabled={!isMyTurn || state.status !== 'playing' || state.needsInitialWildColor || !!state.pendingWild4}
               className="w-[5.5rem] h-[8.5rem] sm:w-24 sm:h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition active:scale-95 sm:hover:scale-105 disabled:opacity-40 touch-manipulation min-h-[120px]"
               style={{ background: 'linear-gradient(145deg, #dc2626 0%, #991b1b 100%)' }}
@@ -1605,14 +1675,14 @@ export default function App() {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={acceptWild4Pending}
+                onClick={() => acceptWild4Pending()}
                 className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold"
               >
                 4장 받기
               </button>
               <button
                 type="button"
-                onClick={challengeWild4Pending}
+                onClick={() => challengeWild4Pending()}
                 className="px-4 py-2 rounded-lg bg-red-800 hover:bg-red-700 text-sm font-semibold"
               >
                 도전
@@ -1631,7 +1701,7 @@ export default function App() {
             <div className="mb-3 flex justify-center">
               <button
                 type="button"
-                onClick={declareUno}
+                onClick={() => declareUno()}
                 className="px-6 py-2 rounded-full font-bold text-stone-900 animate-pulse"
                 style={{ background: 'linear-gradient(180deg, #fde047 0%, #eab308 100%)' }}
               >
@@ -1642,7 +1712,7 @@ export default function App() {
 
           {state.drawPhase?.uid === user.uid && (
             <div className="mb-3 flex justify-center gap-3">
-              <button type="button" onClick={passAfterDraw} className="px-4 py-2 rounded-lg bg-stone-700 text-sm hover:bg-stone-600">
+              <button type="button" onClick={() => passAfterDraw()} className="px-4 py-2 rounded-lg bg-stone-700 text-sm hover:bg-stone-600">
                 턴 넘기기 (뽑은 카드 안 냄)
               </button>
             </div>
