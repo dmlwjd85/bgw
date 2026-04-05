@@ -25,7 +25,7 @@ const appId =
   import.meta.env.VITE_APP_ID ||
   (typeof __app_id !== 'undefined' ? __app_id : 'board-game-app');
 
-/** 더 마인드 공식: 인원별 마지막 레벨 (2인 12, 3인 10, 4인 이상 8) */
+/** 침묵의 1to100 규칙: 인원별 마지막 레벨 (2인 12, 3인 10, 4인 이상 8) */
 const getTheMindMaxLevel = (playerCount) => {
   const n = Math.max(2, Number(playerCount) || 2);
   if (n === 2) return 12;
@@ -74,7 +74,7 @@ const THE_MIND_AI_DELAY_MAX_MS = 20000;
 const THE_MIND_LEVEL_START_GRACE_MS = 1000;
 /** 인간 패가 모두 비었을 때만 AI끼리 남은 경우 — 빠르게 레벨 종료 */
 const THE_MIND_ONLY_AI_DELAY_CAP_MS = 220;
-/** 더 마인드 「잠깐~」 말풍선 표시 시간(ms) — 겹쳐도 각각 유지 */
+/** 침묵의 1to100 「잠깐~」 말풍선 표시 시간(ms) — 겹쳐도 각각 유지 */
 const THE_MIND_WAIT_BUBBLE_MS = 4500;
 
 const getTheMindAiPlayDelayMs = (cardValue) => {
@@ -82,7 +82,7 @@ const getTheMindAiPlayDelayMs = (cardValue) => {
   return Math.min(THE_MIND_AI_DELAY_MAX_MS, Math.max(250, (n / 100) * THE_MIND_AI_DELAY_MAX_MS));
 };
 
-/** 우노 AI: 행동 사이 대기(인지하기 쉽게) */
+/** 남은 카드 한 장! AI: 행동 사이 대기(인지하기 쉽게) */
 const UNO_AI_STEP_DELAY_MS = 1050;
 const UNO_AI_AFTER_DECLARE_MS = 750;
 
@@ -169,7 +169,7 @@ const migrateGameStateUid = (oldUid, newUid, gs, gameType) => {
   return next;
 };
 
-// --- 게임 로직: 더 마인드 ---
+// --- 게임 로직: 침묵의 1to100 (내부 코드 themind) ---
 const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
   let deck = Array.from({ length: 100 }, (_, i) => i + 1);
   deck = shuffleArray(deck);
@@ -195,10 +195,10 @@ const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
   };
 };
 
-// --- 게임 로직: 우노 ---
+// --- 게임 로직: 남은 카드 한 장! (내부 코드 uno) ---
 const COLORS = ['red', 'blue', 'green', 'yellow'];
 
-/** 초보 AI용: 패에서 낼 만한 우노 카드 인덱스 (없으면 -1) */
+/** 초보 AI용: 패에서 낼 만한 카드 인덱스 (없으면 -1) */
 const findBeginnerUnoPlayIndex = (hand, topCard, currentColor, drawPhase) => {
   if (!hand?.length) return -1;
   if (drawPhase) {
@@ -257,7 +257,7 @@ const canPlayUnoCard = (card, topCard, currentColor) => {
   return card.color === currentColor || card.value === topCard.value;
 };
 
-/** 우노 초보용: 다음 행동 안내 메시지 + 하이라이트 대상 */
+/** 남은 카드 한 장! 초보용: 다음 행동 안내 메시지 + 하이라이트 대상 */
 function getUnoPlayerHint(state, roomData, userId, wildColorOpen) {
   if (!state || state.status !== 'playing') return null;
   if (wildColorOpen) {
@@ -288,7 +288,7 @@ function getUnoPlayerHint(state, roomData, userId, wildColorOpen) {
   }
 
   if (myHand.length === 1 && !state.unoDeclared?.[userId]) {
-    return { message: '카드 한 장만 남았습니다! 먼저 노란 「UNO!」 버튼을 누르세요.', highlight: 'uno', cardIndices: [] };
+    return { message: '카드 한 장만 남았습니다! 먼저 노란 「한 장!」 선언 버튼을 누르세요.', highlight: 'uno', cardIndices: [] };
   }
 
   const playableIndices = [];
@@ -356,7 +356,7 @@ const initUno = (players) => {
   let direction = 1;
   let currentColor = topCard.color === 'black' ? 'red' : topCard.color;
   let needsInitialWildColor = topCard.color === 'black';
-  let message = '우노를 시작합니다. 같은 숫자·같은 색 또는 검은 카드를 내세요.';
+  let message = '「남은 카드 한 장!」을 시작합니다. 같은 숫자·같은 색 또는 검은 카드를 내세요.';
 
   const n = players.length;
   const nextIdx = (idx, delta = 1) => (idx + delta * direction + n * 16) % n;
@@ -423,7 +423,7 @@ export default function App() {
   const mindCelebrationRef = useRef(null);
   const lastMindCelebrateKeyRef = useRef(null);
   const [audioMuted, setAudioMuted] = useState(() => getMuted());
-  /** 우노: 하스스톤식 전투 연출 */
+  /** 남은 카드 한 장!: 하스스톤식 전투 연출 */
   const [unoShake, setUnoShake] = useState(null);
   const [unoBattleFlash, setUnoBattleFlash] = useState(null);
   const [unoBattleBanner, setUnoBattleBanner] = useState(null);
@@ -435,7 +435,7 @@ export default function App() {
   const sfxMindPlayedRef = useRef(0);
   const sfxHandLenRef = useRef(null);
   const sfxGameOverRef = useRef(false);
-  /** 더 마인드 AI 지연 실행 시 최신 핸들러 사용(클로저로 인한 먹통 방지) */
+  /** 침묵의 1to100 AI 지연 실행 시 최신 핸들러 사용(클로저로 인한 먹통 방지) */
   const playTheMindCardRef = useRef(async () => {});
   const voteShurikenRef = useRef(async () => {});
   /** 말풍선 만료 시 화면 갱신(스냅샷 없이도 사라지게) */
@@ -483,7 +483,7 @@ export default function App() {
     return () => window.removeEventListener('pointerdown', fn);
   }, []);
 
-  /** 우노: 덱에 카드가 쌓이면 효과음 */
+  /** 남은 카드 한 장!: 덱에 카드가 쌓이면 효과음 */
   useEffect(() => {
     if (roomData?.game !== 'uno' || roomData?.gameState?.status !== 'playing') return;
     const len = roomData.gameState?.discardPile?.length ?? 0;
@@ -493,7 +493,7 @@ export default function App() {
     sfxDiscardLenRef.current = len;
   }, [roomData?.game, roomData?.gameState?.discardPile?.length, roomData?.gameState?.status]);
 
-  /** 우노: 내 차례가 되면 효과음 */
+  /** 남은 카드 한 장!: 내 차례가 되면 효과음 */
   useEffect(() => {
     if (roomData?.game !== 'uno' || !user?.uid || roomData?.gameState?.status !== 'playing') return;
     const uid = roomData.players[roomData.gameState.turnIndex]?.uid;
@@ -504,7 +504,7 @@ export default function App() {
     sfxTurnRef.current = ti;
   }, [roomData?.game, roomData?.gameState?.turnIndex, roomData?.players, user?.uid, roomData?.gameState?.status]);
 
-  /** 우노: 패가 늘어나면(뽑기) 효과음 */
+  /** 남은 카드 한 장!: 패가 늘어나면(뽑기) 효과음 */
   useEffect(() => {
     if (roomData?.game !== 'uno' || !user?.uid) return;
     const h = roomData.gameState?.hands?.[user.uid]?.length;
@@ -515,7 +515,7 @@ export default function App() {
     sfxHandLenRef.current = h;
   }, [roomData?.game, roomData?.gameState?.hands, user?.uid]);
 
-  /** 더 마인드: 카드가 놓일 때 효과음 */
+  /** 침묵의 1to100: 카드가 놓일 때 효과음 */
   useEffect(() => {
     if (roomData?.game !== 'themind') return;
     const n = roomData?.gameState?.playedCards?.length ?? 0;
@@ -556,7 +556,7 @@ export default function App() {
     return () => window.clearInterval(t);
   }, [roomData?.game]);
 
-  /** 우노: 카드 플레이·턴 이동 감지 → 진동·플래시·배너 (직관적 공격/턴 흐름) */
+  /** 남은 카드 한 장!: 카드 플레이·턴 이동 감지 → 진동·플래시·배너 (직관적 공격/턴 흐름) */
   useEffect(() => {
     if (roomData?.game !== 'uno' || !roomData.gameState || roomData.gameState.status !== 'playing') {
       unoPrevSnapRef.current = null;
@@ -653,7 +653,7 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, [unoBattleBanner]);
 
-  /** 우노 초보 안내(훅은 항상 동일 순서로 호출) */
+  /** 남은 카드 한 장! 초보 안내(훅은 항상 동일 순서로 호출) */
   const unoHint = useMemo(() => {
     if (!roomData || roomData.status !== 'playing' || roomData.game !== 'uno' || !user?.uid) return null;
     const st = roomData.gameState;
@@ -856,8 +856,8 @@ export default function App() {
   const handleStartGame = async (gameType) => {
     if (!roomData || !roomData.players.find((p) => p.uid === user.uid)?.isHost) return;
     const n = roomData.players.length;
-    if (gameType === 'uno' && n < 2) return alert('우노는 최소 2명(인간 또는 AI)이 필요합니다.');
-    if (gameType === 'themind' && n < 2) return alert('더 마인드는 최소 2명(인간 또는 AI)이 필요합니다.');
+    if (gameType === 'uno' && n < 2) return alert('「남은 카드 한 장!」은 최소 2명(인간 또는 AI)이 필요합니다.');
+    if (gameType === 'themind' && n < 2) return alert('「침묵의 1to100」은 최소 2명(인간 또는 AI)이 필요합니다.');
 
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     let initialGameState = {};
@@ -872,7 +872,7 @@ export default function App() {
     });
   };
 
-  // --- 더 마인드 액션 (actingUid: AI 턴 시 방장이 대리 실행) — runTransaction으로 동시 플레이/레이스 방지 ---
+  // --- 침묵의 1to100 액션 (actingUid: AI 턴 시 방장이 대리 실행) — runTransaction으로 동시 플레이/레이스 방지 ---
   const playTheMindCard = async (card, actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     try {
@@ -1109,7 +1109,7 @@ export default function App() {
     await updateDoc(roomRef, { gameState: newState });
   };
 
-  // --- 우노: 첫 와일드 색 선택 ---
+  // --- 남은 카드 한 장!: 첫 와일드 색 선택 ---
   const setInitialUnoColor = async (color, actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     const snap = await getDoc(roomRef);
@@ -1134,17 +1134,17 @@ export default function App() {
     const state = rd.gameState;
     const ud = { ...(state.unoDeclared || {}), [actingUid]: true };
     const dn = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
-    await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${dn}님이 UNO!를 외쳤습니다.` });
+    await updateDoc(roomRef, { 'gameState.unoDeclared': ud, 'gameState.message': `${dn}님이 「한 장!」을 외쳤습니다.` });
     playSfx('uno');
   };
 
-  /** 다른 플레이어가 UNO를 안 외친 채 1장만 남겼을 때 도전 — 공식: 잡히면 2장 */
+  /** 다른 플레이어가 선언(한 장!)을 안 한 채 1장만 남겼을 때 도전 — 잡히면 2장 */
   const challengeUno = async (targetUid) => {
     const state = roomData.gameState;
     if (targetUid === user.uid) return;
     const hand = state.hands[targetUid];
     if (!hand || hand.length !== 1) return;
-    if (state.unoDeclared?.[targetUid]) return alert('이미 UNO를 외친 플레이어입니다.');
+    if (state.unoDeclared?.[targetUid]) return alert('이미 선언한 플레이어입니다.');
 
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     let newDeck = [...state.deck];
@@ -1210,7 +1210,7 @@ export default function App() {
     }
 
     if (hand.length === 1 && !state.unoDeclared?.[actingUid]) {
-      if (isSelfHuman) alert('마지막 한 장을 내기 전에 UNO! 버튼을 눌러 주세요.');
+      if (isSelfHuman) alert('마지막 한 장을 내기 전에 「한 장!」 선언 버튼을 눌러 주세요.');
       return;
     }
 
@@ -1690,7 +1690,7 @@ export default function App() {
           <div className="text-center mb-6">
             <p className="text-xs uppercase tracking-[0.4em] text-red-500/90 mb-2">TABLETOP</p>
             <h1 className="nf-title text-4xl text-white">보드게임 월드</h1>
-            <p className="text-sm text-stone-400 mt-2">더 마인드 · 우노를 같은 테이블에서 즐기세요.</p>
+            <p className="text-sm text-stone-400 mt-2">침묵의 1to100 · 남은 카드 한 장!을 같은 테이블에서 즐기세요.</p>
           </div>
           <p className="text-stone-300 text-sm mb-4 text-center">다른 플레이어에게 보일 닉네임을 입력하세요.</p>
           <input
@@ -1826,7 +1826,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="p-5 sm:p-6 flex flex-col justify-center">
-                    <h3 className="nf-title text-xl text-red-100 mb-2 tracking-wide">더 마인드</h3>
+                    <h3 className="nf-title text-xl text-red-100 mb-2 tracking-wide">침묵의 1to100</h3>
                     <p className="text-sm text-stone-300 leading-relaxed">
                       말 없이 1부터 순서대로. 2인은 레벨 12까지, 3인은 10, 4인 이상은 8까지. 레벨 클리어 시 생명·수리검이 보상으로 회복될 수 있습니다(상한 5/3).
                     </p>
@@ -1853,9 +1853,9 @@ export default function App() {
                     </div>
                   </div>
                   <div className="p-5 sm:p-6 flex flex-col justify-center">
-                    <h3 className="text-lg font-serif font-bold text-red-100 mb-2">우노</h3>
+                    <h3 className="text-lg font-serif font-bold text-red-100 mb-2">남은 카드 한 장!</h3>
                     <p className="text-sm text-red-200/90 leading-relaxed">
-                      색·숫자 맞추기, 스킵·리버스·드로우, 와일드. 한 장 남으면 UNO!를 외치세요.
+                      색·숫자 맞추기, 스킵·리버스·드로우, 와일드. 한 장 남으면 「한 장!」을 외치세요.
                     </p>
                   </div>
                 </button>
@@ -1936,7 +1936,7 @@ export default function App() {
           <div className="flex flex-wrap justify-between items-start gap-2">
             <div className="min-w-0 flex-1">
               <div className="nf-title text-lg landscape-short:text-base sm:text-2xl text-red-100 tracking-wide drop-shadow-[0_0_12px_rgba(229,9,20,0.35)]">
-                THE MIND
+                침묵의 1to100
               </div>
               <p className="text-[9px] landscape-short:text-[8px] sm:text-xs text-red-300/70 tracking-widest mt-0.5 uppercase">
                 Titan HQ · 작전 테이블
@@ -2245,7 +2245,9 @@ export default function App() {
         <div className="shrink-0 nf-red-bar mb-2 landscape-short:mb-1 max-w-xs opacity-80" />
         <div className="shrink-0 flex flex-col landscape-short:flex-row landscape-short:items-center landscape-short:justify-between gap-1 landscape-short:gap-2 mb-2 landscape-short:mb-1">
           <div className="flex flex-wrap items-center gap-1 landscape-short:gap-2">
-            <div className="nf-title text-base landscape-short:text-sm sm:text-xl text-white tracking-wide pr-1">UNO</div>
+            <div className="nf-title text-[11px] landscape-short:text-[10px] sm:text-lg text-white tracking-wide pr-1 leading-tight max-w-[min(52vw,11rem)] sm:max-w-none">
+              남은 카드 한 장!
+            </div>
             <div className="text-[10px] landscape-short:text-[10px] sm:text-sm px-2 landscape-short:py-1 py-1.5 rounded-lg bg-black/45 border border-white/10">
               방향: {state.direction === 1 ? '시계 →' : '반시계 ←'}
             </div>
@@ -2293,7 +2295,7 @@ export default function App() {
               <div className="text-[11px] opacity-90">{state.hands[p.uid]?.length}장</div>
               {p.uid !== user.uid && state.hands[p.uid]?.length === 1 && !state.unoDeclared?.[p.uid] && (
                 <button type="button" className="mt-1 text-[10px] text-red-300 underline" onClick={() => challengeUno(p.uid)}>
-                  UNO 도전
+                  한 장 도전
                 </button>
               )}
             </div>
@@ -2342,8 +2344,8 @@ export default function App() {
               className="w-[5rem] h-[7.5rem] landscape-short:w-[4.25rem] landscape-short:h-28 sm:w-24 sm:h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition active:scale-95 sm:hover:scale-105 disabled:opacity-40 touch-manipulation min-h-0"
               style={{ background: 'linear-gradient(145deg, #dc2626 0%, #991b1b 100%)' }}
             >
-              <span className="text-amber-200 font-black text-lg landscape-short:text-base -rotate-12" style={{ fontFamily: 'Georgia, serif' }}>
-                UNO
+              <span className="text-amber-200 font-black text-sm landscape-short:text-xs sm:text-lg -rotate-12 leading-tight text-center px-0.5" style={{ fontFamily: 'Georgia, serif' }}>
+                덱
               </span>
             </button>
             <span className="text-[10px] landscape-short:text-[9px] text-stone-400 mt-1 landscape-short:mt-0.5">덱에서 뽑기</span>
@@ -2401,7 +2403,7 @@ export default function App() {
                 className="px-6 py-2 rounded-full font-bold text-stone-900 animate-pulse"
                 style={{ background: 'linear-gradient(180deg, #fde047 0%, #eab308 100%)' }}
               >
-                UNO!
+                한 장!
               </button>
             </div>
           )}

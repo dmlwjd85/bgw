@@ -98,7 +98,7 @@ body {
   }
 }
 
-/* --- 우노: 하스스톤식 배틀 연출 --- */
+/* --- 남은 카드 한 장!: 하스스톤식 배틀 연출 --- */
 .uno-screen-shake-light {
   animation: unoScreenShakeLight 0.38s ease-out;
 }
@@ -272,7 +272,7 @@ body {
   }
 }
 
-/* 더 마인드 — 틴타이탄 본부 테이블·숫자 카드 */
+/* 침묵의 1to100 — 틴타이탄 본부 테이블·숫자 카드 */
 .mind-titan-header {
   border: 1px solid rgba(229, 9, 20, 0.35);
   background: linear-gradient(135deg, rgba(20, 12, 18, 0.92) 0%, rgba(8, 8, 14, 0.95) 100%);
@@ -332,7 +332,7 @@ body {
   background: rgba(0, 0, 0, 0.4);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
-/* 더 마인드 「잠깐~」 말풍선 — 여러 개 겹쳐도 스택으로 표시 */
+/* 침묵의 1to100 「잠깐~」 말풍선 — 여러 개 겹쳐도 스택으로 표시 */
 .mind-wait-bubble {
   position: relative;
   padding: 0.2rem 0.55rem 0.35rem;
