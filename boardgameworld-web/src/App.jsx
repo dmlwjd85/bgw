@@ -74,8 +74,8 @@ const THE_MIND_AI_DELAY_MAX_MS = 20000;
 const THE_MIND_LEVEL_START_GRACE_MS = 1000;
 /** 인간 패가 모두 비었을 때만 AI끼리 남은 경우 — 빠르게 레벨 종료 */
 const THE_MIND_ONLY_AI_DELAY_CAP_MS = 220;
-/** 카드를 짧게 탭하면 플레이, 길게 누르면 상대에게 카드 뒷면(대기 신호)만 표시 */
-const THE_MIND_CARD_TAP_MAX_MS = 280;
+/** 더 마인드 「잠깐~」 말풍선 표시 시간(ms) — 겹쳐도 각각 유지 */
+const THE_MIND_WAIT_BUBBLE_MS = 4500;
 
 const getTheMindAiPlayDelayMs = (cardValue) => {
   const n = Math.max(1, Math.min(100, Number(cardValue) || 1));
@@ -147,7 +147,9 @@ const migrateGameStateUid = (oldUid, newUid, gs, gameType) => {
   }
   if (gameType === 'themind') {
     next.shurikenVotes = (gs.shurikenVotes || []).map((u) => (u === oldUid ? newUid : u));
-    if (gs.mindPeekUid === oldUid) next.mindPeekUid = newUid;
+    next.mindWaitSignals = (gs.mindWaitSignals || []).map((s) =>
+      s.uid === oldUid ? { ...s, uid: newUid } : s
+    );
   }
   if (gameType === 'uno') {
     next.unoDeclared = gs.unoDeclared ? { ...gs.unoDeclared } : {};
@@ -184,7 +186,9 @@ const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
     lives: lives !== null ? lives : getTheMindStartingLives(players.length),
     shurikens: shurikens !== null ? shurikens : 1,
     shurikenVotes: [],
-    mindPeekUid: null,
+    mindWaitSignals: [],
+    failureReveal: null,
+    mindLevelPlayedLog: null,
     playedCards: [],
     hands,
     message: `${level}레벨 시작 — 아무 말 없이 가장 작은 수부터 놓으세요.`
@@ -434,14 +438,8 @@ export default function App() {
   /** 더 마인드 AI 지연 실행 시 최신 핸들러 사용(클로저로 인한 먹통 방지) */
   const playTheMindCardRef = useRef(async () => {});
   const voteShurikenRef = useRef(async () => {});
-  /** 더 마인드: 카드 누름(대기 신호) vs 짧은 탭(플레이) 구분 */
-  const mindCardPointerRef = useRef({
-    t: 0,
-    pointerId: null,
-    moved: false,
-    startX: 0,
-    startY: 0
-  });
+  /** 말풍선 만료 시 화면 갱신(스냅샷 없이도 사라지게) */
+  const [mindBubbleTick, setMindBubbleTick] = useState(0);
 
   /** 넷플릭스 틴 스타일 + 게임별 포인트 컬러 */
   const tableStyle = useMemo(() => {
@@ -551,6 +549,12 @@ export default function App() {
     setUnoTurnPulseIndex(null);
     setDiscardSlamKey(0);
   }, [roomCode]);
+
+  useEffect(() => {
+    if (roomData?.game !== 'themind') return;
+    const t = window.setInterval(() => setMindBubbleTick((x) => x + 1), 350);
+    return () => window.clearInterval(t);
+  }, [roomData?.game]);
 
   /** 우노: 카드 플레이·턴 이동 감지 → 진동·플래시·배너 (직관적 공격/턴 흐름) */
   useEffect(() => {
@@ -899,11 +903,13 @@ export default function App() {
             'gameState.hands': newHands,
             'gameState.playedCards': newPlayedCards,
             'gameState.shurikenVotes': [],
-            'gameState.mindPeekUid': null,
+            'gameState.mindWaitSignals': [],
+            'gameState.failureReveal': null,
             'gameState.message': `${actorName}님이 ${card}를 냈습니다.`
           };
           const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
           if (remainingCards === 0) {
+            updates['gameState.mindLevelPlayedLog'] = newPlayedCards;
             if (state.level >= maxMindLevel) {
               updates['gameState.status'] = 'won';
               updates['gameState.message'] = `전체 클리어! 레벨 ${maxMindLevel}까지 모두 성공했습니다!`;
@@ -925,11 +931,26 @@ export default function App() {
         });
         const remainingAfter = Object.values(correctedHands).reduce((a, h) => a + h.length, 0);
 
+        /** 실패 직전: 각 패에서 낸 수 이하(제거 대상)였던 카드 — 왜 틀렸는지 공개 */
+        const byUid = {};
+        rd.players.forEach((p) => {
+          const h = state.hands[p.uid] || [];
+          byUid[p.uid] = [...h].filter((c) => c <= card).sort((a, b) => a - b);
+        });
+        const failureReveal = {
+          wrongCard: card,
+          lowestCard,
+          actorUid: actingUid,
+          byUid
+        };
+        const levelLogOnFail = [...(state.playedCards || []), card];
+
         const updates = {
           'gameState.hands': correctedHands,
           'gameState.playedCards': [],
           'gameState.shurikenVotes': [],
-          'gameState.mindPeekUid': null,
+          'gameState.mindWaitSignals': [],
+          'gameState.failureReveal': failureReveal,
           'gameState.lives': newLives,
           'gameState.message':
             newLives <= 0
@@ -939,7 +960,9 @@ export default function App() {
 
         if (newLives <= 0) {
           updates['gameState.status'] = 'gameover';
+          updates['gameState.mindLevelPlayedLog'] = levelLogOnFail;
         } else if (remainingAfter === 0) {
+          updates['gameState.mindLevelPlayedLog'] = levelLogOnFail;
           if (state.level >= maxMindLevel) {
             updates['gameState.status'] = 'won';
             updates['gameState.message'] = `전체 클리어! 실패 처리 후 패가 모두 비었습니다.`;
@@ -971,6 +994,10 @@ export default function App() {
         const maxMindLevel = getTheMindMaxLevel(rd.players.length);
         const votes = new Set(state.shurikenVotes || []);
         votes.add(actingUid);
+        /** 가상 플레이어(AI)는 수리검에 항상 동의 */
+        rd.players.forEach((p) => {
+          if (p.isAi) votes.add(p.uid);
+        });
         const allUids = rd.players.map((p) => p.uid);
         if (votes.size < allUids.length || (state.shurikens || 0) < 1) {
           transaction.update(roomRef, {
@@ -995,10 +1022,12 @@ export default function App() {
           'gameState.hands': correctedHands,
           'gameState.shurikenVotes': nextVotes,
           'gameState.shurikens': nextShurikens,
-          'gameState.mindPeekUid': null,
+          'gameState.mindWaitSignals': [],
+          'gameState.failureReveal': null,
           'gameState.message': '수리검! 모두가 가장 낮은 카드를 한 장씩 버렸습니다.'
         };
         if (remaining === 0) {
+          patch['gameState.mindLevelPlayedLog'] = [...(state.playedCards || [])];
           if (state.level >= maxMindLevel) {
             patch['gameState.status'] = 'won';
             patch['gameState.message'] = `수리검으로 레벨을 마쳤습니다! 레벨 ${maxMindLevel} 전체 클리어!`;
@@ -1019,79 +1048,28 @@ export default function App() {
   playTheMindCardRef.current = playTheMindCard;
   voteShurikenRef.current = voteShuriken;
 
-  const setMindPeekUidRemote = useCallback(async (uid) => {
-    if (!roomCode) return;
+  /** 「잠깐~」 말풍선 — 여러 명이 동시에 눌러도 id로 겹쳐 표시 */
+  const sendMindWaitSignal = useCallback(async () => {
+    if (!roomCode || !user?.uid) return;
+    if (roomData?.game !== 'themind' || roomData?.gameState?.status !== 'playing') return;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
     try {
-      await updateDoc(roomRef, { 'gameState.mindPeekUid': uid ?? null });
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(roomRef);
+        if (!snap.exists()) return;
+        const rd = snap.data();
+        if (rd.game !== 'themind' || rd.gameState?.status !== 'playing') return;
+        const prev = rd.gameState.mindWaitSignals || [];
+        const now = Date.now();
+        const pruned = prev.filter((s) => now - (s.at || 0) < 90000);
+        const id = `${user.uid}-${now}-${Math.random().toString(36).slice(2, 8)}`;
+        const nextSignals = [...pruned, { id, uid: user.uid, at: now }].slice(-40);
+        transaction.update(roomRef, { 'gameState.mindWaitSignals': nextSignals });
+      });
     } catch (e) {
-      console.error('mindPeekUid', e);
+      console.error('sendMindWaitSignal', e);
     }
-  }, [roomCode]);
-
-  const handleMindCardPointerDown = useCallback(
-    (e, card) => {
-      if (!user?.uid) return;
-      if (roomData?.game !== 'themind' || roomData?.gameState?.status !== 'playing') return;
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId);
-      } catch (_) {}
-      mindCardPointerRef.current = {
-        t: Date.now(),
-        pointerId: e.pointerId,
-        moved: false,
-        startX: e.clientX,
-        startY: e.clientY,
-        card
-      };
-      void setMindPeekUidRemote(user.uid);
-    },
-    [roomData?.game, roomData?.gameState?.status, user?.uid, setMindPeekUidRemote]
-  );
-
-  const handleMindCardPointerMove = useCallback((e) => {
-    const pr = mindCardPointerRef.current;
-    if (pr.pointerId === null || e.pointerId !== pr.pointerId) return;
-    const dx = e.clientX - pr.startX;
-    const dy = e.clientY - pr.startY;
-    if (dx * dx + dy * dy > 100) pr.moved = true;
-  }, []);
-
-  const handleMindCardPointerUp = useCallback(
-    (e, card) => {
-      const pr = mindCardPointerRef.current;
-      if (pr.t === 0) return;
-      if (pr.pointerId !== null && e.pointerId !== pr.pointerId) return;
-      const dur = Date.now() - pr.t;
-      const moved = pr.moved;
-      mindCardPointerRef.current = {
-        t: 0,
-        pointerId: null,
-        moved: false,
-        startX: 0,
-        startY: 0,
-        card: null
-      };
-      void setMindPeekUidRemote(null);
-      if (roomData?.game !== 'themind' || roomData?.gameState?.status !== 'playing') return;
-      if (!moved && dur >= 0 && dur < THE_MIND_CARD_TAP_MAX_MS) {
-        void playTheMindCardRef.current(card);
-      }
-    },
-    [roomData?.game, roomData?.gameState?.status, setMindPeekUidRemote]
-  );
-
-  const handleMindCardPointerCancel = useCallback(() => {
-    mindCardPointerRef.current = {
-      t: 0,
-      pointerId: null,
-      moved: false,
-      startX: 0,
-      startY: 0,
-      card: null
-    };
-    void setMindPeekUidRemote(null);
-  }, [setMindPeekUidRemote]);
+  }, [roomCode, user?.uid, roomData?.game, roomData?.gameState?.status]);
 
   const nextLevelTheMind = async () => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
@@ -1901,7 +1879,12 @@ export default function App() {
     const mindMaxLevel = getTheMindMaxLevel(roomData.players.length);
     const mindOpponents = roomData.players.filter((p) => p.uid !== user.uid);
     const playedCardsList = state.playedCards || [];
-    const mindPeekUid = state.mindPeekUid;
+    const mindLevelLog = state.mindLevelPlayedLog;
+    const failureReveal = state.failureReveal;
+    const nowMs = Date.now();
+    const activeWaitSignals = (state.mindWaitSignals || []).filter(
+      (s) => nowMs - (s.at || 0) < THE_MIND_WAIT_BUBBLE_MS
+    );
     const myHand = state.hands[user.uid] || [];
     const isHost = roomData.players.find((p) => p.uid === user.uid)?.isHost;
     const votes = new Set(state.shurikenVotes || []);
@@ -1920,12 +1903,31 @@ export default function App() {
           aria-hidden
         />
         {(state.status === 'level_cleared' || state.status === 'won') && (
-          <div className="fixed inset-0 z-[82] pointer-events-none flex flex-col items-center justify-start landscape-short:justify-center pt-[12vh] landscape-short:pt-4 px-4">
-            <div className="text-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]">
-              <p className="text-3xl sm:text-5xl font-black text-amber-200 font-serif tracking-tight">
+          <div className="fixed inset-0 z-[88] flex flex-col items-center justify-start landscape-short:justify-center pt-[6vh] landscape-short:pt-4 px-3 pointer-events-none">
+            <div
+              data-mind-tick={mindBubbleTick}
+              className="pointer-events-auto max-h-[min(78vh,640px)] w-full max-w-lg overflow-y-auto overscroll-contain rounded-2xl border border-amber-800/50 bg-black/80 backdrop-blur-md px-4 py-5 sm:px-6 shadow-[0_8px_48px_rgba(0,0,0,0.85)] text-center"
+            >
+              <p className="text-3xl sm:text-5xl font-black text-amber-200 font-serif tracking-tight drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]">
                 {state.status === 'won' ? '전체 클리어!' : `레벨 ${state.level} 클리어!`}
               </p>
-              <p className="mt-3 text-lg sm:text-2xl text-emerald-100 font-semibold">축하합니다!</p>
+              <p className="mt-2 text-lg sm:text-2xl text-emerald-100 font-semibold">축하합니다!</p>
+              {(mindLevelLog || playedCardsList).length > 0 && (
+                <div className="mt-5 border-t border-amber-900/40 pt-4">
+                  <p className="text-[10px] text-amber-200/90 uppercase tracking-widest mb-2">이번 레벨에서 낸 카드 순서</p>
+                  <div className="flex flex-wrap justify-center gap-1.5 max-h-40 overflow-y-auto">
+                    {(mindLevelLog || playedCardsList).map((n, i) => (
+                      <span
+                        key={`lvlog-${i}-${n}-${i}`}
+                        className="inline-flex items-center justify-center min-w-[2rem] px-1.5 py-1 rounded-lg border border-amber-700/50 bg-stone-900/80 text-amber-100 text-sm font-mono tabular-nums"
+                      >
+                        {n}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[9px] text-stone-500 mt-2">다음 레벨을 누르기 전까지 이 목록을 유지합니다.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1984,6 +1986,37 @@ export default function App() {
         <div className="shrink-0 text-center my-2 landscape-short:my-1 px-1 text-sm landscape-short:text-xs text-amber-100/90 leading-snug drop-shadow-sm line-clamp-3 landscape-short:line-clamp-2">
           {state.message}
         </div>
+
+        {failureReveal && (
+          <div className="shrink-0 mx-1 mb-2 rounded-xl border border-red-800/55 bg-red-950/25 px-2 py-2 sm:px-3 text-[11px] sm:text-xs text-stone-200">
+            <p className="text-amber-300 font-semibold mb-1.5 text-center">
+              실패 원인 공개 — 낸 수 <strong>{failureReveal.wrongCard}</strong> 이하였던 카드(전원 패 기준)
+            </p>
+            <ul className="space-y-1.5">
+              {roomData.players.map((p) => {
+                const nums = failureReveal.byUid[p.uid] || [];
+                return (
+                  <li key={p.uid} className="flex flex-wrap gap-1 items-baseline justify-center sm:justify-start">
+                    <span className="text-stone-400 shrink-0 w-24 text-right sm:w-28">{p.name}</span>
+                    <span className="text-stone-500">:</span>
+                    {nums.length > 0 ? (
+                      nums.map((n, ni) => (
+                        <span
+                          key={`${p.uid}-fr-${n}-${ni}`}
+                          className="inline-flex font-mono tabular-nums px-1 py-0.5 rounded bg-black/50 border border-red-900/40 text-amber-100"
+                        >
+                          {n}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-stone-500">—</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         <div className="flex-1 min-h-0 flex flex-col landscape-short:flex-row landscape-short:gap-2 overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto landscape-short:overflow-hidden py-1 landscape-short:py-0">
@@ -2078,24 +2111,31 @@ export default function App() {
           </div>
 
           <div className="flex flex-col shrink-0 landscape-short:flex-1 landscape-short:min-h-0 landscape-short:min-w-0 landscape-short:max-w-[50%] w-full overflow-hidden gap-2 landscape-short:gap-1">
-            <div className="flex justify-center gap-2 landscape-short:gap-1 mb-1 landscape-short:mb-0 flex-wrap landscape-short:flex-nowrap landscape-short:overflow-x-auto landscape-short:justify-start landscape-short:pb-1 shrink-0">
-              {mindOpponents.map((p, oidx) => {
-                const nPeer = mindOpponents.length;
-                const tiltDeg = nPeer <= 1 ? 12 : -16 + (32 * oidx) / Math.max(1, nPeer - 1);
-                const showPeek = mindPeekUid === p.uid && state.status === 'playing';
+            <div
+              data-mind-tick={mindBubbleTick}
+              className="flex justify-center gap-2 landscape-short:gap-1 mb-1 landscape-short:mb-0 flex-wrap landscape-short:flex-nowrap landscape-short:overflow-x-auto landscape-short:justify-start landscape-short:pb-1 shrink-0"
+            >
+              {mindOpponents.map((p) => {
+                const bubbles = activeWaitSignals
+                  .filter((s) => s.uid === p.uid)
+                  .sort((a, b) => a.at - b.at);
                 return (
                   <div
                     key={p.uid}
-                    className="mind-titan-opponent text-[10px] landscape-short:text-[9px] text-center px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg shrink-0 relative flex flex-col items-center gap-0.5"
+                    className="mind-titan-opponent text-[10px] landscape-short:text-[9px] text-center px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg shrink-0 relative flex flex-col items-center gap-0.5 min-w-[4.5rem]"
                   >
-                    {showPeek && (
-                      <div
-                        className="mind-card-back-peek mx-auto shadow-lg border border-amber-600/50"
-                        style={{ transform: `perspective(120px) rotateY(28deg) rotate(${tiltDeg}deg)` }}
-                        title="상대가 카드를 짚고 잠깐 기다리는 신호(숫자는 비밀)"
-                        aria-hidden
-                      />
-                    )}
+                    <div className="absolute bottom-full left-1/2 z-30 mb-0.5 flex w-max max-w-[10rem] -translate-x-1/2 flex-col items-center gap-0.5 pointer-events-none">
+                      {bubbles.map((s, bi) => (
+                        <div
+                          key={s.id}
+                          className="mind-wait-bubble"
+                          style={{ zIndex: 20 + bi }}
+                          title="잠깐 기다려 달라는 신호"
+                        >
+                          잠깐~
+                        </div>
+                      ))}
+                    </div>
                     <div className="text-amber-100/90 flex items-center justify-center gap-1">
                       {p.isAi && <span title="AI">🤖</span>}
                       <span className="max-w-[4.5rem] truncate">{p.name}</span>
@@ -2113,23 +2153,35 @@ export default function App() {
               <p className="text-center text-amber-200/70 text-[9px] mb-1 px-1 shrink-0 landscape-short:block hidden">
                 가장 작은 수만 낼 수 있음 · 말·신호 금지
               </p>
-              {mindPeekUid === user.uid && state.status === 'playing' && (
-                <p className="text-center text-amber-400/90 text-[9px] mb-1 px-1 shrink-0">
-                  다른 사람에게 카드 뒷면(잠깐 기다림)이 보입니다 · 짧게 탭하면 낼 카드가 확정됩니다
-                </p>
-              )}
+              <div className="relative flex flex-wrap items-center justify-center gap-2 mb-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => void sendMindWaitSignal()}
+                  disabled={state.status !== 'playing'}
+                  className="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold border border-sky-600/70 bg-sky-950/50 text-sky-100 hover:bg-sky-900/50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  title="다른 사람에게 잠깐 기다려 달라고 말풍선을 띄웁니다(여러 명 동시 가능)"
+                >
+                  잠깐~
+                </button>
+                <div className="absolute bottom-full left-1/2 z-30 mb-1 flex w-max max-w-[min(90vw,14rem)] -translate-x-1/2 flex-col items-center gap-0.5 pointer-events-none">
+                  {activeWaitSignals
+                    .filter((s) => s.uid === user.uid)
+                    .sort((a, b) => a.at - b.at)
+                    .map((s, bi) => (
+                      <div key={s.id} className="mind-wait-bubble mind-wait-bubble-self" style={{ zIndex: 20 + bi }}>
+                        잠깐~
+                      </div>
+                    ))}
+                </div>
+              </div>
               <div className="flex flex-wrap justify-center gap-1.5 landscape-short:gap-1 sm:gap-3 flex-1 min-h-0 overflow-y-auto overscroll-contain pb-1 content-start">
                 {myHand.map((card, idx) => (
                   <button
                     key={`${card}-${idx}`}
                     type="button"
-                    onPointerDown={(e) => handleMindCardPointerDown(e, card)}
-                    onPointerMove={handleMindCardPointerMove}
-                    onPointerUp={(e) => handleMindCardPointerUp(e, card)}
-                    onPointerCancel={handleMindCardPointerCancel}
-                    onLostPointerCapture={handleMindCardPointerCancel}
+                    onClick={() => playTheMindCard(card)}
                     disabled={state.status !== 'playing'}
-                    className="mind-titan-card min-w-[2.75rem] w-[18vw] landscape-short:w-[14vw] max-w-[3.75rem] landscape-short:max-w-[3.25rem] h-16 landscape-short:h-14 sm:w-[4.5rem] sm:h-32 rounded-lg landscape-short:rounded-md sm:rounded-xl flex items-center justify-center text-xl landscape-short:text-lg sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0 select-none"
+                    className="mind-titan-card min-w-[2.75rem] w-[18vw] landscape-short:w-[14vw] max-w-[3.75rem] landscape-short:max-w-[3.25rem] h-16 landscape-short:h-14 sm:w-[4.5rem] sm:h-32 rounded-lg landscape-short:rounded-md sm:rounded-xl flex items-center justify-center text-xl landscape-short:text-lg sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0"
                   >
                     {card}
                   </button>
