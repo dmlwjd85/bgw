@@ -1698,7 +1698,7 @@ export default function App() {
 
     return (
       <div
-        className="nf-root min-h-[100dvh] flex flex-col text-stone-100 px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 relative"
+        className="game-viewport mind-game nf-root flex flex-col text-stone-100 px-2 sm:px-3 relative sm:pb-0"
         style={tableStyle}
       >
         {muteFab}
@@ -1708,7 +1708,7 @@ export default function App() {
           aria-hidden
         />
         {(state.status === 'level_cleared' || state.status === 'won') && (
-          <div className="fixed inset-0 z-[82] pointer-events-none flex flex-col items-center justify-start sm:justify-center pt-[20vh] sm:pt-0 px-4">
+          <div className="fixed inset-0 z-[82] pointer-events-none flex flex-col items-center justify-start landscape-short:justify-center pt-[12vh] landscape-short:pt-4 px-4">
             <div className="text-center drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]">
               <p className="text-3xl sm:text-5xl font-black text-amber-200 font-serif tracking-tight">
                 {state.status === 'won' ? '전체 클리어!' : `레벨 ${state.level} 클리어!`}
@@ -1718,123 +1718,143 @@ export default function App() {
           </div>
         )}
 
-        <div className="mind-titan-header flex flex-col gap-3 px-2 sm:px-4 py-3 rounded-xl backdrop-blur-sm">
+        <div className="mind-titan-header shrink-0 flex flex-col gap-2 landscape-short:gap-1.5 px-2 sm:px-3 py-2 landscape-short:py-1.5 rounded-xl backdrop-blur-sm">
           <div className="flex flex-wrap justify-between items-center gap-2">
             <div>
-              <div className="nf-title text-xl sm:text-2xl text-red-100 tracking-wide drop-shadow-[0_0_12px_rgba(229,9,20,0.35)]">
+              <div className="nf-title text-lg landscape-short:text-base sm:text-2xl text-red-100 tracking-wide drop-shadow-[0_0_12px_rgba(229,9,20,0.35)]">
                 THE MIND
               </div>
-              <p className="text-[10px] sm:text-xs text-red-300/70 tracking-widest mt-0.5 uppercase">Titan HQ · 작전 테이블</p>
+              <p className="text-[9px] landscape-short:text-[8px] sm:text-xs text-red-300/70 tracking-widest mt-0.5 uppercase">
+                Titan HQ · 작전 테이블
+              </p>
             </div>
             <button
               type="button"
               onClick={handleLeaveGameAsAi}
-              className="min-h-[44px] shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto max-sm:order-last"
+              className="min-h-[40px] landscape-short:min-h-[36px] landscape-short:py-1.5 landscape-short:text-xs shrink-0 px-3 sm:px-4 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto max-sm:order-last"
             >
               게임 중 나가기 → AI가 이어감
             </button>
           </div>
-          <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
-            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
+          <div className="flex flex-wrap gap-1.5 landscape-short:gap-1 sm:gap-3 text-[11px] landscape-short:text-[10px] sm:text-sm">
+            <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               레벨 <strong className="text-amber-300">{state.level}</strong> / {THE_MIND_MAX_LEVEL}
             </span>
-            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
+            <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               생명 {state.lives > 0 ? '❤️'.repeat(state.lives) : '—'}
             </span>
-            <span className="px-3 py-1.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
+            <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               수리검 {state.shurikens ?? 1}
             </span>
           </div>
         </div>
 
-        <div className="text-center my-3 px-2 text-sm text-amber-100/90 min-h-[2.5rem] leading-snug drop-shadow-sm">{state.message}</div>
+        <div className="shrink-0 text-center my-2 landscape-short:my-1 px-1 text-sm landscape-short:text-xs text-amber-100/90 leading-snug drop-shadow-sm line-clamp-3 landscape-short:line-clamp-2">
+          {state.message}
+        </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center mb-6">
-          <div className="mind-titan-play-zone relative w-52 h-64 sm:w-60 sm:h-72 flex flex-col items-center justify-center px-3">
-            {state.playedCards.length > 0 ? (
-              <span className="mind-titan-stack-num nf-title text-6xl sm:text-7xl text-amber-100 relative z-[1]">
-                {state.playedCards[state.playedCards.length - 1]}
-              </span>
-            ) : (
-              <span className="text-center text-sm text-stone-400 px-3 leading-relaxed relative z-[1]">
-                본부 작전 구역
-                <br />
-                <span className="text-[11px] text-red-400/60">카드가 쌓이면 숫자가 표시됩니다</span>
-              </span>
-            )}
-            <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-amber-200/75 text-xs tracking-wide">
-              총 {state.playedCards.length}장
-            </span>
-          </div>
-
-          {state.status === 'playing' && state.shurikens > 0 && (
-            <div className="mt-14 flex flex-col items-center gap-2">
-              <p className="text-xs text-stone-300 text-center max-w-sm">
-                수리검: 모두 동의하면 각자 패에서 <strong className="text-amber-300">가장 낮은 숫자 1장</strong>을 버립니다.
-              </p>
-              <button
-                type="button"
-                onClick={voteShuriken}
-                disabled={voted}
-                className={`px-5 py-2 rounded-full text-sm font-semibold border ${voted ? 'opacity-50 border-stone-600' : 'border-red-600/70 bg-red-950/50 hover:bg-red-900/55 text-amber-100'}`}
-              >
-                {voted ? '동의함' : '수리검 사용에 동의'}
-              </button>
-              <span className="text-[11px] text-stone-400">
-                동의 {votes.size}/{roomData.players.length}
-                {allVotedReady && state.shurikens > 0 && ' → 자동 실행'}
+        <div className="flex-1 min-h-0 flex flex-col landscape-short:flex-row landscape-short:gap-2 overflow-hidden">
+          <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto landscape-short:overflow-hidden py-1 landscape-short:py-0">
+            <div className="mind-titan-play-zone relative w-52 h-56 landscape-short:w-44 landscape-short:h-52 landscape-tight:w-40 landscape-tight:h-44 sm:w-60 sm:h-72 flex flex-col items-center justify-center px-2 landscape-short:mb-0 mb-2">
+              {state.playedCards.length > 0 ? (
+                <span className="mind-titan-stack-num nf-title text-5xl landscape-short:text-4xl sm:text-7xl text-amber-100 relative z-[1]">
+                  {state.playedCards[state.playedCards.length - 1]}
+                </span>
+              ) : (
+                <span className="text-center text-xs landscape-short:text-[11px] sm:text-sm text-stone-400 px-2 leading-relaxed relative z-[1]">
+                  본부 작전 구역
+                  <br />
+                  <span className="text-[10px] text-red-400/60">카드가 쌓이면 숫자가 표시됩니다</span>
+                </span>
+              )}
+              <span className="absolute -bottom-7 landscape-short:-bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-amber-200/75 text-[10px] landscape-short:text-[9px] tracking-wide">
+                총 {state.playedCards.length}장
               </span>
             </div>
-          )}
 
-          {state.status === 'level_cleared' && isHost && (
-            <button
-              type="button"
-              onClick={nextLevelTheMind}
-              className="mt-8 px-8 py-3 rounded-full font-bold text-stone-900"
-              style={{ background: 'linear-gradient(180deg, #86efac 0%, #22c55e 100%)' }}
-            >
-              다음 레벨
-            </button>
-          )}
-          {(state.status === 'gameover' || state.status === 'won') && isHost && (
-            <button type="button" onClick={backToLobby} className="mt-8 px-8 py-3 rounded-full font-bold bg-stone-200 text-stone-900">
-              로비로
-            </button>
-          )}
-        </div>
-
-        <div className="flex justify-center gap-3 mb-4 flex-wrap">
-          {roomData.players
-            .filter((p) => p.uid !== user.uid)
-            .map((p) => (
-              <div key={p.uid} className="mind-titan-opponent text-xs text-center px-3 py-2 rounded-lg">
-                <div className="text-amber-100/90 mb-1 flex items-center justify-center gap-1">
-                  {p.isAi && <span title="AI">🤖</span>}
-                  <span>{p.name}</span>
-                </div>
-                <div>남은 카드 {state.hands[p.uid]?.length ?? 0}</div>
+            {state.status === 'playing' && state.shurikens > 0 && (
+              <div className="mt-4 landscape-short:mt-2 landscape-tight:mt-1 flex flex-col items-center gap-1 landscape-short:gap-0.5 shrink-0">
+                <p className="text-[10px] landscape-short:text-[9px] text-stone-300 text-center max-w-sm landscape-short:max-w-[14rem] px-1">
+                  수리검: 모두 동의하면 각자 패에서 <strong className="text-amber-300">가장 낮은 숫자 1장</strong>을 버립니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={voteShuriken}
+                  disabled={voted}
+                  className={`px-4 landscape-short:px-3 py-1.5 landscape-short:py-1 rounded-full text-xs landscape-short:text-[11px] font-semibold border ${voted ? 'opacity-50 border-stone-600' : 'border-red-600/70 bg-red-950/50 hover:bg-red-900/55 text-amber-100'}`}
+                >
+                  {voted ? '동의함' : '수리검 사용에 동의'}
+                </button>
+                <span className="text-[10px] text-stone-400">
+                  동의 {votes.size}/{roomData.players.length}
+                  {allVotedReady && state.shurikens > 0 && ' → 자동 실행'}
+                </span>
               </div>
-            ))}
-        </div>
+            )}
 
-        <div className="mt-auto rounded-t-3xl border-t border-red-900/40 p-3 sm:p-5 bg-black/50 backdrop-blur-md">
-          <p className="text-center text-amber-200/75 text-[11px] sm:text-xs mb-3 sm:mb-4 px-1">
-            내 패 — 전체 중 지금 낼 수 있는 건 가장 작은 수뿐입니다 (말·신호 금지).
-          </p>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-h-[40vh] overflow-y-auto overscroll-contain pb-1">
-            {myHand.map((card, idx) => (
+            {state.status === 'level_cleared' && isHost && (
               <button
-                key={`${card}-${idx}`}
                 type="button"
-                onClick={() => playTheMindCard(card)}
-                disabled={state.status !== 'playing'}
-                className="mind-titan-card min-w-[3.5rem] w-[22vw] max-w-[4.5rem] h-24 sm:w-[4.5rem] sm:h-32 rounded-xl flex items-center justify-center text-2xl sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0"
+                onClick={nextLevelTheMind}
+                className="mt-4 landscape-short:mt-2 px-6 landscape-short:py-2 py-3 rounded-full text-sm font-bold text-stone-900 shrink-0"
+                style={{ background: 'linear-gradient(180deg, #86efac 0%, #22c55e 100%)' }}
               >
-                {card}
+                다음 레벨
               </button>
-            ))}
-            {myHand.length === 0 && <span className="text-amber-200/50 h-24 flex items-center">이 레벨에서 패가 없습니다.</span>}
+            )}
+            {(state.status === 'gameover' || state.status === 'won') && isHost && (
+              <button
+                type="button"
+                onClick={backToLobby}
+                className="mt-4 landscape-short:mt-2 px-6 py-2 rounded-full text-sm font-bold bg-stone-200 text-stone-900 shrink-0"
+              >
+                로비로
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-col shrink-0 landscape-short:flex-1 landscape-short:min-h-0 landscape-short:min-w-0 landscape-short:max-w-[50%] w-full overflow-hidden gap-2 landscape-short:gap-1">
+            <div className="flex justify-center gap-2 landscape-short:gap-1 mb-1 landscape-short:mb-0 flex-wrap landscape-short:flex-nowrap landscape-short:overflow-x-auto landscape-short:justify-start landscape-short:pb-1 shrink-0">
+              {roomData.players
+                .filter((p) => p.uid !== user.uid)
+                .map((p) => (
+                  <div
+                    key={p.uid}
+                    className="mind-titan-opponent text-[10px] landscape-short:text-[9px] text-center px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg shrink-0"
+                  >
+                    <div className="text-amber-100/90 mb-0.5 flex items-center justify-center gap-1">
+                      {p.isAi && <span title="AI">🤖</span>}
+                      <span className="max-w-[4.5rem] truncate">{p.name}</span>
+                    </div>
+                    <div>남은 {state.hands[p.uid]?.length ?? 0}</div>
+                  </div>
+                ))}
+            </div>
+
+            <div className="rounded-t-2xl landscape-short:rounded-lg border-t border-red-900/40 p-2 landscape-short:p-1.5 sm:p-4 bg-black/50 backdrop-blur-md flex-1 landscape-short:min-h-0 flex flex-col min-h-0">
+              <p className="text-center text-amber-200/75 text-[10px] landscape-short:text-[9px] sm:text-xs mb-2 landscape-short:mb-1 px-1 shrink-0 landscape-short:hidden sm:block">
+                내 패 — 전체 중 지금 낼 수 있는 건 가장 작은 수뿐입니다 (말·신호 금지).
+              </p>
+              <p className="text-center text-amber-200/70 text-[9px] mb-1 px-1 shrink-0 landscape-short:block hidden">
+                가장 작은 수만 낼 수 있음 · 말·신호 금지
+              </p>
+              <div className="flex flex-wrap justify-center gap-1.5 landscape-short:gap-1 sm:gap-3 flex-1 min-h-0 overflow-y-auto overscroll-contain pb-1 content-start">
+                {myHand.map((card, idx) => (
+                  <button
+                    key={`${card}-${idx}`}
+                    type="button"
+                    onClick={() => playTheMindCard(card)}
+                    disabled={state.status !== 'playing'}
+                    className="mind-titan-card min-w-[2.75rem] w-[18vw] landscape-short:w-[14vw] max-w-[3.75rem] landscape-short:max-w-[3.25rem] h-16 landscape-short:h-14 sm:w-[4.5rem] sm:h-32 rounded-lg landscape-short:rounded-md sm:rounded-xl flex items-center justify-center text-xl landscape-short:text-lg sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0"
+                  >
+                    {card}
+                  </button>
+                ))}
+                {myHand.length === 0 && (
+                  <span className="text-amber-200/50 h-16 landscape-short:h-14 flex items-center text-xs">이 레벨에서 패가 없습니다.</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1874,30 +1894,30 @@ export default function App() {
 
     return (
       <div
-        className={`nf-root min-h-[100dvh] flex flex-col px-2 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 text-stone-100 ${unoShake ? `uno-screen-shake-${unoShake}` : ''}`}
+        className={`game-viewport uno-game nf-root flex flex-col px-2 pt-1 landscape-short:pt-0.5 sm:px-4 sm:pt-2 text-stone-100 ${unoShake ? `uno-screen-shake-${unoShake}` : ''}`}
         style={tableStyle}
       >
         {muteFab}
         {unoBattleBanner && (
           <div
-            className="uno-battle-banner pointer-events-none fixed top-12 sm:top-14 left-1/2 z-[90] max-w-[min(94vw,26rem)] -translate-x-1/2 rounded-xl border border-amber-400/45 bg-gradient-to-b from-zinc-900/98 to-black/92 px-4 py-2.5 text-center text-sm font-bold leading-snug text-amber-100 shadow-[0_8px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(251,191,36,0.15)]"
+            className="uno-battle-banner pointer-events-none fixed top-10 landscape-short:top-8 sm:top-14 left-1/2 z-[90] max-w-[min(94vw,26rem)] -translate-x-1/2 rounded-xl border border-amber-400/45 bg-gradient-to-b from-zinc-900/98 to-black/92 px-3 landscape-short:px-2 py-2 landscape-short:py-1.5 text-center text-xs landscape-short:text-[11px] sm:text-sm font-bold leading-snug text-amber-100 shadow-[0_8px_40px_rgba(0,0,0,0.85),0_0_24px_rgba(251,191,36,0.15)]"
             role="status"
           >
             {unoBattleBanner}
           </div>
         )}
-        <div className="nf-red-bar mb-3 max-w-xs opacity-80" />
-        <div className="flex flex-col sm:flex-row sm:flex-wrap justify-between items-stretch gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="nf-title text-lg sm:text-xl text-white tracking-wide pr-2">UNO</div>
-            <div className="text-xs sm:text-sm px-3 py-2 rounded-lg bg-black/45 border border-white/10">
+        <div className="shrink-0 nf-red-bar mb-2 landscape-short:mb-1 max-w-xs opacity-80" />
+        <div className="shrink-0 flex flex-col landscape-short:flex-row landscape-short:items-center landscape-short:justify-between gap-1 landscape-short:gap-2 mb-2 landscape-short:mb-1">
+          <div className="flex flex-wrap items-center gap-1 landscape-short:gap-2">
+            <div className="nf-title text-base landscape-short:text-sm sm:text-xl text-white tracking-wide pr-1">UNO</div>
+            <div className="text-[10px] landscape-short:text-[10px] sm:text-sm px-2 landscape-short:py-1 py-1.5 rounded-lg bg-black/45 border border-white/10">
               방향: {state.direction === 1 ? '시계 →' : '반시계 ←'}
             </div>
             {isHost && (
               <button
                 type="button"
                 onClick={backToLobby}
-                className="text-xs px-3 py-2 rounded-lg border border-stone-600 text-stone-400 hover:text-amber-200 min-h-[44px]"
+                className="text-[10px] landscape-short:text-[10px] px-2 py-1.5 rounded-lg border border-stone-600 text-stone-400 hover:text-amber-200 min-h-0 min-w-0"
               >
                 방장: 로비로
               </button>
@@ -1906,19 +1926,21 @@ export default function App() {
           <button
             type="button"
             onClick={handleLeaveGameAsAi}
-            className="min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto sm:max-w-xs"
+            className="min-h-[38px] landscape-short:min-h-[32px] landscape-short:text-xs landscape-short:py-1.5 px-3 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full landscape-short:w-auto sm:max-w-xs"
           >
             게임 중 나가기 → AI가 이어감
           </button>
         </div>
 
         <div
-          className={`mb-2 h-1.5 rounded-full overflow-hidden mx-1 ${state.direction === 1 ? 'uno-dir-flow' : 'uno-dir-flow uno-dir-flow-ccw'}`}
+          className={`shrink-0 mb-1.5 landscape-short:mb-1 h-1 landscape-short:h-0.5 rounded-full overflow-hidden mx-1 ${state.direction === 1 ? 'uno-dir-flow' : 'uno-dir-flow uno-dir-flow-ccw'}`}
           title={state.direction === 1 ? '턴 진행: 시계 방향' : '턴 진행: 반시계 방향'}
           aria-hidden
         />
 
-        <div className="flex justify-center gap-2 mb-3 sm:mb-4 overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-2 landscape-short:space-y-1.5 px-0.5 pb-1">
+        <div className="flex justify-center gap-1.5 landscape-short:gap-1 mb-0 overflow-x-auto pb-1 -mx-0.5 px-0.5 shrink-0">
           {roomData.players.map((p, i) => (
             <div
               key={p.uid}
@@ -1943,25 +1965,25 @@ export default function App() {
         </div>
 
         {state.status === 'playing' && unoHint && (
-          <div className="uno-hint-pop mx-auto mb-3 max-w-lg rounded-lg px-4 py-3 text-center shadow-lg">
-            <p className="text-sm font-semibold leading-snug text-white">{unoHint.message}</p>
+          <div className="uno-hint-pop mx-auto mb-2 landscape-short:mb-1 max-w-lg rounded-lg px-3 landscape-short:px-2 py-2 landscape-short:py-1.5 text-center shadow-lg">
+            <p className="text-xs landscape-short:text-[11px] sm:text-sm font-semibold leading-snug text-white">{unoHint.message}</p>
           </div>
         )}
 
         {state.needsInitialWildColor && roomData.players[state.turnIndex]?.uid === user.uid && (
           <div
-            className={`mb-4 p-4 rounded-xl bg-black/55 border text-center ${
+            className={`mb-2 landscape-short:mb-1 p-3 landscape-short:p-2 rounded-xl bg-black/55 border text-center ${
               unoHint?.highlight === 'colors' ? 'hint-ring border-red-500/60' : 'border-white/10'
             }`}
           >
-            <p className="text-sm text-stone-100 mb-3">첫 카드가 와일드입니다. 시작 색을 고르세요.</p>
-            <div className="flex flex-wrap justify-center gap-2">
+            <p className="text-xs landscape-short:text-[11px] sm:text-sm text-stone-100 mb-2 landscape-short:mb-1">첫 카드가 와일드입니다. 시작 색을 고르세요.</p>
+            <div className="flex flex-wrap justify-center gap-2 landscape-short:gap-1.5">
               {COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setInitialUnoColor(c)}
-                  className={`w-16 h-16 rounded-xl border-2 border-white/30 ${c === 'red' ? 'bg-red-600' : c === 'blue' ? 'bg-blue-600' : c === 'green' ? 'bg-emerald-600' : 'bg-yellow-400'}`}
+                  className={`w-14 h-14 landscape-short:w-11 landscape-short:h-11 sm:w-16 sm:h-16 rounded-xl border-2 border-white/30 ${c === 'red' ? 'bg-red-600' : c === 'blue' ? 'bg-blue-600' : c === 'green' ? 'bg-emerald-600' : 'bg-yellow-400'}`}
                   aria-label={colorKo[c]}
                 />
               ))}
@@ -1969,64 +1991,67 @@ export default function App() {
           </div>
         )}
 
-        <div className="text-center text-sm text-stone-300/95 mb-4 min-h-[2rem] px-2">{state.message}</div>
+        <div className="text-center text-[11px] landscape-short:text-[10px] sm:text-sm text-stone-300/95 mb-2 landscape-short:mb-1 px-1 line-clamp-2 shrink-0">
+          {state.message}
+        </div>
 
-        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 mb-4 sm:mb-6">
+        <div className="flex flex-col landscape-short:flex-row items-center justify-center gap-4 landscape-short:gap-6 sm:gap-8 mb-2 landscape-short:mb-1 shrink-0">
           <div
-            className={`flex flex-col items-center ${unoHint?.highlight === 'deck' ? 'hint-ring p-2 rounded-2xl' : ''}`}
+            className={`flex flex-col items-center ${unoHint?.highlight === 'deck' ? 'hint-ring p-1.5 landscape-short:p-1 rounded-2xl' : ''}`}
           >
             <button
               type="button"
               onClick={() => drawUnoCard()}
               disabled={!isMyTurn || state.status !== 'playing' || state.needsInitialWildColor || !!state.pendingWild4}
-              className="w-[5.5rem] h-[8.5rem] sm:w-24 sm:h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition active:scale-95 sm:hover:scale-105 disabled:opacity-40 touch-manipulation min-h-[120px]"
+              className="w-[5rem] h-[7.5rem] landscape-short:w-[4.25rem] landscape-short:h-28 sm:w-24 sm:h-36 rounded-xl border-4 border-white flex flex-col items-center justify-center shadow-xl transition active:scale-95 sm:hover:scale-105 disabled:opacity-40 touch-manipulation min-h-0"
               style={{ background: 'linear-gradient(145deg, #dc2626 0%, #991b1b 100%)' }}
             >
-              <span className="text-amber-200 font-black text-xl -rotate-12" style={{ fontFamily: 'Georgia, serif' }}>
+              <span className="text-amber-200 font-black text-lg landscape-short:text-base -rotate-12" style={{ fontFamily: 'Georgia, serif' }}>
                 UNO
               </span>
             </button>
-            <span className="text-[11px] text-stone-400 mt-2">덱에서 뽑기</span>
+            <span className="text-[10px] landscape-short:text-[9px] text-stone-400 mt-1 landscape-short:mt-0.5">덱에서 뽑기</span>
           </div>
 
-          <div className="flex flex-col items-center relative">
-            <div className="absolute -top-10 whitespace-nowrap text-xs font-semibold bg-black/70 px-3 py-1 rounded-full border border-red-900/50 text-red-100/95">
+          <div className="flex flex-col items-center relative pt-8 landscape-short:pt-6">
+            <div className="absolute -top-1 landscape-short:-top-0 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] landscape-short:text-[9px] font-semibold bg-black/70 px-2 py-0.5 rounded-full border border-red-900/50 text-red-100/95">
               현재 색: {colorKo[state.currentColor] || state.currentColor}
             </div>
-            <div key={discardSlamKey} className={getCardStyle(topCard) + ' pointer-events-none uno-discard-slam'}>
+            <div key={discardSlamKey} className={getCardStyle(topCard) + ' pointer-events-none uno-discard-slam landscape-short:scale-95'}>
               <span>{getCardFace(topCard)}</span>
             </div>
-            <span className="mt-2 text-[10px] uppercase tracking-[0.2em] text-amber-200/70">플레이 존</span>
+            <span className="mt-1 landscape-short:mt-0.5 text-[9px] landscape-short:text-[8px] uppercase tracking-[0.15em] text-amber-200/70">플레이 존</span>
           </div>
         </div>
 
         {state.pendingWild4 && state.pendingWild4.targetUid === user.uid && (
           <div
-            className={`flex flex-col sm:flex-row justify-center items-center gap-3 mb-4 p-4 rounded-xl bg-zinc-950/80 border ${
+            className={`flex flex-col sm:flex-row justify-center items-center gap-2 landscape-short:gap-1.5 mb-1 p-3 landscape-short:p-2 rounded-xl bg-zinc-950/80 border ${
               unoHint?.highlight === 'wild4' ? 'hint-ring border-red-500/70' : 'border-red-900/40'
             }`}
           >
-            <p className="text-sm text-amber-100 text-center">Wild +4 — 4장을 받거나, 상대가 블러프였는지 도전하세요.</p>
-            <div className="flex gap-2">
+            <p className="text-xs landscape-short:text-[10px] sm:text-sm text-amber-100 text-center">Wild +4 — 4장을 받거나, 상대가 블러프였는지 도전하세요.</p>
+            <div className="flex gap-2 landscape-short:gap-1">
               <button
                 type="button"
                 onClick={() => acceptWild4Pending()}
-                className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold"
+                className="px-3 landscape-short:px-2 py-1.5 landscape-short:text-xs rounded-lg bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold"
               >
                 4장 받기
               </button>
               <button
                 type="button"
                 onClick={() => challengeWild4Pending()}
-                className="px-4 py-2 rounded-lg bg-red-800 hover:bg-red-700 text-sm font-semibold"
+                className="px-3 landscape-short:px-2 py-1.5 landscape-short:text-xs rounded-lg bg-red-800 hover:bg-red-700 text-sm font-semibold"
               >
                 도전
               </button>
             </div>
           </div>
         )}
+          </div>
 
-        <div className="mt-auto rounded-t-3xl border-t border-white/10 p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+        <div className="shrink-0 rounded-t-2xl border-t border-white/10 p-2 landscape-short:p-1.5 sm:p-4 bg-black/50 backdrop-blur-sm flex flex-col min-h-0 max-h-[min(46vh,320px)] landscape-short:max-h-[40vh]">
           <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
             <span className="text-sm font-semibold text-stone-100">내 패 ({myHand.length}장)</span>
             {isMyTurn && <span className="text-red-400 text-sm font-semibold animate-pulse">내 차례</span>}
@@ -2053,7 +2078,7 @@ export default function App() {
             </div>
           )}
 
-          <div className="flex overflow-x-auto pb-2 gap-2 px-0.5 max-h-[42vh] sm:max-h-none overscroll-x-contain touch-pan-x">
+          <div className="flex flex-1 min-h-[3.5rem] landscape-short:min-h-[3rem] overflow-x-auto overflow-y-hidden pb-1 gap-1.5 landscape-short:gap-1 px-0.5 overscroll-x-contain touch-pan-x items-center">
             {myHand.map((card, idx) => {
               const playable =
                 isMyTurn &&
@@ -2077,6 +2102,7 @@ export default function App() {
               );
             })}
           </div>
+        </div>
         </div>
 
         {wildColorSelector && (

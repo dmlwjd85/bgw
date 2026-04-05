@@ -2,10 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  height: 100%;
+}
 body {
   margin: 0;
   min-height: 100dvh;
+  min-height: 100svh;
   background: #0d0d0d;
+  overflow-x: hidden;
+}
+#root {
+  min-height: 100dvh;
+  min-height: 100svh;
+}
+
+/**
+ * 인게임: 뷰포트 높이 고정 → 바깥 body 스크롤 방지
+ * (로비·닉네임 등은 min-height만 쓰고 스크롤 허용)
+ */
+.game-viewport {
+  height: 100dvh;
+  height: 100svh;
+  max-height: 100dvh;
+  max-height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-viewport {
+    padding-top: max(0.15rem, env(safe-area-inset-top));
+    padding-bottom: max(0.15rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* 넷플릭스 틴(Titan) 느낌: 다크 베이스 + 레드 악센트, 시네마틱 타이포 */
