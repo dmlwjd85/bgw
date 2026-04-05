@@ -74,6 +74,8 @@ const THE_MIND_AI_DELAY_MAX_MS = 20000;
 const THE_MIND_LEVEL_START_GRACE_MS = 1000;
 /** 인간 패가 모두 비었을 때만 AI끼리 남은 경우 — 빠르게 레벨 종료 */
 const THE_MIND_ONLY_AI_DELAY_CAP_MS = 220;
+/** 카드를 짧게 탭하면 플레이, 길게 누르면 상대에게 카드 뒷면(대기 신호)만 표시 */
+const THE_MIND_CARD_TAP_MAX_MS = 280;
 
 const getTheMindAiPlayDelayMs = (cardValue) => {
   const n = Math.max(1, Math.min(100, Number(cardValue) || 1));
@@ -145,6 +147,7 @@ const migrateGameStateUid = (oldUid, newUid, gs, gameType) => {
   }
   if (gameType === 'themind') {
     next.shurikenVotes = (gs.shurikenVotes || []).map((u) => (u === oldUid ? newUid : u));
+    if (gs.mindPeekUid === oldUid) next.mindPeekUid = newUid;
   }
   if (gameType === 'uno') {
     next.unoDeclared = gs.unoDeclared ? { ...gs.unoDeclared } : {};
@@ -181,6 +184,7 @@ const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
     lives: lives !== null ? lives : getTheMindStartingLives(players.length),
     shurikens: shurikens !== null ? shurikens : 1,
     shurikenVotes: [],
+    mindPeekUid: null,
     playedCards: [],
     hands,
     message: `${level}레벨 시작 — 아무 말 없이 가장 작은 수부터 놓으세요.`
@@ -430,6 +434,14 @@ export default function App() {
   /** 더 마인드 AI 지연 실행 시 최신 핸들러 사용(클로저로 인한 먹통 방지) */
   const playTheMindCardRef = useRef(async () => {});
   const voteShurikenRef = useRef(async () => {});
+  /** 더 마인드: 카드 누름(대기 신호) vs 짧은 탭(플레이) 구분 */
+  const mindCardPointerRef = useRef({
+    t: 0,
+    pointerId: null,
+    moved: false,
+    startX: 0,
+    startY: 0
+  });
 
   /** 넷플릭스 틴 스타일 + 게임별 포인트 컬러 */
   const tableStyle = useMemo(() => {
@@ -887,6 +899,7 @@ export default function App() {
             'gameState.hands': newHands,
             'gameState.playedCards': newPlayedCards,
             'gameState.shurikenVotes': [],
+            'gameState.mindPeekUid': null,
             'gameState.message': `${actorName}님이 ${card}를 냈습니다.`
           };
           const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
@@ -916,6 +929,7 @@ export default function App() {
           'gameState.hands': correctedHands,
           'gameState.playedCards': [],
           'gameState.shurikenVotes': [],
+          'gameState.mindPeekUid': null,
           'gameState.lives': newLives,
           'gameState.message':
             newLives <= 0
@@ -959,7 +973,9 @@ export default function App() {
         votes.add(actingUid);
         const allUids = rd.players.map((p) => p.uid);
         if (votes.size < allUids.length || (state.shurikens || 0) < 1) {
-          transaction.update(roomRef, { 'gameState.shurikenVotes': [...votes] });
+          transaction.update(roomRef, {
+            'gameState.shurikenVotes': [...votes]
+          });
           return;
         }
 
@@ -979,6 +995,7 @@ export default function App() {
           'gameState.hands': correctedHands,
           'gameState.shurikenVotes': nextVotes,
           'gameState.shurikens': nextShurikens,
+          'gameState.mindPeekUid': null,
           'gameState.message': '수리검! 모두가 가장 낮은 카드를 한 장씩 버렸습니다.'
         };
         if (remaining === 0) {
@@ -1001,6 +1018,80 @@ export default function App() {
 
   playTheMindCardRef.current = playTheMindCard;
   voteShurikenRef.current = voteShuriken;
+
+  const setMindPeekUidRemote = useCallback(async (uid) => {
+    if (!roomCode) return;
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    try {
+      await updateDoc(roomRef, { 'gameState.mindPeekUid': uid ?? null });
+    } catch (e) {
+      console.error('mindPeekUid', e);
+    }
+  }, [roomCode]);
+
+  const handleMindCardPointerDown = useCallback(
+    (e, card) => {
+      if (!user?.uid) return;
+      if (roomData?.game !== 'themind' || roomData?.gameState?.status !== 'playing') return;
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (_) {}
+      mindCardPointerRef.current = {
+        t: Date.now(),
+        pointerId: e.pointerId,
+        moved: false,
+        startX: e.clientX,
+        startY: e.clientY,
+        card
+      };
+      void setMindPeekUidRemote(user.uid);
+    },
+    [roomData?.game, roomData?.gameState?.status, user?.uid, setMindPeekUidRemote]
+  );
+
+  const handleMindCardPointerMove = useCallback((e) => {
+    const pr = mindCardPointerRef.current;
+    if (pr.pointerId === null || e.pointerId !== pr.pointerId) return;
+    const dx = e.clientX - pr.startX;
+    const dy = e.clientY - pr.startY;
+    if (dx * dx + dy * dy > 100) pr.moved = true;
+  }, []);
+
+  const handleMindCardPointerUp = useCallback(
+    (e, card) => {
+      const pr = mindCardPointerRef.current;
+      if (pr.t === 0) return;
+      if (pr.pointerId !== null && e.pointerId !== pr.pointerId) return;
+      const dur = Date.now() - pr.t;
+      const moved = pr.moved;
+      mindCardPointerRef.current = {
+        t: 0,
+        pointerId: null,
+        moved: false,
+        startX: 0,
+        startY: 0,
+        card: null
+      };
+      void setMindPeekUidRemote(null);
+      if (roomData?.game !== 'themind' || roomData?.gameState?.status !== 'playing') return;
+      if (!moved && dur >= 0 && dur < THE_MIND_CARD_TAP_MAX_MS) {
+        void playTheMindCardRef.current(card);
+      }
+    },
+    [roomData?.game, roomData?.gameState?.status, setMindPeekUidRemote]
+  );
+
+  const handleMindCardPointerCancel = useCallback(() => {
+    mindCardPointerRef.current = {
+      t: 0,
+      pointerId: null,
+      moved: false,
+      startX: 0,
+      startY: 0,
+      card: null
+    };
+    void setMindPeekUidRemote(null);
+  }, [setMindPeekUidRemote]);
 
   const nextLevelTheMind = async () => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
@@ -1808,6 +1899,9 @@ export default function App() {
   if (roomData.status === 'playing' && roomData.game === 'themind') {
     const state = roomData.gameState;
     const mindMaxLevel = getTheMindMaxLevel(roomData.players.length);
+    const mindOpponents = roomData.players.filter((p) => p.uid !== user.uid);
+    const playedCardsList = state.playedCards || [];
+    const mindPeekUid = state.mindPeekUid;
     const myHand = state.hands[user.uid] || [];
     const isHost = roomData.players.find((p) => p.uid === user.uid)?.isHost;
     const votes = new Set(state.shurikenVotes || []);
@@ -1837,8 +1931,8 @@ export default function App() {
         )}
 
         <div className="mind-titan-header shrink-0 flex flex-col gap-2 landscape-short:gap-1.5 px-2 sm:px-3 py-2 landscape-short:py-1.5 rounded-xl backdrop-blur-sm">
-          <div className="flex flex-wrap justify-between items-center gap-2">
-            <div>
+          <div className="flex flex-wrap justify-between items-start gap-2">
+            <div className="min-w-0 flex-1">
               <div className="nf-title text-lg landscape-short:text-base sm:text-2xl text-red-100 tracking-wide drop-shadow-[0_0_12px_rgba(229,9,20,0.35)]">
                 THE MIND
               </div>
@@ -1846,13 +1940,33 @@ export default function App() {
                 Titan HQ · 작전 테이블
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleLeaveGameAsAi}
-              className="min-h-[40px] landscape-short:min-h-[36px] landscape-short:py-1.5 landscape-short:text-xs shrink-0 px-3 sm:px-4 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99] w-full sm:w-auto max-sm:order-last"
-            >
-              게임 중 나가기 → AI가 이어감
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0 items-stretch sm:items-center max-sm:order-last z-10">
+              <button
+                type="button"
+                onClick={handleLeaveGameAsAi}
+                className="min-h-[40px] landscape-short:min-h-[36px] landscape-short:py-1.5 landscape-short:text-xs px-3 sm:px-4 rounded-xl text-sm font-medium bg-stone-900/80 border border-red-800/50 text-red-200 hover:bg-red-950/50 active:scale-[0.99]"
+              >
+                게임 중 나가기 → AI가 이어감
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isHost) {
+                    alert('방장만 테이블을 1레벨부터 다시 시작할 수 있습니다.');
+                    return;
+                  }
+                  void restartTheMindFromLevelOne();
+                }}
+                className={`min-h-[40px] landscape-short:min-h-[36px] landscape-short:py-1.5 landscape-short:text-xs px-3 sm:px-4 rounded-xl text-sm font-medium border active:scale-[0.99] whitespace-nowrap ${
+                  isHost
+                    ? 'border-amber-500/80 bg-amber-950/35 text-amber-100 hover:bg-amber-900/40'
+                    : 'border-stone-600 bg-stone-900/60 text-stone-400 cursor-pointer hover:bg-stone-800/80'
+                }`}
+                title={isHost ? '1레벨부터 생명·수리검 초기화 후 재시작' : '방장만 사용할 수 있습니다'}
+              >
+                1레벨부터 다시하기
+              </button>
+            </div>
           </div>
           <div className="flex flex-wrap gap-1.5 landscape-short:gap-1 sm:gap-3 text-[11px] landscape-short:text-[10px] sm:text-sm">
             <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
@@ -1865,17 +1979,6 @@ export default function App() {
               수리검 {state.shurikens ?? 1}
             </span>
           </div>
-          {isHost && (
-            <div className="flex justify-end w-full">
-              <button
-                type="button"
-                onClick={() => void restartTheMindFromLevelOne()}
-                className="text-[10px] landscape-short:text-[9px] sm:text-xs px-2.5 py-1 rounded-lg border border-amber-800/60 bg-black/30 text-amber-100/90 hover:bg-amber-950/40 active:scale-[0.99]"
-              >
-                1레벨부터 다시하기
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="shrink-0 text-center my-2 landscape-short:my-1 px-1 text-sm landscape-short:text-xs text-amber-100/90 leading-snug drop-shadow-sm line-clamp-3 landscape-short:line-clamp-2">
@@ -1884,10 +1987,10 @@ export default function App() {
 
         <div className="flex-1 min-h-0 flex flex-col landscape-short:flex-row landscape-short:gap-2 overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto landscape-short:overflow-hidden py-1 landscape-short:py-0">
-            <div className="mind-titan-play-zone relative w-52 h-56 landscape-short:w-44 landscape-short:h-52 landscape-tight:w-40 landscape-tight:h-44 sm:w-60 sm:h-72 flex flex-col items-center justify-center px-2 landscape-short:mb-0 mb-2">
-              {(state.playedCards || []).length > 0 ? (
+            <div className="mind-titan-play-zone relative w-full max-w-md landscape-short:max-w-sm sm:max-w-lg min-h-[12rem] landscape-short:min-h-[10rem] flex flex-col items-center justify-center px-2 landscape-short:mb-0 mb-2">
+              {playedCardsList.length > 0 ? (
                 <span className="mind-titan-stack-num nf-title text-5xl landscape-short:text-4xl sm:text-7xl text-amber-100 relative z-[1]">
-                  {state.playedCards[state.playedCards.length - 1]}
+                  {playedCardsList[playedCardsList.length - 1]}
                 </span>
               ) : (
                 <span className="text-center text-xs landscape-short:text-[11px] sm:text-sm text-stone-400 px-2 leading-relaxed relative z-[1]">
@@ -1896,8 +1999,26 @@ export default function App() {
                   <span className="text-[10px] text-red-400/60">카드가 쌓이면 숫자가 표시됩니다</span>
                 </span>
               )}
-              <span className="absolute -bottom-7 landscape-short:-bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-amber-200/75 text-[10px] landscape-short:text-[9px] tracking-wide">
-                총 {(state.playedCards || []).length}장
+              {playedCardsList.length > 0 && (
+                <div className="mt-3 w-full max-w-sm sm:max-w-md px-1 z-[1]">
+                  <p className="text-[9px] text-stone-500 text-center mb-1">낸 카드 순서 (앞에서부터)</p>
+                  <div className="flex flex-wrap justify-center gap-1 max-h-24 overflow-y-auto overscroll-contain py-0.5">
+                    {playedCardsList.map((n, i) => (
+                      <span
+                        key={`played-${i}-${n}`}
+                        className="inline-flex items-center justify-center min-w-[1.65rem] px-1 py-0.5 rounded border border-amber-800/45 bg-black/55 text-amber-100 text-[11px] sm:text-xs font-mono tabular-nums shadow-sm"
+                      >
+                        {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <span className="mt-2 text-amber-200/75 text-[10px] landscape-short:text-[9px] tracking-wide">
+                총 {playedCardsList.length}장
+                {playedCardsList.length > 0 && (
+                  <span className="text-stone-500 ml-1">· 맨 위 숫자가 마지막으로 낸 카드</span>
+                )}
               </span>
             </div>
 
@@ -1958,20 +2079,31 @@ export default function App() {
 
           <div className="flex flex-col shrink-0 landscape-short:flex-1 landscape-short:min-h-0 landscape-short:min-w-0 landscape-short:max-w-[50%] w-full overflow-hidden gap-2 landscape-short:gap-1">
             <div className="flex justify-center gap-2 landscape-short:gap-1 mb-1 landscape-short:mb-0 flex-wrap landscape-short:flex-nowrap landscape-short:overflow-x-auto landscape-short:justify-start landscape-short:pb-1 shrink-0">
-              {roomData.players
-                .filter((p) => p.uid !== user.uid)
-                .map((p) => (
+              {mindOpponents.map((p, oidx) => {
+                const nPeer = mindOpponents.length;
+                const tiltDeg = nPeer <= 1 ? 12 : -16 + (32 * oidx) / Math.max(1, nPeer - 1);
+                const showPeek = mindPeekUid === p.uid && state.status === 'playing';
+                return (
                   <div
                     key={p.uid}
-                    className="mind-titan-opponent text-[10px] landscape-short:text-[9px] text-center px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg shrink-0"
+                    className="mind-titan-opponent text-[10px] landscape-short:text-[9px] text-center px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg shrink-0 relative flex flex-col items-center gap-0.5"
                   >
-                    <div className="text-amber-100/90 mb-0.5 flex items-center justify-center gap-1">
+                    {showPeek && (
+                      <div
+                        className="mind-card-back-peek mx-auto shadow-lg border border-amber-600/50"
+                        style={{ transform: `perspective(120px) rotateY(28deg) rotate(${tiltDeg}deg)` }}
+                        title="상대가 카드를 짚고 잠깐 기다리는 신호(숫자는 비밀)"
+                        aria-hidden
+                      />
+                    )}
+                    <div className="text-amber-100/90 flex items-center justify-center gap-1">
                       {p.isAi && <span title="AI">🤖</span>}
                       <span className="max-w-[4.5rem] truncate">{p.name}</span>
                     </div>
                     <div>남은 {state.hands[p.uid]?.length ?? 0}</div>
                   </div>
-                ))}
+                );
+              })}
             </div>
 
             <div className="rounded-t-2xl landscape-short:rounded-lg border-t border-red-900/40 p-2 landscape-short:p-1.5 sm:p-4 bg-black/50 backdrop-blur-md flex-1 landscape-short:min-h-0 flex flex-col min-h-0">
@@ -1981,14 +2113,23 @@ export default function App() {
               <p className="text-center text-amber-200/70 text-[9px] mb-1 px-1 shrink-0 landscape-short:block hidden">
                 가장 작은 수만 낼 수 있음 · 말·신호 금지
               </p>
+              {mindPeekUid === user.uid && state.status === 'playing' && (
+                <p className="text-center text-amber-400/90 text-[9px] mb-1 px-1 shrink-0">
+                  다른 사람에게 카드 뒷면(잠깐 기다림)이 보입니다 · 짧게 탭하면 낼 카드가 확정됩니다
+                </p>
+              )}
               <div className="flex flex-wrap justify-center gap-1.5 landscape-short:gap-1 sm:gap-3 flex-1 min-h-0 overflow-y-auto overscroll-contain pb-1 content-start">
                 {myHand.map((card, idx) => (
                   <button
                     key={`${card}-${idx}`}
                     type="button"
-                    onClick={() => playTheMindCard(card)}
+                    onPointerDown={(e) => handleMindCardPointerDown(e, card)}
+                    onPointerMove={handleMindCardPointerMove}
+                    onPointerUp={(e) => handleMindCardPointerUp(e, card)}
+                    onPointerCancel={handleMindCardPointerCancel}
+                    onLostPointerCapture={handleMindCardPointerCancel}
                     disabled={state.status !== 'playing'}
-                    className="mind-titan-card min-w-[2.75rem] w-[18vw] landscape-short:w-[14vw] max-w-[3.75rem] landscape-short:max-w-[3.25rem] h-16 landscape-short:h-14 sm:w-[4.5rem] sm:h-32 rounded-lg landscape-short:rounded-md sm:rounded-xl flex items-center justify-center text-xl landscape-short:text-lg sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0"
+                    className="mind-titan-card min-w-[2.75rem] w-[18vw] landscape-short:w-[14vw] max-w-[3.75rem] landscape-short:max-w-[3.25rem] h-16 landscape-short:h-14 sm:w-[4.5rem] sm:h-32 rounded-lg landscape-short:rounded-md sm:rounded-xl flex items-center justify-center text-xl landscape-short:text-lg sm:text-4xl transition active:scale-95 sm:hover:-translate-y-1 disabled:opacity-40 disabled:hover:translate-y-0 touch-manipulation z-0 select-none"
                   >
                     {card}
                   </button>
