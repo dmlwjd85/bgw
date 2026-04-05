@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc, runTransaction } from 'firebase/firestore';
 import { resumeAudioContext, playSfx, setMuted as setAudioMutedGlobal, getMuted, initMutedFromStorage } from './gameAudio.js';
 
 // --- Firebase 초기화 (Vite 환경 변수 또는 __firebase_config 폴백) ---
@@ -387,6 +387,9 @@ export default function App() {
   const sfxMindPlayedRef = useRef(0);
   const sfxHandLenRef = useRef(null);
   const sfxGameOverRef = useRef(false);
+  /** 더 마인드 AI 지연 실행 시 최신 핸들러 사용(클로저로 인한 먹통 방지) */
+  const playTheMindCardRef = useRef(async () => {});
+  const voteShurikenRef = useRef(async () => {});
 
   /** 넷플릭스 틴 스타일 + 게임별 포인트 컬러 */
   const tableStyle = useMemo(() => {
@@ -813,113 +816,172 @@ export default function App() {
     });
   };
 
-  // --- 더 마인드 액션 (actingUid: AI 턴 시 방장이 대리 실행, rd: 최신 방 데이터) ---
-  const playTheMindCard = async (card, actingUid = user.uid, rd = roomData) => {
-    if (!rd || rd.gameState.status !== 'playing') return;
-
-    const state = rd.gameState;
+  // --- 더 마인드 액션 (actingUid: AI 턴 시 방장이 대리 실행) — runTransaction으로 동시 플레이/레이스 방지 ---
+  const playTheMindCard = async (card, actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    if (!state.hands[actingUid]?.includes(card)) return;
+    try {
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(roomRef);
+        if (!snap.exists()) return;
+        const rd = snap.data();
+        if (!rd?.gameState || rd.gameState.status !== 'playing') return;
 
-    let allCards = [];
-    Object.values(state.hands).forEach((hand) => {
-      allCards = allCards.concat(hand);
-    });
-    if (allCards.length === 0) return;
-    const lowestCard = Math.min(...allCards);
+        const state = rd.gameState;
+        if (!state.hands[actingUid]?.includes(card)) return;
 
-    const newHands = { ...state.hands };
-    newHands[actingUid] = newHands[actingUid].filter((c) => c !== card);
-    const newPlayedCards = [...state.playedCards, card];
+        let allCards = [];
+        Object.values(state.hands).forEach((hand) => {
+          allCards = allCards.concat(hand);
+        });
+        if (allCards.length === 0) return;
+        const lowestCard = Math.min(...allCards);
 
-    const updates = {
-      'gameState.hands': newHands,
-      'gameState.playedCards': newPlayedCards,
-      'gameState.shurikenVotes': []
-    };
+        const newHands = { ...state.hands };
+        newHands[actingUid] = newHands[actingUid].filter((c) => c !== card);
+        const actorName = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
 
-    const actorName = rd.players.find((p) => p.uid === actingUid)?.name ?? '플레이어';
-
-    if (card === lowestCard) {
-      updates['gameState.message'] = `${actorName}님이 ${card}를 냈습니다.`;
-
-      const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
-      if (remainingCards === 0) {
-        if (state.level >= THE_MIND_MAX_LEVEL) {
-          updates['gameState.status'] = 'won';
-          updates['gameState.message'] = `전체 클리어! 레벨 ${THE_MIND_MAX_LEVEL}까지 모두 성공했습니다!`;
-        } else {
-          updates['gameState.status'] = 'level_cleared';
-          updates['gameState.message'] = `레벨 ${state.level} 클리어! 방장이 다음 레벨을 눌러 주세요.`;
+        if (card === lowestCard) {
+          const newPlayedCards = [...(state.playedCards || []), card];
+          const updates = {
+            'gameState.hands': newHands,
+            'gameState.playedCards': newPlayedCards,
+            'gameState.shurikenVotes': [],
+            'gameState.message': `${actorName}님이 ${card}를 냈습니다.`
+          };
+          const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
+          if (remainingCards === 0) {
+            if (state.level >= THE_MIND_MAX_LEVEL) {
+              updates['gameState.status'] = 'won';
+              updates['gameState.message'] = `전체 클리어! 레벨 ${THE_MIND_MAX_LEVEL}까지 모두 성공했습니다!`;
+            } else {
+              updates['gameState.status'] = 'level_cleared';
+              updates['gameState.message'] = `레벨 ${state.level} 클리어! 방장이 다음 레벨을 눌러 주세요.`;
+            }
+          }
+          transaction.update(roomRef, updates);
+          return;
         }
-      }
-    } else {
-      const newLives = state.lives - 1;
-      updates['gameState.lives'] = newLives;
-      updates['gameState.message'] = `타이밍 실패! 더 작은 수가 남아 있었습니다. 생명 -1`;
 
-      if (newLives <= 0) {
-        updates['gameState.status'] = 'gameover';
-        updates['gameState.message'] = '게임 오버 — 생명이 모두 소진되었습니다.';
-      } else {
+        /** 실패: 생명 -1, 낸 수 이하 제거, 테이블 리셋, 계속이면 status 명시적으로 playing */
+        const prevLives = Number(state.lives ?? 0);
+        const newLives = prevLives - 1;
         const correctedHands = {};
         Object.keys(newHands).forEach((uid) => {
           correctedHands[uid] = newHands[uid].filter((c) => c > card);
         });
-        updates['gameState.hands'] = correctedHands;
-      }
-    }
+        const remainingAfter = Object.values(correctedHands).reduce((a, h) => a + h.length, 0);
 
-    await updateDoc(roomRef, updates);
+        const updates = {
+          'gameState.hands': correctedHands,
+          'gameState.playedCards': [],
+          'gameState.shurikenVotes': [],
+          'gameState.lives': newLives,
+          'gameState.message':
+            newLives <= 0
+              ? '게임 오버 — 생명이 모두 소진되었습니다.'
+              : '타이밍 실패! 더 작은 수가 있었습니다. (낮은 카드 제거, 생명 -1) 같은 레벨을 이어서 진행하세요.'
+        };
+
+        if (newLives <= 0) {
+          updates['gameState.status'] = 'gameover';
+        } else if (remainingAfter === 0) {
+          if (state.level >= THE_MIND_MAX_LEVEL) {
+            updates['gameState.status'] = 'won';
+            updates['gameState.message'] = `전체 클리어! 실패 처리 후 패가 모두 비었습니다.`;
+          } else {
+            updates['gameState.status'] = 'level_cleared';
+            updates['gameState.message'] = `레벨 ${state.level} 클리어! (실패 처리 후 패 소진) 방장이 다음 레벨을 눌러 주세요.`;
+          }
+        } else {
+          updates['gameState.status'] = 'playing';
+        }
+
+        transaction.update(roomRef, updates);
+      });
+    } catch (e) {
+      console.error('playTheMindCard', e);
+    }
   };
 
-  /** 수리검: 모두 동의 시 각자 패에서 가장 낮은 수 1장씩 버림 */
-  const voteShuriken = async (actingUid = user.uid, rd = roomData) => {
-    if (!rd || rd.gameState.status !== 'playing') return;
-    const state = rd.gameState;
-    const votes = new Set(state.shurikenVotes || []);
-    votes.add(actingUid);
+  /** 수리검: 모두 동의 시 각자 패에서 가장 낮은 수 1장씩 버림 (트랜잭션으로 투표 합치기) */
+  const voteShuriken = async (actingUid = user.uid, _rd = null) => {
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const allUids = rd.players.map((p) => p.uid);
-    if (votes.size < allUids.length || (state.shurikens || 0) < 1) {
-      await updateDoc(roomRef, { 'gameState.shurikenVotes': [...votes] });
-      return;
-    }
+    try {
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(roomRef);
+        if (!snap.exists()) return;
+        const rd = snap.data();
+        if (!rd?.gameState || rd.gameState.status !== 'playing') return;
+        const state = rd.gameState;
+        const votes = new Set(state.shurikenVotes || []);
+        votes.add(actingUid);
+        const allUids = rd.players.map((p) => p.uid);
+        if (votes.size < allUids.length || (state.shurikens || 0) < 1) {
+          transaction.update(roomRef, { 'gameState.shurikenVotes': [...votes] });
+          return;
+        }
 
-    const correctedHands = { ...state.hands };
-    allUids.forEach((uid) => {
-      const h = correctedHands[uid];
-      if (!h || h.length === 0) return;
-      const minVal = Math.min(...h);
-      const i = h.indexOf(minVal);
-      correctedHands[uid] = [...h.slice(0, i), ...h.slice(i + 1)];
-    });
+        const correctedHands = { ...state.hands };
+        allUids.forEach((uid) => {
+          const h = correctedHands[uid];
+          if (!h || h.length === 0) return;
+          const minVal = Math.min(...h);
+          const i = h.indexOf(minVal);
+          correctedHands[uid] = [...h.slice(0, i), ...h.slice(i + 1)];
+        });
 
-    const remaining = Object.values(correctedHands).reduce((a, h) => a + h.length, 0);
-    const nextVotes = [];
-    const nextShurikens = (state.shurikens || 1) - 1;
-    const patch = {
-      'gameState.hands': correctedHands,
-      'gameState.shurikenVotes': nextVotes,
-      'gameState.shurikens': nextShurikens,
-      'gameState.message': '수리검! 모두가 가장 낮은 카드를 한 장씩 버렸습니다.'
-    };
-    if (remaining === 0) {
-      if (state.level >= THE_MIND_MAX_LEVEL) {
-        patch['gameState.status'] = 'won';
-        patch['gameState.message'] = `수리검으로 레벨을 마쳤습니다! 레벨 ${THE_MIND_MAX_LEVEL} 전체 클리어!`;
-      } else {
-        patch['gameState.status'] = 'level_cleared';
-        patch['gameState.message'] = `수리검 후 레벨 ${state.level} 클리어!`;
-      }
+        const remaining = Object.values(correctedHands).reduce((a, h) => a + h.length, 0);
+        const nextVotes = [];
+        const nextShurikens = (state.shurikens || 1) - 1;
+        const patch = {
+          'gameState.hands': correctedHands,
+          'gameState.shurikenVotes': nextVotes,
+          'gameState.shurikens': nextShurikens,
+          'gameState.message': '수리검! 모두가 가장 낮은 카드를 한 장씩 버렸습니다.'
+        };
+        if (remaining === 0) {
+          if (state.level >= THE_MIND_MAX_LEVEL) {
+            patch['gameState.status'] = 'won';
+            patch['gameState.message'] = `수리검으로 레벨을 마쳤습니다! 레벨 ${THE_MIND_MAX_LEVEL} 전체 클리어!`;
+          } else {
+            patch['gameState.status'] = 'level_cleared';
+            patch['gameState.message'] = `수리검 후 레벨 ${state.level} 클리어!`;
+          }
+        } else {
+          patch['gameState.status'] = 'playing';
+        }
+        transaction.update(roomRef, patch);
+      });
+    } catch (e) {
+      console.error('voteShuriken', e);
     }
-    await updateDoc(roomRef, patch);
   };
+
+  playTheMindCardRef.current = playTheMindCard;
+  voteShurikenRef.current = voteShuriken;
 
   const nextLevelTheMind = async () => {
-    const state = roomData.gameState;
     const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
-    const newState = initTheMind(roomData.players, state.level + 1, state.lives, state.shurikens ?? 1);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    const state = rd.gameState;
+    if (state.status !== 'level_cleared') return;
+    const newState = initTheMind(rd.players, state.level + 1, state.lives, state.shurikens ?? 1);
+    await updateDoc(roomRef, { gameState: newState });
+  };
+
+  /** 방장: 레벨·생명·수리검을 초기화하고 1레벨 패를 다시 나눔 */
+  const restartTheMindFromLevelOne = async () => {
+    if (!window.confirm('1레벨부터 새로 시작합니다. 생명과 수리검이 초기화되고 패가 다시 나뉩니다. 계속할까요?')) return;
+    const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', roomCode);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+    const rd = snap.data();
+    if (rd.status !== 'playing' || rd.game !== 'themind') return;
+    const hostUid = rd.players.find((p) => p.isHost)?.uid;
+    if (hostUid !== user.uid) return;
+    const newState = initTheMind(rd.players);
     await updateDoc(roomRef, { gameState: newState });
   };
 
@@ -1366,7 +1428,7 @@ export default function App() {
             if (rd2.status !== 'playing' || rd2.game !== 'themind') return;
             const st2 = rd2.gameState;
             if (!st2 || st2.status !== 'playing') return;
-            await playTheMindCard(myMin, pick.uid, rd2);
+            await playTheMindCardRef.current(myMin, pick.uid, rd2);
           }, delayMs);
           return;
         }
@@ -1379,7 +1441,7 @@ export default function App() {
             const votes = new Set(st.shurikenVotes || []);
             const nextAi = rd.players.find((p) => p.isAi && !votes.has(p.uid));
             if (!nextAi) break;
-            await voteShuriken(nextAi.uid, rd);
+            await voteShurikenRef.current(nextAi.uid, rd);
           }
         }
         return;
@@ -1747,6 +1809,17 @@ export default function App() {
               수리검 {state.shurikens ?? 1}
             </span>
           </div>
+          {isHost && (
+            <div className="flex justify-end w-full">
+              <button
+                type="button"
+                onClick={() => void restartTheMindFromLevelOne()}
+                className="text-[10px] landscape-short:text-[9px] sm:text-xs px-2.5 py-1 rounded-lg border border-amber-800/60 bg-black/30 text-amber-100/90 hover:bg-amber-950/40 active:scale-[0.99]"
+              >
+                1레벨부터 다시하기
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="shrink-0 text-center my-2 landscape-short:my-1 px-1 text-sm landscape-short:text-xs text-amber-100/90 leading-snug drop-shadow-sm line-clamp-3 landscape-short:line-clamp-2">
@@ -1756,7 +1829,7 @@ export default function App() {
         <div className="flex-1 min-h-0 flex flex-col landscape-short:flex-row landscape-short:gap-2 overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto landscape-short:overflow-hidden py-1 landscape-short:py-0">
             <div className="mind-titan-play-zone relative w-52 h-56 landscape-short:w-44 landscape-short:h-52 landscape-tight:w-40 landscape-tight:h-44 sm:w-60 sm:h-72 flex flex-col items-center justify-center px-2 landscape-short:mb-0 mb-2">
-              {state.playedCards.length > 0 ? (
+              {(state.playedCards || []).length > 0 ? (
                 <span className="mind-titan-stack-num nf-title text-5xl landscape-short:text-4xl sm:text-7xl text-amber-100 relative z-[1]">
                   {state.playedCards[state.playedCards.length - 1]}
                 </span>
@@ -1768,18 +1841,18 @@ export default function App() {
                 </span>
               )}
               <span className="absolute -bottom-7 landscape-short:-bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-amber-200/75 text-[10px] landscape-short:text-[9px] tracking-wide">
-                총 {state.playedCards.length}장
+                총 {(state.playedCards || []).length}장
               </span>
             </div>
 
-            {state.status === 'playing' && state.shurikens > 0 && (
+            {state.status === 'playing' && (state.shurikens ?? 1) > 0 && (
               <div className="mt-4 landscape-short:mt-2 landscape-tight:mt-1 flex flex-col items-center gap-1 landscape-short:gap-0.5 shrink-0">
                 <p className="text-[10px] landscape-short:text-[9px] text-stone-300 text-center max-w-sm landscape-short:max-w-[14rem] px-1">
                   수리검: 모두 동의하면 각자 패에서 <strong className="text-amber-300">가장 낮은 숫자 1장</strong>을 버립니다.
                 </p>
                 <button
                   type="button"
-                  onClick={voteShuriken}
+                  onClick={() => void voteShuriken()}
                   disabled={voted}
                   className={`px-4 landscape-short:px-3 py-1.5 landscape-short:py-1 rounded-full text-xs landscape-short:text-[11px] font-semibold border ${voted ? 'opacity-50 border-stone-600' : 'border-red-600/70 bg-red-950/50 hover:bg-red-900/55 text-amber-100'}`}
                 >
@@ -1787,8 +1860,22 @@ export default function App() {
                 </button>
                 <span className="text-[10px] text-stone-400">
                   동의 {votes.size}/{roomData.players.length}
-                  {allVotedReady && state.shurikens > 0 && ' → 자동 실행'}
+                  {allVotedReady && (state.shurikens ?? 1) > 0 && ' → 자동 실행'}
                 </span>
+                <p className="text-[9px] text-stone-500 text-center px-1">✓ 동의 · ○ 미동의(아직 누르지 않음)</p>
+                <ul
+                  className="mt-0.5 flex flex-wrap justify-center gap-x-2 gap-y-0.5 max-w-md text-[10px] text-stone-300 list-none p-0 m-0"
+                  aria-label="수리검 동의 현황"
+                >
+                  {roomData.players.map((p) => (
+                    <li key={p.uid} className="whitespace-nowrap">
+                      <span className={votes.has(p.uid) ? 'text-emerald-400' : 'text-amber-600/80'} title={votes.has(p.uid) ? '동의' : '미동의(대기)'}>
+                        {votes.has(p.uid) ? '✓' : '○'}
+                      </span>{' '}
+                      <span className={votes.has(p.uid) ? 'text-stone-200' : 'text-stone-500'}>{p.name}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
