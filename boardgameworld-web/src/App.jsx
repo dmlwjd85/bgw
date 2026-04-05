@@ -25,8 +25,48 @@ const appId =
   import.meta.env.VITE_APP_ID ||
   (typeof __app_id !== 'undefined' ? __app_id : 'board-game-app');
 
-/** 더 마인드 공식: 마지막 목표 레벨 */
-const THE_MIND_MAX_LEVEL = 12;
+/** 더 마인드 공식: 인원별 마지막 레벨 (2인 12, 3인 10, 4인 이상 8) */
+const getTheMindMaxLevel = (playerCount) => {
+  const n = Math.max(2, Number(playerCount) || 2);
+  if (n === 2) return 12;
+  if (n === 3) return 10;
+  return 8;
+};
+
+/** 공식: 시작 생명 (2인 2, 3인 3, 4인 이상 4) — 5~6인은 4인 규칙 준용 */
+const getTheMindStartingLives = (playerCount) => {
+  const n = Math.min(Math.max(2, Number(playerCount) || 2), 6);
+  if (n === 2) return 2;
+  if (n === 3) return 3;
+  return 4;
+};
+
+/** 공식: 보유 상한 (생명 5, 수리검 3) */
+const THE_MIND_MAX_LIVES_CAP = 5;
+const THE_MIND_MAX_SHURIKENS_CAP = 3;
+
+/**
+ * 방금 클리어한 레벨에 대한 보상 (울트라보드게임즈 공식 규칙)
+ * 레벨 2·5·8: 수리검 +1 / 레벨 3·6·9: 생명 +1 — 그 외 레벨 클리어 시 보상 없음
+ */
+const getTheMindLevelClearReward = (completedLevel) => {
+  switch (completedLevel) {
+    case 2:
+      return { lives: 0, shurikens: 1 };
+    case 3:
+      return { lives: 1, shurikens: 0 };
+    case 5:
+      return { lives: 0, shurikens: 1 };
+    case 6:
+      return { lives: 1, shurikens: 0 };
+    case 8:
+      return { lives: 0, shurikens: 1 };
+    case 9:
+      return { lives: 1, shurikens: 0 };
+    default:
+      return { lives: 0, shurikens: 0 };
+  }
+};
 
 /** 가상 플레이어: 낼 카드 숫자 1~100에 비례해 최대 20초까지 대기 후 플레이 */
 const THE_MIND_AI_DELAY_MAX_MS = 20000;
@@ -138,7 +178,7 @@ const initTheMind = (players, level = 1, lives = null, shurikens = null) => {
     game: 'themind',
     status: 'playing',
     level,
-    lives: lives !== null ? lives : players.length,
+    lives: lives !== null ? lives : getTheMindStartingLives(players.length),
     shurikens: shurikens !== null ? shurikens : 1,
     shurikenVotes: [],
     playedCards: [],
@@ -827,6 +867,7 @@ export default function App() {
         if (!rd?.gameState || rd.gameState.status !== 'playing') return;
 
         const state = rd.gameState;
+        const maxMindLevel = getTheMindMaxLevel(rd.players.length);
         if (!state.hands[actingUid]?.includes(card)) return;
 
         let allCards = [];
@@ -850,9 +891,9 @@ export default function App() {
           };
           const remainingCards = Object.values(newHands).reduce((acc, hand) => acc + hand.length, 0);
           if (remainingCards === 0) {
-            if (state.level >= THE_MIND_MAX_LEVEL) {
+            if (state.level >= maxMindLevel) {
               updates['gameState.status'] = 'won';
-              updates['gameState.message'] = `전체 클리어! 레벨 ${THE_MIND_MAX_LEVEL}까지 모두 성공했습니다!`;
+              updates['gameState.message'] = `전체 클리어! 레벨 ${maxMindLevel}까지 모두 성공했습니다!`;
             } else {
               updates['gameState.status'] = 'level_cleared';
               updates['gameState.message'] = `레벨 ${state.level} 클리어! 방장이 다음 레벨을 눌러 주세요.`;
@@ -885,7 +926,7 @@ export default function App() {
         if (newLives <= 0) {
           updates['gameState.status'] = 'gameover';
         } else if (remainingAfter === 0) {
-          if (state.level >= THE_MIND_MAX_LEVEL) {
+          if (state.level >= maxMindLevel) {
             updates['gameState.status'] = 'won';
             updates['gameState.message'] = `전체 클리어! 실패 처리 후 패가 모두 비었습니다.`;
           } else {
@@ -913,6 +954,7 @@ export default function App() {
         const rd = snap.data();
         if (!rd?.gameState || rd.gameState.status !== 'playing') return;
         const state = rd.gameState;
+        const maxMindLevel = getTheMindMaxLevel(rd.players.length);
         const votes = new Set(state.shurikenVotes || []);
         votes.add(actingUid);
         const allUids = rd.players.map((p) => p.uid);
@@ -940,9 +982,9 @@ export default function App() {
           'gameState.message': '수리검! 모두가 가장 낮은 카드를 한 장씩 버렸습니다.'
         };
         if (remaining === 0) {
-          if (state.level >= THE_MIND_MAX_LEVEL) {
+          if (state.level >= maxMindLevel) {
             patch['gameState.status'] = 'won';
-            patch['gameState.message'] = `수리검으로 레벨을 마쳤습니다! 레벨 ${THE_MIND_MAX_LEVEL} 전체 클리어!`;
+            patch['gameState.message'] = `수리검으로 레벨을 마쳤습니다! 레벨 ${maxMindLevel} 전체 클리어!`;
           } else {
             patch['gameState.status'] = 'level_cleared';
             patch['gameState.message'] = `수리검 후 레벨 ${state.level} 클리어!`;
@@ -967,7 +1009,20 @@ export default function App() {
     const rd = snap.data();
     const state = rd.gameState;
     if (state.status !== 'level_cleared') return;
-    const newState = initTheMind(rd.players, state.level + 1, state.lives, state.shurikens ?? 1);
+    /** 방금 클리어한 레벨(state.level) 보상을 반영한 뒤 다음 레벨 패를 나눔 */
+    const reward = getTheMindLevelClearReward(state.level);
+    const prevLives = Number(state.lives ?? 0);
+    const prevSh = Number(state.shurikens ?? 1);
+    const newLives = Math.min(THE_MIND_MAX_LIVES_CAP, prevLives + reward.lives);
+    const newSh = Math.min(THE_MIND_MAX_SHURIKENS_CAP, prevSh + reward.shurikens);
+    const nextLv = state.level + 1;
+    const newState = initTheMind(rd.players, nextLv, newLives, newSh);
+    const bonusParts = [];
+    if (reward.lives > 0) bonusParts.push(`생명 +${reward.lives}`);
+    if (reward.shurikens > 0) bonusParts.push(`수리검 +${reward.shurikens}`);
+    if (bonusParts.length) {
+      newState.message = `${nextLv}레벨 시작 — 클리어 보상: ${bonusParts.join(', ')} (생명·수리검은 각 최대 ${THE_MIND_MAX_LIVES_CAP}/${THE_MIND_MAX_SHURIKENS_CAP}). 가장 작은 수부터 놓으세요.`;
+    }
     await updateDoc(roomRef, { gameState: newState });
   };
 
@@ -1704,7 +1759,7 @@ export default function App() {
                   <div className="p-5 sm:p-6 flex flex-col justify-center">
                     <h3 className="nf-title text-xl text-red-100 mb-2 tracking-wide">더 마인드</h3>
                     <p className="text-sm text-stone-300 leading-relaxed">
-                      말 없이 1부터 순서대로. 실패 시 낮은 카드가 사라지고 생명이 줄어듭니다. 수리검으로 한 번에 맞출 수도 있습니다.
+                      말 없이 1부터 순서대로. 2인은 레벨 12까지, 3인은 10, 4인 이상은 8까지. 레벨 클리어 시 생명·수리검이 보상으로 회복될 수 있습니다(상한 5/3).
                     </p>
                   </div>
                 </button>
@@ -1752,6 +1807,7 @@ export default function App() {
 
   if (roomData.status === 'playing' && roomData.game === 'themind') {
     const state = roomData.gameState;
+    const mindMaxLevel = getTheMindMaxLevel(roomData.players.length);
     const myHand = state.hands[user.uid] || [];
     const isHost = roomData.players.find((p) => p.uid === user.uid)?.isHost;
     const votes = new Set(state.shurikenVotes || []);
@@ -1800,7 +1856,7 @@ export default function App() {
           </div>
           <div className="flex flex-wrap gap-1.5 landscape-short:gap-1 sm:gap-3 text-[11px] landscape-short:text-[10px] sm:text-sm">
             <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
-              레벨 <strong className="text-amber-300">{state.level}</strong> / {THE_MIND_MAX_LEVEL}
+              레벨 <strong className="text-amber-300">{state.level}</strong> / {mindMaxLevel}
             </span>
             <span className="px-2 landscape-short:px-1.5 py-1 landscape-short:py-0.5 rounded-lg bg-black/40 border border-red-900/50 text-stone-200">
               생명 {state.lives > 0 ? '❤️'.repeat(state.lives) : '—'}
