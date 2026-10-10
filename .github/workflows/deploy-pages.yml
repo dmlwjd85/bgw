@@ -32,6 +32,17 @@ jobs:
           npm install
           npm run build
 
+      - name: Install and Build dress book
+        working-directory: siha-dress-book
+        run: |
+          npm install
+          npm run build
+
+      - name: Merge dress book into site
+        run: |
+          mkdir -p boardgameworld-web/dist/siha
+          cp -a siha-dress-book/dist/. boardgameworld-web/dist/siha/
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
