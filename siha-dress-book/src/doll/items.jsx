@@ -1,15 +1,15 @@
 /** 슬롯은 한 장만 붙습니다. 원피스를 붙이면 상의·하의는 떼고, 그 반대도 같습니다. */
 
-const ink = 'rgba(92, 52, 62, 0.2)'
-
-function Bow({ x, y, fill = '#E45B86', knot = '#FFE08A', scale = 1 }) {
+function Bow({ x, y, fill = '#E23B70', knot = '#FFE7A8', scale = 1 }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${scale})`}>
-      <ellipse cx="-14" cy="0" rx="14" ry="9" fill={fill} />
-      <ellipse cx="14" cy="0" rx="14" ry="9" fill={fill} />
-      <circle r="5.5" fill={knot} />
-      <path d="M-6 4 L-10 16 L-2 10 Z" fill={fill} />
-      <path d="M6 4 L10 16 L2 10 Z" fill={fill} />
+      <ellipse cx="-13" cy="0" rx="13" ry="8" fill={fill} />
+      <ellipse cx="13" cy="0" rx="13" ry="8" fill={fill} />
+      <ellipse cx="-13" cy="-2" rx="7" ry="3" fill="#fff" opacity="0.28" />
+      <ellipse cx="13" cy="-2" rx="7" ry="3" fill="#fff" opacity="0.28" />
+      <circle r="5" fill={knot} />
+      <path d="M-5 4 L-9 15 L-1 9 Z" fill={fill} />
+      <path d="M5 4 L9 15 L1 9 Z" fill={fill} />
     </g>
   )
 }
@@ -23,20 +23,20 @@ export const ITEMS = [
     name: '양갈래 리본',
     back: (
       <g>
-        <path d="M132 148 C68 176 52 280 96 362 C122 378 148 300 152 214 C150 180 142 158 132 148 Z" fill="#FF5C9A" />
-        <path d="M268 148 C332 176 348 280 304 362 C278 378 252 300 248 214 C250 180 258 158 268 148 Z" fill="#FF5C9A" />
-        <path d="M118 200 C96 230 100 300 124 330" fill="none" stroke="#FFD0E4" strokeWidth="8" strokeLinecap="round" opacity="0.45" />
-        <path d="M282 200 C304 230 300 300 276 330" fill="none" stroke="#FFD0E4" strokeWidth="8" strokeLinecap="round" opacity="0.45" />
+        <path d="M134 160 C96 190 88 280 112 380 C128 400 150 330 154 220 C150 186 144 168 134 160 Z" fill="#FF5C9A" />
+        <path d="M266 160 C304 190 312 280 288 380 C272 400 250 330 246 220 C250 186 256 168 266 160 Z" fill="#FF5C9A" />
+        <path d="M108 220 C92 270 100 340 124 370" fill="none" stroke="#FFD0E6" strokeWidth="7" strokeLinecap="round" opacity="0.55" />
+        <path d="M292 220 C308 270 300 340 276 370" fill="none" stroke="#FFD0E6" strokeWidth="7" strokeLinecap="round" opacity="0.55" />
       </g>
     ),
     front: (
       <g>
-        <path d="M138 118 C162 92 238 92 262 118 C246 140 154 140 138 118 Z" fill="#FF5C9A" />
-        <path d="M136 128 C118 160 122 206 146 214 C152 176 154 148 136 128 Z" fill="#E23078" />
-        <path d="M264 128 C282 160 278 206 254 214 C248 176 246 148 264 128 Z" fill="#E23078" />
-        <ellipse cx="168" cy="112" rx="22" ry="10" fill="#fff" opacity="0.22" />
-        <Bow x={112} y={208} />
-        <Bow x={288} y={208} />
+        <path d="M132 150 C118 100 160 68 200 70 C246 72 286 108 270 150 C244 118 160 114 142 148 Z" fill="#FF5C9A" />
+        <path d="M134 128 C116 164 120 210 146 222 C154 176 156 146 134 128 Z" fill="#E23078" />
+        <path d="M266 128 C284 164 280 210 254 222 C246 176 244 146 266 128 Z" fill="#E23078" />
+        <path d="M160 86 C180 76 198 80 214 94" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity="0.55" />
+        <Bow x={118} y={214} scale={0.9} />
+        <Bow x={282} y={214} scale={0.9} />
       </g>
     ),
   },
@@ -48,17 +48,17 @@ export const ITEMS = [
     name: '단정 단발',
     back: (
       <g>
-        <ellipse cx="200" cy="176" rx="104" ry="112" fill="#C2185B" />
-        <ellipse cx="200" cy="168" rx="90" ry="96" fill="#E23B78" />
+        <path d="M118 150 C96 120 108 90 150 78 C200 64 292 86 286 150 C300 210 286 280 250 300 C210 318 150 300 128 250 C108 210 108 170 118 150 Z" fill="#D4256C" />
+        <path d="M140 168 C150 250 168 292 200 300 C232 292 250 250 260 168" fill="none" stroke="#FF8FBE" strokeWidth="8" strokeLinecap="round" opacity="0.35" />
       </g>
     ),
     front: (
       <g>
-        <path d="M132 124 C158 96 242 96 268 124 C250 146 150 146 132 124 Z" fill="#C2185B" />
-        <path d="M128 132 C112 168 118 214 150 228 C156 186 156 150 128 132 Z" fill="#9C1248" />
-        <path d="M272 132 C288 168 282 214 250 228 C244 186 244 150 272 132 Z" fill="#9C1248" />
-        <ellipse cx="176" cy="114" rx="26" ry="9" fill="#fff" opacity="0.16" />
-        <Bow x={248} y={118} fill="#F2C14E" knot="#FFF6D4" scale={0.72} />
+        <path d="M136 146 C124 96 164 70 200 72 C244 74 280 104 266 146 C240 118 162 116 144 146 Z" fill="#E23B78" />
+        <path d="M130 132 C116 170 124 220 154 236 C160 186 158 150 130 132 Z" fill="#B81E5C" />
+        <path d="M270 132 C284 170 276 220 246 236 C240 186 242 150 270 132 Z" fill="#B81E5C" />
+        <path d="M162 90 C184 80 206 86 220 100" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity="0.4" />
+        <Bow x={246} y={112} fill="#F2C14E" knot="#FFF6D4" scale={0.7} />
       </g>
     ),
   },
@@ -70,19 +70,19 @@ export const ITEMS = [
     name: '긴 분홍 머리',
     back: (
       <g>
-        <path d="M118 140 C40 190 28 320 70 430 C110 470 150 390 156 250 C150 190 140 150 118 140 Z" fill="#FF4E93" />
-        <path d="M282 140 C360 190 372 320 330 430 C290 470 250 390 244 250 C250 190 260 150 282 140 Z" fill="#FF4E93" />
-        <path d="M150 120 C120 150 130 210 156 230 C170 180 176 140 150 120 Z" fill="#FF9BC4" />
-        <path d="M250 120 C280 150 270 210 244 230 C230 180 224 140 250 120 Z" fill="#FF9BC4" />
-        <path d="M90 240 C70 300 86 380 120 410" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" opacity="0.28" />
+        <path d="M146 168 C108 200 96 300 118 450 C140 490 168 430 172 260 C168 210 160 180 146 168 Z" fill="#FF4D8D" />
+        <path d="M254 168 C292 200 304 300 282 450 C260 490 232 430 228 260 C232 210 240 180 254 168 Z" fill="#FF4D8D" />
+        <path d="M128 250 C118 320 126 390 146 440" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" opacity="0.4" />
+        <path d="M158 210 C150 280 156 360 168 430" fill="none" stroke="#E02270" strokeWidth="8" strokeLinecap="round" opacity="0.28" />
       </g>
     ),
     front: (
       <g>
-        <path d="M140 116 C166 90 234 90 260 116 C242 138 158 138 140 116 Z" fill="#FF4E93" />
-        <path d="M134 126 C116 158 124 198 152 206 C156 168 158 142 134 126 Z" fill="#E23078" />
-        <path d="M266 126 C284 158 276 198 248 206 C244 168 242 142 266 126 Z" fill="#E23078" />
-        <ellipse cx="186" cy="108" rx="24" ry="8" fill="#fff" opacity="0.35" />
+        <path d="M130 156 C116 98 158 64 200 66 C256 68 290 108 274 154 C246 116 162 112 140 152 Z" fill="#FF4D8D" />
+        <path d="M128 134 C104 176 110 240 140 274 C156 226 160 168 144 134 Z" fill="#E02270" />
+        <path d="M272 130 C294 168 286 214 260 226 C252 180 256 148 272 130 Z" fill="#E02270" />
+        <path d="M198 60 C188 40 216 36 210 58" fill="none" stroke="#FF4D8D" strokeWidth="7" strokeLinecap="round" />
+        <path d="M160 88 C180 76 204 82 218 96" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" opacity="0.65" />
       </g>
     ),
   },
@@ -94,20 +94,19 @@ export const ITEMS = [
     name: '파티 업스타일',
     back: (
       <g>
-        <ellipse cx="200" cy="150" rx="86" ry="84" fill="#FF7AAF" />
+        <path d="M140 150 C124 110 160 86 200 88 C246 90 280 116 264 156 C250 140 156 138 140 150 Z" fill="#FF7AAF" />
       </g>
     ),
     front: (
       <g>
-        <ellipse cx="200" cy="78" rx="34" ry="28" fill="#FF7AAF" />
-        <ellipse cx="168" cy="96" rx="22" ry="16" fill="#FFC0DC" />
-        <ellipse cx="232" cy="96" rx="22" ry="16" fill="#E24B88" />
-        <path d="M142 124 C168 104 232 104 258 124 C240 142 160 142 142 124 Z" fill="#FF7AAF" />
-        <path d="M136 130 C154 168 158 176 150 196" fill="none" stroke="#E24B88" strokeWidth="10" strokeLinecap="round" />
-        <path d="M264 130 C246 168 242 176 250 196" fill="none" stroke="#E24B88" strokeWidth="10" strokeLinecap="round" />
-        <ellipse cx="188" cy="70" rx="12" ry="6" fill="#fff" opacity="0.4" />
-        <circle cx="214" cy="64" r="4" fill="#F7E7A1" />
-        <circle cx="186" cy="86" r="3" fill="#fff6d2" />
+        <ellipse cx="200" cy="74" rx="32" ry="24" fill="#FF7AAF" />
+        <ellipse cx="172" cy="92" rx="20" ry="14" fill="#FFC4DE" />
+        <ellipse cx="230" cy="90" rx="20" ry="14" fill="#E24B88" />
+        <path d="M138 140 C160 112 244 112 264 140 C240 128 162 128 138 140 Z" fill="#FF7AAF" />
+        <path d="M136 132 C152 168 156 180 148 196" fill="none" stroke="#E24B88" strokeWidth="9" strokeLinecap="round" />
+        <path d="M264 132 C248 168 244 180 252 196" fill="none" stroke="#E24B88" strokeWidth="9" strokeLinecap="round" />
+        <ellipse cx="188" cy="66" rx="12" ry="6" fill="#fff" opacity="0.45" />
+        <circle cx="214" cy="58" r="3.5" fill="#F7E7A1" />
       </g>
     ),
   },
@@ -119,17 +118,18 @@ export const ITEMS = [
     name: '높은 포니',
     back: (
       <g>
-        <path d="M230 96 C280 80 318 150 300 240 C286 310 250 300 246 210 C260 150 250 110 230 96 Z" fill="#FF6FA8" />
-        <ellipse cx="286" cy="118" rx="28" ry="22" fill="#FFA4CC" />
+        <path d="M228 92 C286 78 324 140 308 230 C294 310 256 300 248 200 C258 140 248 108 228 92 Z" fill="#FF6FA8" />
+        <ellipse cx="286" cy="112" rx="26" ry="20" fill="#FFA4CC" />
+        <path d="M270 120 C292 160 286 240 268 280" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" opacity="0.4" />
       </g>
     ),
     front: (
       <g>
-        <path d="M132 122 C160 96 250 92 270 120 C246 146 150 148 132 122 Z" fill="#FF6FA8" />
-        <path d="M128 130 C112 164 120 208 150 216 C154 176 156 148 128 130 Z" fill="#E24B88" />
-        <ellipse cx="248" cy="92" rx="22" ry="16" fill="#FFA4CC" />
-        <Bow x={248} y={96} fill="#7ED0C0" knot="#FFF4C4" scale={0.8} />
-        <ellipse cx="170" cy="112" rx="20" ry="8" fill="#fff" opacity="0.28" />
+        <path d="M134 148 C122 102 168 72 214 78 C250 84 278 112 268 146 C240 118 160 116 142 146 Z" fill="#FF6FA8" />
+        <path d="M130 130 C112 166 118 214 148 224 C156 180 158 148 130 130 Z" fill="#E24B88" />
+        <ellipse cx="248" cy="86" rx="20" ry="14" fill="#FFA4CC" />
+        <Bow x={248} y={90} fill="#7ED0C0" knot="#FFF4C4" scale={0.75} />
+        <path d="M164 96 C184 86 206 92 218 104" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
       </g>
     ),
   },
@@ -141,16 +141,17 @@ export const ITEMS = [
     name: '옆머리 묶음',
     back: (
       <g>
-        <ellipse cx="200" cy="162" rx="92" ry="96" fill="#FF7A9C" />
-        <path d="M112 176 C70 210 74 300 112 332 C132 300 140 230 128 190 Z" fill="#E85A84" />
+        <path d="M132 156 C110 110 160 78 210 84 C260 90 286 124 270 160 C250 140 156 138 132 156 Z" fill="#FF7A9C" />
+        <path d="M112 176 C72 210 74 300 114 336 C134 300 142 230 128 188 Z" fill="#E85A84" />
       </g>
     ),
     front: (
       <g>
-        <path d="M136 120 C170 98 246 108 266 132 C236 150 156 146 136 120 Z" fill="#FF7A9C" />
-        <ellipse cx="108" cy="188" rx="26" ry="22" fill="#FFA8C0" />
-        <Bow x={108} y={188} fill="#FF4E93" knot="#FFE7A8" scale={0.85} />
-        <path d="M250 140 C276 170 270 210 246 214" fill="none" stroke="#E23078" strokeWidth="12" strokeLinecap="round" />
+        <path d="M136 142 C158 104 230 100 268 132 C236 118 160 120 140 146 Z" fill="#FF7A9C" />
+        <ellipse cx="108" cy="188" rx="24" ry="20" fill="#FFA8C0" />
+        <Bow x={108} y={188} fill="#FF4E93" knot="#FFE7A8" scale={0.82} />
+        <path d="M250 138 C274 168 268 210 246 216" fill="none" stroke="#E23078" strokeWidth="11" strokeLinecap="round" />
+        <path d="M168 108 C190 98 214 104 226 118" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" opacity="0.45" />
       </g>
     ),
   },
@@ -162,12 +163,13 @@ export const ITEMS = [
     name: '하얀 블라우스',
     mid: (
       <g>
-        <ellipse cx="126" cy="286" rx="36" ry="28" fill="#FFFcf8" stroke="#E6D5CC" />
-        <ellipse cx="274" cy="286" rx="36" ry="28" fill="#FFFcf8" stroke="#E6D5CC" />
-        <path d="M158 234 C150 286 156 338 172 360 L228 360 C244 338 250 286 242 234 C218 220 182 220 158 234 Z" fill="#FFFcf8" stroke="#E6D5CC" />
-        <path d="M176 238 L200 274 L224 238" fill="#fff" stroke="#D9C3BA" strokeWidth="3" />
-        <path d="M168 300 H232" stroke="#F3E4DC" strokeWidth="3" />
-        <circle cx="200" cy="248" r="3" fill="#E7B9AE" />
+        <path d="M150 248 C132 262 118 292 124 324 C136 316 146 292 156 276 L164 248 Z" fill="#FFFCF8" stroke="#E7D5CC" />
+        <path d="M250 248 C268 262 282 292 276 324 C264 316 254 292 244 276 L236 248 Z" fill="#FFFCF8" stroke="#E7D5CC" />
+        <path d="M166 228 C158 276 166 322 178 342 L222 342 C234 322 242 276 234 228 C216 214 184 214 166 228 Z" fill="#FFFCF8" stroke="#E4D2C8" />
+        <path d="M178 232 L200 268 L222 232" fill="#fff" stroke="#E7C8BE" strokeWidth="2" />
+        <path d="M186 300 H214" stroke="#F3E0D8" strokeWidth="3" />
+        <circle cx="200" cy="248" r="2.4" fill="#E7B0A4" />
+        <path d="M176 250 C190 270 210 270 224 250" fill="none" stroke="#fff" strokeWidth="4" opacity="0.7" />
       </g>
     ),
   },
@@ -179,16 +181,16 @@ export const ITEMS = [
     name: '살구 가디건',
     mid: (
       <g>
-        <path d="M166 246 C160 300 166 340 178 356 L222 356 C234 340 240 300 234 246 C214 236 186 236 166 246 Z" fill="#FFF6EA" />
-        <path d="M188 268 L200 286 L212 268 L206 300 H194 Z" fill="#F0C14D" />
-        <path d="M150 242 C112 262 104 330 126 368 C142 352 150 310 162 292 L168 248 Z" fill="#F2B48A" stroke="#E09A70" />
-        <path d="M250 242 C288 262 296 330 274 368 C258 352 250 310 238 292 L232 248 Z" fill="#F2B48A" stroke="#E09A70" />
-        <path d="M156 248 C168 270 176 340 170 358" fill="none" stroke="#FFE0C2" strokeWidth="6" strokeLinecap="round" />
-        <path d="M244 248 C232 270 224 340 230 358" fill="none" stroke="#FFE0C2" strokeWidth="6" strokeLinecap="round" />
-        <circle cx="176" cy="300" r="3" fill="#fff" />
-        <circle cx="176" cy="322" r="3" fill="#fff" />
-        <circle cx="224" cy="300" r="3" fill="#fff" />
-        <circle cx="224" cy="322" r="3" fill="#fff" />
+        <path d="M172 242 C166 286 172 322 182 338 L218 338 C228 322 234 286 228 242 C214 232 186 232 172 242 Z" fill="#FFF4E8" />
+        <path d="M190 262 L200 278 L210 262 L205 300 H195 Z" fill="#F0C14D" />
+        <path d="M158 236 C124 256 112 310 128 348 C142 332 150 300 160 284 L168 242 Z" fill="#F2B48A" stroke="#E09A70" />
+        <path d="M242 236 C276 256 288 310 272 348 C258 332 250 300 240 284 L232 242 Z" fill="#F2B48A" stroke="#E09A70" />
+        <path d="M164 250 C172 280 176 320 170 346" fill="none" stroke="#FFE4C8" strokeWidth="5" strokeLinecap="round" />
+        <path d="M236 250 C228 280 224 320 230 346" fill="none" stroke="#FFE4C8" strokeWidth="5" strokeLinecap="round" />
+        <circle cx="178" cy="292" r="2.6" fill="#fff" />
+        <circle cx="178" cy="312" r="2.6" fill="#fff" />
+        <circle cx="222" cy="292" r="2.6" fill="#fff" />
+        <circle cx="222" cy="312" r="2.6" fill="#fff" />
       </g>
     ),
   },
@@ -200,12 +202,12 @@ export const ITEMS = [
     name: '민트 티셔츠',
     mid: (
       <g>
-        <path d="M112 268 C130 250 156 246 168 258 L162 300 C140 292 122 286 112 268 Z" fill="#7ED0C0" />
-        <path d="M288 268 C270 250 244 246 232 258 L238 300 C260 292 278 286 288 268 Z" fill="#7ED0C0" />
-        <path d="M160 240 C154 292 160 342 176 360 L224 360 C240 342 246 292 240 240 C218 228 182 228 160 240 Z" fill="#8FDDCD" stroke="#6FC4B4" />
-        <path d="M176 242 Q200 268 224 242" fill="#D8FFF4" />
-        <circle cx="200" cy="300" r="10" fill="#fff" opacity="0.9" />
-        <path d="M200 292 L203 298 H210 L205 302 L207 309 L200 305 L193 309 L195 302 L190 298 H197 Z" fill="#F2C14E" />
+        <path d="M148 258 C132 246 158 236 170 248 L164 286 Z" fill="#7ED0C0" />
+        <path d="M252 258 C268 246 242 236 230 248 L236 286 Z" fill="#7ED0C0" />
+        <path d="M166 232 C160 280 166 324 178 342 L222 342 C234 324 240 280 234 232 C216 220 184 220 166 232 Z" fill="#8FDDCD" stroke="#6FC4B4" />
+        <path d="M180 236 Q200 262 220 236" fill="#E9FFF8" />
+        <circle cx="200" cy="292" r="11" fill="#fff" />
+        <path d="M200 284 L203 290 H210 L204 294 L206 301 L200 297 L194 301 L196 294 L190 290 H197 Z" fill="#F2C14E" />
       </g>
     ),
   },
@@ -217,12 +219,13 @@ export const ITEMS = [
     name: '남색 플리츠',
     mid: (
       <g>
-        <path d="M148 332 L112 446 L288 446 L252 332 Q200 350 148 332 Z" fill="#2C3E72" />
-        <path d="M156 338 L128 446 H148 L176 338 Z" fill="#3E5594" />
-        <path d="M188 336 L176 446 H198 L210 336 Z" fill="#3E5594" />
-        <path d="M224 336 L214 446 H236 L252 338 Z" fill="#3E5594" />
-        <path d="M148 332 Q200 352 252 332" fill="none" stroke="#1E2C55" strokeWidth="4" />
-        <path d="M120 434 H280" stroke="#F2C14E" strokeWidth="4" />
+        <path d="M158 328 L124 456 H276 L242 328 Q200 346 158 328 Z" fill="#2C3E72" />
+        <path d="M166 334 L140 456 H158 L186 334 Z" fill="#3E5594" />
+        <path d="M196 332 L184 456 H216 L206 332 Z" fill="#4C68AA" />
+        <path d="M214 334 L228 456 H258 L244 334 Z" fill="#3E5594" />
+        <path d="M158 328 Q200 348 242 328" fill="none" stroke="#1C2C58" strokeWidth="4" />
+        <path d="M132 442 H268" stroke="#F2C14E" strokeWidth="4" />
+        <path d="M170 360 L156 430" stroke="#fff" strokeWidth="2" opacity="0.2" />
       </g>
     ),
   },
@@ -234,12 +237,12 @@ export const ITEMS = [
     name: '크림 반바지',
     mid: (
       <g>
-        <path d="M160 334 C150 360 152 402 168 412 L196 406 L198 338 Z" fill="#F6E2C4" stroke="#E4CBA6" />
-        <path d="M202 338 L204 406 L232 412 C248 402 250 360 240 334 Z" fill="#F6E2C4" stroke="#E4CBA6" />
-        <path d="M168 348 H232" stroke="#E7C89A" strokeWidth="3" />
-        <path d="M196 360 V400" stroke="#E7C89A" strokeWidth="2" />
-        <circle cx="186" cy="352" r="2.4" fill="#C9844A" />
-        <circle cx="214" cy="352" r="2.4" fill="#C9844A" />
+        <path d="M170 330 C160 358 162 400 176 412 L198 404 L196 332 Z" fill="#F6E2C4" stroke="#E4CBA6" />
+        <path d="M204 332 L202 404 L224 412 C238 400 240 358 230 330 Z" fill="#F6E2C4" stroke="#E4CBA6" />
+        <path d="M176 348 H224" stroke="#E7C89A" strokeWidth="3" />
+        <path d="M198 360 V398" stroke="#E7C89A" strokeWidth="2" />
+        <circle cx="188" cy="350" r="2.2" fill="#C9844A" />
+        <circle cx="212" cy="350" r="2.2" fill="#C9844A" />
       </g>
     ),
   },
@@ -251,13 +254,12 @@ export const ITEMS = [
     name: '연청 바지',
     mid: (
       <g>
-        <path d="M164 332 C156 390 154 440 166 468 L196 468 L198 338 Z" fill="#8EB4D6" stroke="#6E97BA" />
-        <path d="M202 338 L204 468 L234 468 C246 440 244 390 236 332 Z" fill="#8EB4D6" stroke="#6E97BA" />
-        <path d="M176 350 H196" stroke="#F4FBFF" strokeWidth="3" opacity="0.7" />
-        <path d="M206 350 H226" stroke="#F4FBFF" strokeWidth="3" opacity="0.7" />
-        <path d="M170 400 H194" stroke="#D7E9F6" strokeWidth="4" />
-        <path d="M206 420 H232" stroke="#D7E9F6" strokeWidth="4" />
-        <path d="M188 334 H212 L206 348 H194 Z" fill="#F4D27A" />
+        <path d="M172 328 C164 390 162 470 172 508 L196 508 L198 332 Z" fill="#8EB4D6" stroke="#6E97BA" />
+        <path d="M202 332 L204 508 L228 508 C238 470 236 390 228 328 Z" fill="#8EB4D6" stroke="#6E97BA" />
+        <path d="M180 360 H196" stroke="#F4FBFF" strokeWidth="3" opacity="0.75" />
+        <path d="M206 378 H224" stroke="#F4FBFF" strokeWidth="3" opacity="0.75" />
+        <path d="M176 430 H194" stroke="#D7E9F6" strokeWidth="4" />
+        <path d="M192 330 H208 L204 344 H196 Z" fill="#F4D27A" />
       </g>
     ),
   },
@@ -269,16 +271,18 @@ export const ITEMS = [
     name: '분홍 파티 드레스',
     mid: (
       <g>
-        <path d="M120 286 C146 250 164 240 176 252 L168 292 Z" fill="#FF8FB8" />
-        <path d="M280 286 C254 250 236 240 224 252 L232 292 Z" fill="#FF8FB8" />
-        <path d="M160 236 C154 280 160 312 176 324 L224 324 C240 312 246 280 240 236 C216 222 184 222 160 236 Z" fill="#FF9EC4" stroke="#F27AAA" />
-        <path d="M148 312 C110 360 86 410 104 446 L296 446 C314 410 290 360 252 312 Q200 334 148 312 Z" fill="#FF8FB8" />
-        <path d="M108 430 Q200 456 292 430 L296 446 Q200 468 104 446 Z" fill="#FFF6FB" />
-        <path d="M168 330 Q200 390 232 330" fill="none" stroke="#fff" strokeWidth="3" opacity="0.45" />
-        <Bow x={200} y={318} fill="#FFF6FB" knot="#F2C14E" scale={0.9} />
-        <circle cx="148" cy="400" r="3" fill="#fff" opacity="0.7" />
-        <circle cx="250" cy="430" r="2.5" fill="#fff" opacity="0.8" />
-        <circle cx="180" cy="450" r="2" fill="#fff" opacity="0.7" />
+        <path d="M146 262 C132 248 156 232 172 246 L166 292 Z" fill="#FF8FB8" />
+        <path d="M254 262 C268 248 244 232 228 246 L234 292 Z" fill="#FF8FB8" />
+        <path d="M168 226 C160 270 166 308 180 324 L220 324 C234 308 240 270 232 226 C214 212 186 212 168 226 Z" fill="#FF9EC4" stroke="#F27AAA" />
+        <path d="M186 230 Q200 258 214 230" fill="#fff" opacity="0.85" />
+        <path d="M152 312 C112 360 86 430 104 492 L296 492 C314 430 288 360 248 312 Q200 334 152 312 Z" fill="#FF7AAF" />
+        <path d="M168 330 Q200 400 232 330" fill="none" stroke="#fff" strokeWidth="3" opacity="0.35" />
+        <path d="M112 470 Q200 498 288 470 L296 492 Q200 514 104 492 Z" fill="#FFF6FB" />
+        <path d="M120 478 Q200 492 280 478" fill="none" stroke="#F7E7A1" strokeWidth="2" opacity="0.8" />
+        <Bow x={200} y={318} fill="#FFF6FB" knot="#F2C14E" scale={0.85} />
+        <circle cx="200" cy="268" r="5" fill="#F7E7A1" stroke="#E6C56A" />
+        <circle cx="156" cy="400" r="2.4" fill="#fff" opacity="0.75" />
+        <circle cx="246" cy="440" r="2" fill="#fff" opacity="0.8" />
       </g>
     ),
   },
@@ -290,12 +294,12 @@ export const ITEMS = [
     name: '민트 플레어',
     mid: (
       <g>
-        <path d="M158 238 C152 286 160 318 176 328 L224 328 C240 318 248 286 242 238 C216 224 184 224 158 238 Z" fill="#BFEEDD" stroke="#8ED9C4" />
-        <path d="M176 236 Q200 270 224 236" fill="#fff" opacity="0.85" />
-        <path d="M154 320 L128 448 H272 L246 320 Q200 340 154 320 Z" fill="#A9E6D2" />
-        <path d="M136 418 H264" stroke="#fff" strokeWidth="8" opacity="0.55" />
-        <path d="M146 436 H254" stroke="#F2C14E" strokeWidth="3" />
-        <circle cx="200" cy="300" r="5" fill="#F2C14E" />
+        <path d="M168 228 C160 276 168 312 180 326 L220 326 C232 312 240 276 232 228 C214 216 186 216 168 228 Z" fill="#C9F3E4" stroke="#8ED9C4" />
+        <path d="M182 232 Q200 264 218 232" fill="#fff" opacity="0.9" />
+        <path d="M156 318 L128 488 H272 L244 318 Q200 338 156 318 Z" fill="#A9E6D2" />
+        <path d="M140 450 H260" stroke="#fff" strokeWidth="8" opacity="0.5" />
+        <path d="M148 468 H252" stroke="#F2C14E" strokeWidth="3" />
+        <circle cx="200" cy="292" r="4.5" fill="#F2C14E" />
       </g>
     ),
   },
@@ -307,11 +311,11 @@ export const ITEMS = [
     name: '라벤더 리본 드레스',
     mid: (
       <g>
-        <path d="M160 236 C154 284 162 320 178 332 L222 332 C238 320 246 284 240 236 C216 222 184 222 160 236 Z" fill="#C9B6F4" stroke="#B09AE6" />
-        <path d="M150 324 C118 370 108 420 120 448 L280 448 C292 420 282 370 250 324 Q200 344 150 324 Z" fill="#BBA4EE" />
-        <path d="M156 360 H244" stroke="#F7E7A1" strokeWidth="8" strokeLinecap="round" />
-        <Bow x={200} y={360} fill="#F7E7A1" knot="#FFF" scale={0.8} />
-        <path d="M132 432 Q200 446 268 432" fill="none" stroke="#fff" strokeWidth="4" opacity="0.5" />
+        <path d="M168 226 C160 274 168 314 180 328 L220 328 C232 314 240 274 232 226 C214 214 186 214 168 226 Z" fill="#D4C4F8" stroke="#B09AE6" />
+        <path d="M154 320 C122 372 108 440 122 490 L278 490 C292 440 278 372 246 320 Q200 342 154 320 Z" fill="#C2ADF0" />
+        <path d="M160 372 H240" stroke="#F7E7A1" strokeWidth="8" strokeLinecap="round" />
+        <Bow x={200} y={372} fill="#F7E7A1" knot="#fff" scale={0.78} />
+        <path d="M136 468 Q200 484 264 468" fill="none" stroke="#fff" strokeWidth="4" opacity="0.55" />
       </g>
     ),
   },
@@ -323,14 +327,14 @@ export const ITEMS = [
     name: '갈색 로퍼',
     mid: (
       <g>
-        <path d="M166 418 H198 C202 418 204 448 198 456 H168 C160 448 162 422 166 418 Z" fill="#fff" />
-        <path d="M204 418 H236 C242 424 240 448 232 456 H204 C198 448 200 422 204 418 Z" fill="#fff" />
-        <ellipse cx="182" cy="478" rx="26" ry="14" fill="#6B4423" stroke={ink} />
-        <ellipse cx="220" cy="478" rx="26" ry="14" fill="#6B4423" stroke={ink} />
-        <path d="M164 470 H200" stroke="#F2C14E" strokeWidth="3" />
-        <path d="M202 470 H238" stroke="#F2C14E" strokeWidth="3" />
-        <ellipse cx="182" cy="474" rx="12" ry="5" fill="#8A5A32" />
-        <ellipse cx="220" cy="474" rx="12" ry="5" fill="#8A5A32" />
+        <path d="M168 468 H198 C202 468 204 500 198 508 H170 C162 500 164 472 168 468 Z" fill="#fff" />
+        <path d="M204 468 H234 C240 474 238 500 230 508 H206 C200 500 202 472 204 468 Z" fill="#fff" />
+        <ellipse cx="184" cy="522" rx="24" ry="13" fill="#6B4423" />
+        <ellipse cx="218" cy="522" rx="24" ry="13" fill="#6B4423" />
+        <ellipse cx="184" cy="518" rx="14" ry="5" fill="#8A5A32" />
+        <ellipse cx="218" cy="518" rx="14" ry="5" fill="#8A5A32" />
+        <path d="M166 514 H200" stroke="#F2C14E" strokeWidth="3" />
+        <path d="M202 514 H236" stroke="#F2C14E" strokeWidth="3" />
       </g>
     ),
   },
@@ -342,14 +346,15 @@ export const ITEMS = [
     name: '스트랩 구두',
     mid: (
       <g>
-        <path d="M164 448 H200 L196 464 H160 Z" fill="#F7C1D4" />
-        <path d="M202 448 H238 L242 464 H206 Z" fill="#F7C1D4" />
-        <ellipse cx="182" cy="480" rx="26" ry="13" fill="#F4A0BE" stroke="#E57AA0" />
-        <ellipse cx="220" cy="480" rx="26" ry="13" fill="#F4A0BE" stroke="#E57AA0" />
-        <path d="M166 462 H198" stroke="#FFF6FB" strokeWidth="3" />
-        <path d="M204 462 H236" stroke="#FFF6FB" strokeWidth="3" />
-        <circle cx="182" cy="458" r="3" fill="#F2C14E" />
-        <circle cx="220" cy="458" r="3" fill="#F2C14E" />
+        <path d="M166 496 H200 L196 512 H162 Z" fill="#F7C1D4" />
+        <path d="M202 496 H236 L240 512 H206 Z" fill="#F7C1D4" />
+        <ellipse cx="184" cy="524" rx="24" ry="12" fill="#F4A0BE" stroke="#E57AA0" />
+        <ellipse cx="218" cy="524" rx="24" ry="12" fill="#F4A0BE" stroke="#E57AA0" />
+        <path d="M168 510 H198" stroke="#FFF6FB" strokeWidth="3" />
+        <path d="M204 510 H234" stroke="#FFF6FB" strokeWidth="3" />
+        <circle cx="184" cy="504" r="2.6" fill="#F2C14E" />
+        <circle cx="218" cy="504" r="2.6" fill="#F2C14E" />
+        <ellipse cx="178" cy="520" rx="6" ry="3" fill="#fff" opacity="0.35" />
       </g>
     ),
   },
@@ -361,14 +366,14 @@ export const ITEMS = [
     name: '운동화',
     mid: (
       <g>
-        <path d="M166 430 H198 V458 H168 Z" fill="#fff" />
-        <path d="M204 430 H236 V458 H206 Z" fill="#fff" />
-        <path d="M158 468 H206 L200 490 H154 Z" fill="#7ED0C0" stroke="#5BB5A6" />
-        <path d="M196 468 H246 L248 490 H202 Z" fill="#7ED0C0" stroke="#5BB5A6" />
-        <path d="M160 480 H204" stroke="#fff" strokeWidth="3" />
-        <path d="M200 480 H244" stroke="#fff" strokeWidth="3" />
-        <path d="M170 458 L182 446 L194 458" fill="none" stroke="#F28B6A" strokeWidth="3" />
-        <path d="M208 458 L220 446 L232 458" fill="none" stroke="#F28B6A" strokeWidth="3" />
+        <path d="M170 486 H198 V508 H172 Z" fill="#fff" />
+        <path d="M204 486 H232 V508 H206 Z" fill="#fff" />
+        <path d="M160 512 H204 L198 534 H156 Z" fill="#7ED0C0" stroke="#5BB5A6" />
+        <path d="M198 512 H244 L246 534 H202 Z" fill="#7ED0C0" stroke="#5BB5A6" />
+        <path d="M162 524 H202" stroke="#fff" strokeWidth="3" />
+        <path d="M204 524 H242" stroke="#fff" strokeWidth="3" />
+        <path d="M172 508 L184 496 L196 508" fill="none" stroke="#F28B6A" strokeWidth="3" />
+        <path d="M208 508 L220 496 L232 508" fill="none" stroke="#F28B6A" strokeWidth="3" />
       </g>
     ),
   },
@@ -380,12 +385,13 @@ export const ITEMS = [
     name: '숏부츠',
     mid: (
       <g>
-        <path d="M162 420 H200 L196 468 H158 Z" fill="#5C463C" />
-        <path d="M202 420 H240 L244 468 H206 Z" fill="#5C463C" />
-        <ellipse cx="180" cy="482" rx="28" ry="14" fill="#3E2E2A" />
-        <ellipse cx="222" cy="482" rx="28" ry="14" fill="#3E2E2A" />
-        <path d="M166 436 H196" stroke="#E7C39A" strokeWidth="3" />
-        <path d="M206 436 H236" stroke="#E7C39A" strokeWidth="3" />
+        <path d="M166 470 H200 L196 516 H160 Z" fill="#5C463C" />
+        <path d="M202 470 H236 L242 516 H206 Z" fill="#5C463C" />
+        <ellipse cx="182" cy="526" rx="26" ry="13" fill="#3E2E2A" />
+        <ellipse cx="220" cy="526" rx="26" ry="13" fill="#3E2E2A" />
+        <path d="M170 488 H196" stroke="#E7C39A" strokeWidth="3" />
+        <path d="M206 488 H234" stroke="#E7C39A" strokeWidth="3" />
+        <path d="M172 478 H194" stroke="#fff" strokeWidth="2" opacity="0.25" />
       </g>
     ),
   },
@@ -395,7 +401,7 @@ export const ITEMS = [
     category: 'extra',
     codes: ['school'],
     name: '교복 리본',
-    mid: <Bow x={200} y={246} fill="#E23B4A" knot="#FFF1C9" scale={1.05} />,
+    mid: <Bow x={200} y={236} fill="#E23B4A" knot="#FFF1C9" scale={1.02} />,
   },
   {
     id: 'bag-school',
@@ -405,11 +411,11 @@ export const ITEMS = [
     name: '책가방',
     mid: (
       <g>
-        <path d="M292 300 H336 V360 H292 Z" fill="#F4C56B" stroke="#D9A44A" strokeWidth="2" rx="8" />
-        <rect x="292" y="300" width="44" height="60" rx="8" fill="#F4C56B" stroke="#D9A44A" />
-        <path d="M300 300 V286 H328 V300" fill="none" stroke="#D9A44A" strokeWidth="3" />
-        <rect x="304" y="318" width="20" height="14" rx="3" fill="#FFF6D8" />
-        <path d="M248 292 C270 300 290 310 300 324" fill="none" stroke="#C9844A" strokeWidth="4" />
+        <path d="M246 286 C268 300 286 314 298 330" fill="none" stroke="#C9844A" strokeWidth="4" />
+        <rect x="286" y="312" width="42" height="56" rx="8" fill="#F4C56B" stroke="#D9A44A" />
+        <path d="M296 312 V298 H318 V312" fill="none" stroke="#D9A44A" strokeWidth="3" />
+        <rect x="296" y="328" width="22" height="14" rx="3" fill="#FFF6D8" />
+        <path d="M292 324 H322" stroke="#fff" strokeWidth="2" opacity="0.35" />
       </g>
     ),
   },
@@ -421,10 +427,10 @@ export const ITEMS = [
     name: '작은 티아라',
     mid: (
       <g>
-        <path d="M150 96 L168 70 L186 98 L200 62 L214 98 L232 70 L250 96" fill="none" stroke="#F7E7A1" strokeWidth="4" strokeLinejoin="round" />
-        <circle cx="200" cy="62" r="4" fill="#fff" />
-        <circle cx="168" cy="74" r="3" fill="#fff" />
-        <circle cx="232" cy="74" r="3" fill="#fff" />
+        <path d="M156 96 L172 72 L188 98 L200 60 L212 98 L228 72 L244 96" fill="none" stroke="#F7E7A1" strokeWidth="3.4" strokeLinejoin="round" />
+        <circle cx="200" cy="60" r="3.6" fill="#fff" />
+        <circle cx="172" cy="74" r="2.6" fill="#fff" />
+        <circle cx="228" cy="74" r="2.6" fill="#fff" />
       </g>
     ),
   },
@@ -436,10 +442,10 @@ export const ITEMS = [
     name: '진주 목걸이',
     mid: (
       <g>
-        {[-28, -14, 0, 14, 28].map((dx) => (
-          <circle key={dx} cx={200 + dx} cy={236 + Math.abs(dx) * 0.15} r="4.2" fill="#FFF8EE" stroke="#E6D3C4" />
+        {[-26, -13, 0, 13, 26].map((dx) => (
+          <circle key={dx} cx={200 + dx} cy={228 + Math.abs(dx) * 0.12} r="3.8" fill="#FFF8EE" stroke="#E6D3C4" />
         ))}
-        <circle cx="200" cy="248" r="6" fill="#F7E7A1" stroke="#E6C56A" />
+        <circle cx="200" cy="240" r="5.5" fill="#F7E7A1" stroke="#E6C56A" />
       </g>
     ),
   },
@@ -450,14 +456,14 @@ export const ITEMS = [
     codes: ['party'],
     name: '반짝 날개',
     mid: (
-      <g opacity="0.95">
-        <ellipse cx="78" cy="268" rx="52" ry="74" fill="#FFF6FB" stroke="#F3C6DA" transform="rotate(-18 78 268)" />
-        <ellipse cx="96" cy="286" rx="28" ry="46" fill="#FFE3F0" transform="rotate(-18 96 286)" />
-        <ellipse cx="322" cy="268" rx="52" ry="74" fill="#FFF6FB" stroke="#F3C6DA" transform="rotate(18 322 268)" />
-        <ellipse cx="304" cy="286" rx="28" ry="46" fill="#FFE3F0" transform="rotate(18 304 286)" />
-        <circle cx="70" cy="230" r="3" fill="#fff" />
-        <circle cx="336" cy="246" r="2.4" fill="#fff" />
-        <circle cx="54" cy="300" r="2" fill="#F7E7A1" />
+      <g>
+        <ellipse cx="86" cy="270" rx="48" ry="70" fill="#FFF6FB" stroke="#F3C6DA" transform="rotate(-16 86 270)" />
+        <ellipse cx="102" cy="286" rx="26" ry="42" fill="#FFE3F0" transform="rotate(-16 102 286)" />
+        <ellipse cx="314" cy="270" rx="48" ry="70" fill="#FFF6FB" stroke="#F3C6DA" transform="rotate(16 314 270)" />
+        <ellipse cx="298" cy="286" rx="26" ry="42" fill="#FFE3F0" transform="rotate(16 298 286)" />
+        <circle cx="74" cy="230" r="2.6" fill="#fff" />
+        <circle cx="328" cy="246" r="2.2" fill="#fff" />
+        <circle cx="64" cy="300" r="2" fill="#F7E7A1" />
       </g>
     ),
   },
@@ -469,9 +475,10 @@ export const ITEMS = [
     name: '베레모',
     mid: (
       <g>
-        <ellipse cx="206" cy="92" rx="62" ry="22" fill="#F28B6A" />
-        <ellipse cx="198" cy="78" rx="40" ry="24" fill="#E56B55" />
-        <circle cx="236" cy="84" r="5" fill="#7ED0C0" />
+        <ellipse cx="206" cy="92" rx="58" ry="20" fill="#F28B6A" />
+        <ellipse cx="198" cy="78" rx="36" ry="22" fill="#E56B55" />
+        <ellipse cx="186" cy="74" rx="14" ry="6" fill="#fff" opacity="0.25" />
+        <circle cx="232" cy="82" r="4.5" fill="#7ED0C0" />
       </g>
     ),
   },
@@ -482,12 +489,12 @@ export const ITEMS = [
     codes: ['outing'],
     name: '동그란 안경',
     mid: (
-      <g fill="none" stroke="#5C463C" strokeWidth="3">
-        <circle cx="170" cy="156" r="18" fill="rgba(255,255,255,0.18)" />
-        <circle cx="230" cy="156" r="18" fill="rgba(255,255,255,0.18)" />
-        <path d="M188 156 H212" />
-        <path d="M152 152 L138 146" />
-        <path d="M248 152 L262 146" />
+      <g fill="none" stroke="#5C463C" strokeWidth="2.6">
+        <circle cx="176" cy="146" r="16" fill="rgba(255,255,255,0.15)" />
+        <circle cx="224" cy="146" r="16" fill="rgba(255,255,255,0.15)" />
+        <path d="M192 146 H208" />
+        <path d="M160 142 L146 136" />
+        <path d="M240 142 L254 136" />
       </g>
     ),
   },
@@ -499,9 +506,10 @@ export const ITEMS = [
     name: '크로스백',
     mid: (
       <g>
-        <path d="M156 240 C210 300 250 320 292 360" fill="none" stroke="#C9844A" strokeWidth="4" />
-        <rect x="262" y="334" width="46" height="36" rx="10" fill="#F28B6A" stroke="#D96B4E" />
-        <circle cx="285" cy="352" r="4" fill="#F7E7A1" />
+        <path d="M164 236 C210 290 246 320 286 356" fill="none" stroke="#C9844A" strokeWidth="3.5" />
+        <rect x="258" y="338" width="44" height="34" rx="10" fill="#F28B6A" stroke="#D96B4E" />
+        <circle cx="280" cy="355" r="3.5" fill="#F7E7A1" />
+        <path d="M266 346 H294" stroke="#fff" strokeWidth="2" opacity="0.3" />
       </g>
     ),
   },
@@ -512,12 +520,12 @@ export const ITEMS = [
     codes: ['school', 'party'],
     name: '꽃 머리핀',
     mid: (
-      <g transform="translate(246 104)">
-        <circle cx="-8" cy="0" r="6" fill="#F28BAA" />
-        <circle cx="8" cy="0" r="6" fill="#F28BAA" />
-        <circle cx="0" cy="-8" r="6" fill="#F28BAA" />
-        <circle cx="0" cy="8" r="6" fill="#F28BAA" />
-        <circle r="4" fill="#F7E7A1" />
+      <g transform="translate(248 104)">
+        <circle cx="-7" cy="0" r="5.5" fill="#F28BAA" />
+        <circle cx="7" cy="0" r="5.5" fill="#F28BAA" />
+        <circle cx="0" cy="-7" r="5.5" fill="#F28BAA" />
+        <circle cx="0" cy="7" r="5.5" fill="#F28BAA" />
+        <circle r="3.6" fill="#F7E7A1" />
       </g>
     ),
   },
@@ -607,15 +615,6 @@ function LayerStack({ equipped, order }) {
     if (!node) return null
     return <g key={`${item.id}-${layer}`}>{node}</g>
   })
-}
-
-export function WornLayers({ equipped }) {
-  return (
-    <>
-      <LayerStack equipped={equipped} order={BACK_LAYERS} />
-      <LayerStack equipped={equipped} order={FRONT_LAYERS} />
-    </>
-  )
 }
 
 /** 몸보다 뒤에 깔리는 레이어와, 몸 위에 붙는 레이어를 나눕니다. */
