@@ -1,4 +1,10 @@
+import { artUrl } from './art.js'
+
 /** 슬롯은 한 장만 붙습니다. 원피스를 붙이면 상의·하의는 떼고, 그 반대도 같습니다. */
+
+export function ArtImage({ href }) {
+  return <image href={href} x="48" y="48" width="304" height="520" preserveAspectRatio="xMidYMid meet" />
+}
 
 function Bow({ x, y, fill = '#E23B70', knot = '#FFE7A8', scale = 1 }) {
   return (
@@ -608,10 +614,18 @@ const FRONT_LAYERS = [
   ['glasses', 'mid'],
 ]
 
+function layerFileName(item, layer) {
+  if (layer === 'mid') return item.id
+  return `${item.id}-${layer}`
+}
+
 function LayerStack({ equipped, order }) {
   return order.map(([slot, layer]) => {
     const item = ITEM_MAP[equipped[slot]]
-    const node = item?.[layer]
+    if (!item) return null
+    const src = artUrl(layerFileName(item, layer))
+    if (src) return <ArtImage key={`${item.id}-${layer}`} href={src} />
+    const node = item[layer]
     if (!node) return null
     return <g key={`${item.id}-${layer}`}>{node}</g>
   })
