@@ -64,3 +64,36 @@ def solid_outline(u,band=6,win=11):
     src=u[di[0],di[1]]
     o[edge,:3]=src[edge,:3]
     return o
+
+LINE=(110,61,91)
+def defringe(u,shrink=3):
+    """반투명 가장자리의 흰 배경 섞임을 빼고(언프리멀티플라이), 알파를 shrink px 줄인다."""
+    rgb=u[...,:3].astype(np.float32); a=u[...,3].astype(np.float32)/255
+    part=(a>0.02)&(a<0.98)
+    with np.errstate(divide='ignore',invalid='ignore'):
+        c=(rgb-(1-a[...,None])*255)/np.maximum(a[...,None],1e-3)
+    rgb=np.where(part[...,None],np.clip(c,0,255),rgb)
+    A=ndimage.grey_erosion(a,size=(2*shrink+1,2*shrink+1)) if shrink else a
+    return np.dstack([rgb,A*255]).astype(np.uint8)
+def restroke(u,width=4.0,color=LINE,sigma=2.6):
+    """바깥 윤곽을 매끈한 실루엣으로 다시 만들고, 그 안쪽 width px 를 한 줄짜리 AA 선(color)으로 다시 그린다. 블러 없음(알파는 가파른 램프)."""
+    a=u[...,3].astype(np.float32)/255
+    g=ndimage.gaussian_filter((a>0.5).astype(np.float32),sigma)
+    A=np.clip((g-0.5)*3.2+0.5,0,1)
+    inside=ndimage.distance_transform_edt(A>0.5)
+    cov=np.clip(width-inside+0.5,0,1)
+    rgb=u[...,:3].astype(np.float32)
+    # 바깥으로 새로 생긴 픽셀에는 선 색, 안쪽은 원래 색과 선 색을 섞음
+    line=np.array(color,np.float32)
+    rgb=rgb*(1-cov[...,None])+line*cov[...,None]
+    rgb=np.where(((A>0)&(a<0.5))[...,None],line,rgb)
+    return np.dstack([np.clip(rgb,0,255),A*255]).astype(np.uint8)
+def strip_white_connected(u,y0=0,lo=228,sat=22):
+    """y0 아래에서 바깥(투명)과 이어진 흰 배경 덩어리를 거리 제한 없이 지운다(발 옆 흰 틈)."""
+    rgb=u[...,:3].astype(int); a=u[...,3]
+    wh=(rgb.min(-1)>=lo)&((rgb.max(-1)-rgb.min(-1))<=sat)&(a>0)
+    wh[:y0]=False
+    lab,n=ndimage.label(wh|(a==0))
+    out=set(np.unique(lab[a==0]))-{0}
+    kill=np.isin(lab,list(out))&wh
+    u=u.copy(); u[kill]=0; return u

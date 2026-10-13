@@ -6,51 +6,40 @@
  "layer": "socks",
  "pieces": [
   {
-   "src": "x4/socks_long-foot.png",
-   "layer": "socks",
-   "x": 108.75,
-   "y": 534.0,
-   "w": 159.5,
-   "h": 68.0,
-   "from": "몸의 발 모양을 양말 색으로"
+   "src": "x4/socks_long.png",
+   "x": 110.5,
+   "y": 466.5,
+   "w": 151.5,
+   "h": 132.0,
+   "from": "양말 조각 + 몸 발 모양(양말색) 합침",
+   "unlessSlot": "shoes"
   },
   {
-   "src": "x4/socks_long-0.png",
-   "x": 118.83,
-   "y": 468.28,
-   "w": 47.6,
-   "h": 73.75,
-   "from": "4e40d8/white-socks/white-socks-2.png",
-   "alt": {
-    "when": "shoes",
-    "src": "x4/socks_long-0-inshoe.png",
-    "w": 47.6,
-    "h": 85.75
-   }
+   "src": "x4/socks_long-in-shoes_red.png",
+   "x": 110.5,
+   "y": 466.5,
+   "w": 151.5,
+   "h": 132.0,
+   "from": "양말 조각 + 몸 발 모양(양말색) 합침",
+   "onlyWith": "shoes_red"
   },
   {
-   "src": "x4/socks_long-1.png",
-   "x": 207.41,
-   "y": 458.18,
-   "w": 55.44,
-   "h": 85.75,
-   "from": "4e40d8/white-socks/white-socks-1.png",
-   "alt": {
-    "when": "shoes",
-    "src": "x4/socks_long-1-inshoe.png",
-    "w": 55.44,
-    "h": 98.0
-   }
+   "src": "x4/socks_long-in-shoes_loafer.png",
+   "x": 110.5,
+   "y": 466.5,
+   "w": 151.5,
+   "h": 132.0,
+   "from": "양말 조각 + 몸 발 모양(양말색) 합침",
+   "onlyWith": "shoes_loafer"
   },
   {
-   "src": "x4/patch-socks_long.png",
-   "layer": "underwear",
-   "x": 124.25,
-   "y": 478.0,
-   "w": 131.0,
-   "h": 38.25,
-   "from": "자동 틈 메우기",
-   "patch": true
+   "src": "x4/socks_long-in-shoes_pink.png",
+   "x": 110.5,
+   "y": 466.5,
+   "w": 151.5,
+   "h": 132.0,
+   "from": "양말 조각 + 몸 발 모양(양말색) 합침",
+   "onlyWith": "shoes_pink"
   }
  ],
  "occlusion": {

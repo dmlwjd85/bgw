@@ -22,6 +22,7 @@ def compose(ids,accs=(),bg=(255,253,248)):
         part=PART[i]
         for n,pc in enumerate(part['pieces']):
             if pc.get('onlyWith') and pc['onlyWith'] not in worn.values(): continue
+            if pc.get('unlessSlot') and pc['unlessSlot'] in worn: continue
             q=dict(pc)
             if 'alt' in pc and pc['alt']['when'] in worn: q.update(pc['alt'])
             L.append((Z[pc.get('layer',part['layer'])]+10+n,q))

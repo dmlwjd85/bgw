@@ -20,16 +20,6 @@
    "w": 74.75,
    "h": 75.75,
    "from": "4e40d8/red-sneakers/red-sneakers-4.png"
-  },
-  {
-   "src": "x4/patch-shoes_red.png",
-   "layer": "underwear",
-   "x": 131.5,
-   "y": 564.25,
-   "w": 96.5,
-   "h": 36.75,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ],
  "occlusion": {

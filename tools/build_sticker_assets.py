@@ -19,16 +19,20 @@ for d in (PUB,DATA): shutil.rmtree(d,ignore_errors=True)
 os.makedirs(PUB+'/x4'); os.makedirs(PUB+'/bg'); os.makedirs(DATA+'/parts'); os.makedirs(DATA+'/characters'); os.makedirs(DATA+'/backgrounds')
 L='4e40d8/'
 def load(f): return np.array(Image.open(SRC+f).convert('RGBA'))
-def process(arr,scale,name,solid=False):
+def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None):
     """원본 배열 → 4배 선명 + 흰 테두리 제거 → 배치 크기의 RES 배로 저장. 반환: 저장 파일, 스테이지 w,h"""
     up=esr.up_rgba(arr).astype(np.uint8)
     u=rim.strip_rim(up)
     u=rim.restore_holes(u,up)
     if solid: u=rim.solid_outline(u)
+    if feetwhite is not None: u=rim.strip_white_connected(u,feetwhite*RES*u.shape[0]//(arr.shape[0]*RES) if False else int(feetwhite*u.shape[0]/arr.shape[0]))
+    u=rim.defringe(u,shrink=3)
+    if stroke: u=rim.restroke(u)
     im=Image.fromarray(u)
     w=arr.shape[1]*scale; h=arr.shape[0]*scale
     tw,th=round(w*RES),round(h*RES)
     if (tw,th)!=im.size: im=im.resize((tw,th),Image.LANCZOS)
+    if not save: return im,tw/RES,th/RES
     p=f'x4/{name}.png'; im.save(f'{PUB}/{p}',optimize=True)
     return p,tw/RES,th/RES
 def F(k,i=0): r=fit[k][i]; return (L+k,r['x'],r['y'],r['scale'])
@@ -51,8 +55,11 @@ char={'id':'siha','name':'시하','stage':{'w':SW,'h':SH},'res':RES,
   'shoe_l':{'x':122,'y':578,'size':0.3,'layer':'hair_acc','label':'왼쪽 신발'},
   'shoe_r':{'x':250,'y':575,'size':0.3,'layer':'hair_acc','label':'오른쪽 신발'},
   'hand':{'x':60,'y':150,'size':0.55,'layer':'hand_prop','label':'손'}}}
-for nm,arr,layer in (('siha-body',top,'body'),('siha-feet',feet,'body')):
-    p,w,h=process(arr,1.0,nm); char['pieces'].append({'key':nm.split('-')[1],'src':p,'layer':layer,'x':OX,'y':OY,'w':w,'h':h})
+_full,_w,_h=process(base,1.0,'siha-full',save=False,feetwhite=(FEET_Y-60)); _full=np.array(_full)
+_t=_full.copy(); _t[FEET_Y*RES:]=0; _f=_full.copy(); _f[:(FEET_Y-6)*RES]=0
+for key,arr in (('body',_t),('feet',_f)):
+    p=f'x4/siha-{key}.png'; Image.fromarray(arr).save(f'{PUB}/{p}',optimize=True)
+    char['pieces'].append({'key':key,'src':p,'layer':'body','x':OX,'y':OY,'w':_w,'h':_h})
 json.dump(char,open(f'{DATA}/characters/siha.json','w'),ensure_ascii=False,indent=1)
 
 def fit_socks_to_legs(pieces):
@@ -87,6 +94,38 @@ def sock_foot(pid,pieces):
     ys,xs=np.where(F[...,3]>0); x0,y1,x1,y2=xs.min(),ys.min(),xs.max()+1,ys.max()+1
     p=f'x4/{pid}-foot.png'; Image.fromarray(F[y1:y2,x0:x1].astype(np.uint8)).save(f'{PUB}/{p}',optimize=True)
     return {'src':p,'layer':'socks','x':OX+x0/RES,'y':OY+y1/RES,'w':(x1-x0)/RES,'h':(y2-y1)/RES,'from':'몸의 발 모양을 양말 색으로'}
+def merge_socks(pid,pieces):
+    """양말 발(아래) + 양말 조각(위)을 스테이지 4배 캔버스에 합쳐 하나의 조각으로 만들고 바깥 윤곽선을 다시 그린다 → 양말·발 이음선 없음."""
+    H,W=SH*RES,SW*RES; C=Image.new('RGBA',(W,H),(0,0,0,0))
+    for pc in pieces:
+        im=Image.open(f"{PUB}/{pc['src']}").convert('RGBA'); tw,th=round(pc['w']*RES),round(pc['h']*RES)
+        if im.size!=(tw,th): im=im.resize((tw,th),Image.LANCZOS)
+        L_=Image.new('RGBA',C.size,(0,0,0,0)); L_.paste(im,(round(pc['x']*RES),round(pc['y']*RES))); C.alpha_composite(L_)
+    a=rim.restroke(np.array(C)); ys,xs=np.where(a[...,3]>0); x0,y0,x1,y1=xs.min(),ys.min(),xs.max()+1,ys.max()+1
+    p=f'x4/{pid}.png'; Image.fromarray(a[y0:y1,x0:x1]).save(f'{PUB}/{p}',optimize=True)
+    return [{'src':p,'x':x0/RES,'y':y0/RES,'w':(x1-x0)/RES,'h':(y1-y0)/RES,'from':'양말 조각 + 몸 발 모양(양말색) 합침','unlessSlot':'shoes'}]
+def shoe_keep(pieces):
+    """신발을 신었을 때 남길 영역(스테이지 4배 좌표): 신발 입구(가장 높은 점) 위쪽 + 신발 안쪽(2px 줄임)."""
+    from scipy import ndimage
+    H,W=SH*RES,SW*RES; S=np.zeros((H,W),np.float32)
+    for pc in pieces:
+        if pc.get('patch'): continue
+        a=np.array(Image.open(f"{PUB}/{pc['src']}").convert('RGBA'))[...,3]
+        x0=round(pc['x']*RES); y0=round(pc['y']*RES)
+        S[y0:y0+a.shape[0],x0:x0+a.shape[1]]=np.maximum(S[y0:y0+a.shape[0],x0:x0+a.shape[1]],a)
+    shoe=S>128; inner=ndimage.binary_erosion(shoe,iterations=2)
+    keep=np.ones((H,W),bool)
+    for xa,xb in ((0,W//2),(W//2,W)):
+        cols=np.where(shoe[:,xa:xb].any(0))[0]
+        if not len(cols): continue
+        tops={c:int(np.argmax(shoe[:,xa+c])) for c in cols}; top=min(tops.values())+RES
+        keep[top:,xa:xb]=False                      # 신발 폭 밖: 신발 입구 아래는 모두 숨김
+        for c,t in tops.items(): keep[:t+RES,xa+c]=True   # 신발 폭 안: 그 열의 신발 윗선 위는 보임(발목·양말)
+    return keep|inner
+def masked_piece(pc,keep,name):
+    im=np.array(Image.open(f"{PUB}/{pc['src']}").convert('RGBA')); x0=round(pc['x']*RES); y0=round(pc['y']*RES)
+    k=keep[y0:y0+im.shape[0],x0:x0+im.shape[1]]; im=im.copy(); im[~k]=0
+    p=f'x4/{name}.png'; Image.fromarray(im).save(f'{PUB}/{p}',optimize=True); return p
 def feet_for_shoes(pid,pieces):
     """신발 밖으로 비치는 발(뒤꿈치·발끝)만 지운 발 조각. 신발 윗선 위쪽 발목은 남겨 구멍이 생기지 않게 한다."""
     from scipy import ndimage
@@ -115,8 +154,8 @@ PARTS=[
  ('skirt_navy','남색 주름치마','bottom','bottom','bottom',[F('blue-skirt/blue-skirt-1.png')],{}),
  ('dress_blue','하늘 프릴 드레스','dress','dress','top',[F('blue-frilly-dress.png'),('HAND',7,'4e40d8/blue-frilly-dress.png',fd,(255,285,306,345),(fd['x'],fd['y'],fd['scale']))],{'clears':['top','bottom']}),
  ('dress_pink','분홍 프릴 드레스','dress','dress','top',[at(L+'pink-frilly-dress/pink-frilly-dress-1.png',152,138,1.15)],{'clears':['top','bottom']}),
- ('onesie_bear','보라 곰 우주복','dress','dress','outer',[(L+'purple-bear-onesie.png',fo['x'],fo['y'],fo['scale']),('HAND',9,'4e40d8/purple-bear-onesie.png',fo,(235,285,294,345),(fo['x'],fo['y'],fo['scale']))],{'clears':['top','bottom'],'hide':['feet'],'solid':True}),
- ('socks_long','긴 양말','socks','socks','socks',[F('white-socks/white-socks-2.png'),F('white-socks/white-socks-1.png')],{'altWhen':'shoes'}),
+ ('onesie_bear','보라 곰 우주복','dress','dress','outer',[(L+'purple-bear-onesie.png',fo['x'],fo['y'],fo['scale']),('HAND',9,'4e40d8/purple-bear-onesie.png',fo,(235,285,294,345),(fo['x'],fo['y'],fo['scale']))],{'clears':['top','bottom'],'hide':['feet']}),
+ ('socks_long','긴 양말','socks','socks','socks',[F('white-socks/white-socks-2.png'),F('white-socks/white-socks-1.png')],{}),
  ('socks_short','프릴 양말','socks','socks','socks',[F('white-socks/white-socks-10.png'),F('white-socks/white-socks-12.png')],{}),
  ('shoes_red','빨간 운동화','shoes','shoes','shoes',[F('red-sneakers/red-sneakers-6.png'),F('red-sneakers/red-sneakers-4.png')],{'hide':['feet']}),
  ('shoes_loafer','검정 로퍼','shoes','shoes','shoes',[shoe(L+'black-loafers/black-loafers-1.png',94,568,62),shoe(L+'black-loafers/black-loafers-4.png',219,566,62)],{'hide':['feet']}),
@@ -150,10 +189,10 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
     for n,pc in enumerate(pieces):
         if pc[0]=='HAND':
             _,ci,pf,fr,box,plc=pc; arr,(x,y,s)=hands.hand(ci,pf,fr,box,plc)
-            p,w,h=process(arr,s,f'{pid}-hand',solid=occ.get('solid',False)); out.append({'src':p,'layer':'arms','x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':pf+' (손, 시트 '+str(ci)+')'})
+            p,w,h=process(arr,s,f'{pid}-hand',stroke=False); out.append({'src':p,'layer':'arms','x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':pf+' (손, 시트 '+str(ci)+')'})
             continue
         f,x,y,s=pc; arr=load(f)
-        p,w,h=process(arr,s,f'{pid}-{n}',solid=occ.get('solid',False))
+        p,w,h=process(arr,s,f'{pid}-{n}',stroke=(slot!='socks'))
         e={'src':p,'x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':f}
         if occ.get('altWhen')=='shoes':
             ext=fixes.extend_bottom(arr,rows=12)
@@ -162,8 +201,14 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
     j={'id':pid,'name':name,'category':cat,'slot':slot,'layer':layer,'pieces':out,
        'occlusion':{'hideCharacterPieces':occ.get('hide',[]),'clearsSlots':occ.get('clears',[])}}
     if pid=='socks_long': fit_socks_to_legs(out)
-    if slot=='socks': out.insert(0,sock_foot(pid,out))
-    if slot=='shoes': j['occlusion']['replaceCharacterPieces']={'feet':feet_for_shoes(pid,out)}; j['occlusion']['hideCharacterPieces']=[]
+    if slot=='socks': out=merge_socks(pid,[sock_foot(pid,out)]+out); j['pieces']=out
+    if slot=='shoes':
+        kp=shoe_keep(out); fp=next(p for p in char['pieces'] if p['key']=='feet')
+        j['occlusion']['replaceCharacterPieces']={'feet':masked_piece(fp,kp,f'siha-feet-{pid}')}; j['occlusion']['hideCharacterPieces']=[]
+        for sid in [x for x in order if x.startswith('socks')]:
+            sj=json.load(open(f'{DATA}/parts/{sid}.json')); base_pc=next(x for x in sj['pieces'] if x.get('unlessSlot'))
+            v=dict(base_pc); v.pop('unlessSlot'); v['onlyWith']=pid; v['src']=masked_piece(base_pc,kp,f'{sid}-in-{pid}')
+            sj['pieces'].append(v); json.dump(sj,open(f'{DATA}/parts/{sid}.json','w'),ensure_ascii=False,indent=1)
     json.dump(j,open(f'{DATA}/parts/{pid}.json','w'),ensure_ascii=False,indent=1); order.append(pid); print('part',pid,flush=True)
 for aid,name,cat,f,crownW,anchors in ACCS:
     arr=load(f); s=min(1.0,crownW/arr.shape[1])      # 정수리 크기에서도 확대하지 않음
