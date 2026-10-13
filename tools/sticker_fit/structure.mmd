@@ -1,0 +1,35 @@
+flowchart TD
+  subgraph SRC["원본 (읽기 전용) /workspace/sticker_upload"]
+    O1[4e40d8 몸·옷·신발·양말·리본]
+    O2[8d0099 머리장식·소품·배경]
+    O3[adb08a 티아라·리본·보석]
+  end
+  subgraph PIPE["tools/build_sticker_assets.py (박스에서 실행, 복사본만 가공)"]
+    P1[흰 칼선 테두리 제거<br/>AA 유지, 블러 없음] --> P2[Real-ESRGAN anime 4배<br/>업스케일 = 선명한 선]
+    P2 --> P3[앞/뒤 조각 분리<br/>손·발·양말 연장 조각]
+    P3 --> P4[속바지 짧게 다시 칠하기<br/>배경 구멍 메우기]
+  end
+  SRC --> PIPE
+  PIPE --> ASSET["public/sticker/** PNG (4배 해상도)"]
+  PIPE --> DATA
+  subgraph DATA["src/sticker/data (부품 1개 = JSON 1개)"]
+    L[layers.json<br/>레이어 순서 표]
+    C[characters/siha.json<br/>몸 레이어 + 앵커 좌표]
+    PT[parts/*.json<br/>layer · anchor · size · occlusion · pieces 앞/뒤]
+    BG[backgrounds/*.json]
+  end
+  subgraph LAYERS["레이어 순서 (아래→위)"]
+    direction LR
+    Z1[뒷머리] --> Z2[몸] --> Z3[속옷] --> Z4[양말] --> Z5[신발] --> Z6[하의] --> Z7[상의] --> Z8[겉옷] --> Z9[팔·소매] --> Z10[얼굴] --> Z11[앞머리] --> Z12[머리장식] --> Z13[손 소품]
+  end
+  L -.정의.-> LAYERS
+  subgraph APP["StickerBook.jsx (React)"]
+    R1[레이어 렌더러<br/>조각마다 layer 로 z 결정] 
+    R2[드래그·터치 Pointer Events]
+    R3[스냅: 고정 슬롯 or 가장 가까운 앵커<br/>멀면 자유 배치]
+    R4[가림 규칙 occlusion<br/>예: 신발→맨발 숨김, 원피스→상·하의 해제]
+    R5[저장: localStorage siha-sticker-book-v1<br/>+ PNG 내보내기]
+  end
+  DATA --> APP
+  ASSET --> APP
+  APP --> OUT["/bgw/siha/ (기본) · /bgw/siha/#dress 기존 드레스 북 그대로"]

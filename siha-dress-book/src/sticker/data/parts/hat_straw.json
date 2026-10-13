@@ -1,0 +1,21 @@
+{
+ "id": "hat_straw",
+ "name": "밀짚모자",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/hat_straw-0.png",
+   "x": 86.0,
+   "y": 12,
+   "w": 188.0,
+   "h": 129.0,
+   "from": "8d0099/straw-hat.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

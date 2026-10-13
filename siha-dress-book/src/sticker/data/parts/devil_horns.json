@@ -1,0 +1,21 @@
+{
+ "id": "devil_horns",
+ "name": "악마 뿔",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/devil_horns-0.png",
+   "x": 104.92,
+   "y": 30,
+   "w": 152.25,
+   "h": 108.0,
+   "from": "8d0099/tiara/tiara-10.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "id": "sunflower",
+ "name": "해바라기",
+ "category": "flower",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "side",
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 46.0,
+  "h": 54.0
+ },
+ "pieces": [
+  {
+   "src": "x4/sunflower.png",
+   "w": 46.0,
+   "h": 54.0,
+   "from": "8d0099/sunflower.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

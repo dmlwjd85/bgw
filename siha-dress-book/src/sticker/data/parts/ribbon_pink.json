@@ -1,0 +1,33 @@
+{
+ "id": "ribbon_pink",
+ "name": "분홍 긴 리본",
+ "category": "ribbon",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side",
+  "neck",
+  "waist",
+  "shoe_l",
+  "shoe_r"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 80.0,
+  "h": 107.5
+ },
+ "pieces": [
+  {
+   "src": "x4/ribbon_pink.png",
+   "w": 80.0,
+   "h": 107.5,
+   "from": "adb08a/pink-ribbon/pink-ribbon-1.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

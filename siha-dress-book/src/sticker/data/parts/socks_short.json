@@ -1,0 +1,70 @@
+{
+ "id": "socks_short",
+ "name": "프릴 양말",
+ "category": "socks",
+ "slot": "socks",
+ "layer": "socks",
+ "pieces": [
+  {
+   "src": "x4/socks_short-foot.png",
+   "layer": "socks",
+   "x": 108.75,
+   "y": 558.5,
+   "w": 159.5,
+   "h": 43.5,
+   "from": "몸의 발 모양을 양말 색으로"
+  },
+  {
+   "src": "x4/socks_short-0.png",
+   "x": 109.36,
+   "y": 533.62,
+   "w": 43.5,
+   "h": 35.0,
+   "from": "4e40d8/white-socks/white-socks-10.png"
+  },
+  {
+   "src": "x4/socks_short-1.png",
+   "x": 228.51,
+   "y": 525.11,
+   "w": 46.75,
+   "h": 38.25,
+   "from": "4e40d8/white-socks/white-socks-12.png"
+  },
+  {
+   "src": "x4/patch-socks_short.png",
+   "layer": "underwear",
+   "x": 111.25,
+   "y": 540.75,
+   "w": 159.25,
+   "h": 15.5,
+   "from": "자동 틈 메우기",
+   "patch": true
+  },
+  {
+   "src": "x4/patch-socks_short-shoes_red.png",
+   "layer": "underwear",
+   "x": 117.0,
+   "y": 534.25,
+   "w": 156.0,
+   "h": 6.5,
+   "from": "자동 틈 메우기",
+   "patch": true,
+   "onlyWith": "shoes_red"
+  },
+  {
+   "src": "x4/patch-socks_short-shoes_loafer.png",
+   "layer": "underwear",
+   "x": 270.25,
+   "y": 540.25,
+   "w": 0.75,
+   "h": 1.25,
+   "from": "자동 틈 메우기",
+   "patch": true,
+   "onlyWith": "shoes_loafer"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

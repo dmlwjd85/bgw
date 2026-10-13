@@ -1,0 +1,33 @@
+{
+ "id": "bow_pink",
+ "name": "분홍 큰 리본",
+ "category": "ribbon",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side",
+  "neck",
+  "waist",
+  "shoe_l",
+  "shoe_r"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 96.0,
+  "h": 49.0
+ },
+ "pieces": [
+  {
+   "src": "x4/bow_pink.png",
+   "w": 96.0,
+   "h": 49.0,
+   "from": "4e40d8/pink-bow/pink-bow-1.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

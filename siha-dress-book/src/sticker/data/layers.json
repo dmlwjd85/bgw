@@ -1,0 +1,106 @@
+{
+ "order": [
+  "back_hair",
+  "body",
+  "underwear",
+  "socks",
+  "shoes",
+  "bottom",
+  "top",
+  "outer",
+  "arms",
+  "face",
+  "front_hair",
+  "hair_acc",
+  "hand_prop"
+ ],
+ "labels": {
+  "back_hair": "뒷머리",
+  "body": "몸",
+  "underwear": "속옷",
+  "socks": "양말",
+  "shoes": "신발",
+  "bottom": "하의",
+  "top": "상의·원피스",
+  "outer": "겉옷",
+  "arms": "팔·소매",
+  "face": "얼굴",
+  "front_hair": "앞머리",
+  "hair_acc": "머리장식",
+  "hand_prop": "손 소품"
+ },
+ "categories": [
+  {
+   "id": "dress",
+   "label": "원피스"
+  },
+  {
+   "id": "top",
+   "label": "상의"
+  },
+  {
+   "id": "bottom",
+   "label": "하의"
+  },
+  {
+   "id": "socks",
+   "label": "양말"
+  },
+  {
+   "id": "shoes",
+   "label": "신발"
+  },
+  {
+   "id": "head",
+   "label": "머리"
+  },
+  {
+   "id": "ribbon",
+   "label": "리본"
+  },
+  {
+   "id": "flower",
+   "label": "꽃"
+  },
+  {
+   "id": "neck",
+   "label": "목"
+  },
+  {
+   "id": "charm",
+   "label": "소품"
+  }
+ ],
+ "partOrder": [
+  "top_yellow",
+  "skirt_denim",
+  "skirt_denim2",
+  "skirt_navy",
+  "dress_blue",
+  "dress_pink",
+  "onesie_bear",
+  "socks_long",
+  "socks_short",
+  "shoes_red",
+  "shoes_loafer",
+  "shoes_pink",
+  "hb_blue",
+  "tiara_gold",
+  "devil_horns",
+  "hb_rose",
+  "hat_straw",
+  "headphones",
+  "choker",
+  "bow_pink",
+  "bow_pink_small",
+  "bow_blue",
+  "ribbon_pink",
+  "bow_blue_gem",
+  "flower_blue",
+  "sunflower",
+  "rose",
+  "lollipop",
+  "heart",
+  "pendant"
+ ]
+}

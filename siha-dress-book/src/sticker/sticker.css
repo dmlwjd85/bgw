@@ -10,16 +10,14 @@
 .sb-layout{display:grid;gap:12px;grid-template-columns:1fr}
 @media(min-width:760px){.sb-layout{grid-template-columns:minmax(300px,420px) 1fr;align-items:start}}
 .sb-stage-wrap{display:flex;flex-direction:column;align-items:center}
-.sb-stage{position:relative;width:min(100%,420px,calc((100svh - 300px) * 360 / 650));min-width:240px;aspect-ratio:360/650;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #d78aa933;touch-action:none}
+.sb-stage{position:relative;background:#fffdf8 center/cover no-repeat;width:min(100%,420px,calc((100svh - 300px) * 360 / 650));min-width:240px;aspect-ratio:360/650;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #d78aa933;touch-action:none}
 .sb-piece{position:absolute;max-width:none;pointer-events:none;image-rendering:auto}
-.sb-worn,.sb-prop{touch-action:none}
-.sb-worn{position:absolute;inset:0;pointer-events:none}
-.sb-worn .sb-piece,.sb-prop{pointer-events:auto;cursor:grab}
-.sb-worn.snap{animation:sb-pop .35s ease-out}
+.sb-drag{pointer-events:auto;cursor:grab;touch-action:none}
+.sb-piece.snap{animation:sb-pop .35s ease-out}
 @keyframes sb-pop{0%{transform:scale(1.04)}100%{transform:scale(1)}}
 .sb-hint{font-size:13px;margin:6px 0 0;text-align:center;opacity:.8}
 .sb-sheet{background:#fff7fb;border:2px dashed #f3b9cf;border-radius:18px;padding:10px}
-.sb-cats{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.sb-cats{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:6px}
 .sb-cats button{flex:0 0 auto}
 .sb-tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:6px}
 .sb-sticker{font:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border-radius:14px;border:2px solid transparent;background:#fff;touch-action:none;cursor:grab;color:inherit;min-height:110px}
@@ -31,3 +29,15 @@
 .sb-ghost{position:fixed;transform:translate(-50%,-50%);pointer-events:none;z-index:1000;display:flex;opacity:.85}
 .sb-ghost img{max-height:110px;max-width:110px}
 .sb-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#5b2d45;color:#fff;padding:10px 16px;border-radius:999px;z-index:1001;font-size:15px}
+/* 폰: 몸과 스티커 시트가 한 화면에 같이 보여야 끌어다 놓을 수 있다 */
+@media(max-width:759px){
+ .sb{padding:4px 8px 12px}
+ .sb-head h1{font-size:20px}
+ .sb-tools button,.sb-cats button{min-height:40px;font-size:14px;padding:0 10px}
+ .sb-stage{width:min(100%,calc((100svh - 390px) * 360 / 650));min-width:200px}
+ .sb-hint{display:none}
+ .sb-tray{grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px}
+ .sb-sticker{min-height:92px;padding:4px}
+ .sb-thumb{height:58px}
+ .sb-thumb img{max-height:58px}
+}

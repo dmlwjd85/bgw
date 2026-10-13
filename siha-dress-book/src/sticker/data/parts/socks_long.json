@@ -1,0 +1,60 @@
+{
+ "id": "socks_long",
+ "name": "긴 양말",
+ "category": "socks",
+ "slot": "socks",
+ "layer": "socks",
+ "pieces": [
+  {
+   "src": "x4/socks_long-foot.png",
+   "layer": "socks",
+   "x": 108.75,
+   "y": 534.0,
+   "w": 159.5,
+   "h": 68.0,
+   "from": "몸의 발 모양을 양말 색으로"
+  },
+  {
+   "src": "x4/socks_long-0.png",
+   "x": 118.83,
+   "y": 468.28,
+   "w": 47.6,
+   "h": 73.75,
+   "from": "4e40d8/white-socks/white-socks-2.png",
+   "alt": {
+    "when": "shoes",
+    "src": "x4/socks_long-0-inshoe.png",
+    "w": 47.6,
+    "h": 85.75
+   }
+  },
+  {
+   "src": "x4/socks_long-1.png",
+   "x": 207.41,
+   "y": 458.18,
+   "w": 55.44,
+   "h": 85.75,
+   "from": "4e40d8/white-socks/white-socks-1.png",
+   "alt": {
+    "when": "shoes",
+    "src": "x4/socks_long-1-inshoe.png",
+    "w": 55.44,
+    "h": 98.0
+   }
+  },
+  {
+   "src": "x4/patch-socks_long.png",
+   "layer": "underwear",
+   "x": 124.25,
+   "y": 478.0,
+   "w": 131.0,
+   "h": 38.25,
+   "from": "자동 틈 메우기",
+   "patch": true
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

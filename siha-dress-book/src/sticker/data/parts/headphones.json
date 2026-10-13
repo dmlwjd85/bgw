@@ -1,0 +1,21 @@
+{
+ "id": "headphones",
+ "name": "헤드폰",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/headphones-0.png",
+   "x": 113.5,
+   "y": 40,
+   "w": 133.0,
+   "h": 108.0,
+   "from": "8d0099/headphones.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

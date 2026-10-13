@@ -1,0 +1,31 @@
+{
+ "id": "skirt_navy",
+ "name": "남색 주름치마",
+ "category": "bottom",
+ "slot": "bottom",
+ "layer": "bottom",
+ "pieces": [
+  {
+   "src": "x4/skirt_navy-0.png",
+   "x": 101.31,
+   "y": 299.6,
+   "w": 165.75,
+   "h": 104.0,
+   "from": "4e40d8/blue-skirt/blue-skirt-1.png"
+  },
+  {
+   "src": "x4/patch-skirt_navy.png",
+   "layer": "underwear",
+   "x": 247.75,
+   "y": 341.75,
+   "w": 1.5,
+   "h": 1.25,
+   "from": "자동 틈 메우기",
+   "patch": true
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}
