@@ -1,0 +1,649 @@
+{
+ "stage": {
+  "w": 360,
+  "h": 650
+ },
+ "body": {
+  "src": "body.png",
+  "x": 30,
+  "y": 40,
+  "w": 300,
+  "h": 570
+ },
+ "feet": {
+  "src": "feet.png",
+  "x": 30,
+  "y": 40,
+  "w": 300,
+  "h": 570
+ },
+ "note": "몸에 흰 민소매·흰 반바지가 그려져 있어 어떤 조합도 노출이 생기지 않음",
+ "categories": [
+  {
+   "id": "top",
+   "label": "상의"
+  },
+  {
+   "id": "bottom",
+   "label": "하의"
+  },
+  {
+   "id": "dress",
+   "label": "원피스"
+  },
+  {
+   "id": "socks",
+   "label": "양말"
+  },
+  {
+   "id": "shoes",
+   "label": "신발"
+  },
+  {
+   "id": "head",
+   "label": "머리"
+  },
+  {
+   "id": "neck",
+   "label": "목"
+  },
+  {
+   "id": "prop",
+   "label": "소품"
+  }
+ ],
+ "items": [
+  {
+   "id": "top_yellow",
+   "name": "노란 크롭 상의",
+   "slot": "top",
+   "category": "top",
+   "z": 40,
+   "pieces": [
+    {
+     "src": "parts/top_yellow-0.png",
+     "orig": "4e40d8/yellow-crop-top/yellow-crop-top-2.png",
+     "x": 120.0,
+     "y": 201.7,
+     "w": 116.0,
+     "h": 100.0,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "skirt_denim",
+   "name": "청치마",
+   "slot": "bottom",
+   "category": "bottom",
+   "z": 50,
+   "pieces": [
+    {
+     "src": "parts/skirt_denim-0.png",
+     "orig": "4e40d8/denim-skirt/denim-skirt-2.png",
+     "x": 90.2,
+     "y": 302.8,
+     "w": 178.7,
+     "h": 112.8,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "skirt_denim2",
+   "name": "청치마 2",
+   "slot": "bottom",
+   "category": "bottom",
+   "z": 50,
+   "pieces": [
+    {
+     "src": "parts/skirt_denim2-0.png",
+     "orig": "4e40d8/denim-skirt/denim-skirt-1.png",
+     "x": 94.5,
+     "y": 299.6,
+     "w": 172.3,
+     "h": 104.3,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "skirt_navy",
+   "name": "남색 주름치마",
+   "slot": "bottom",
+   "category": "bottom",
+   "z": 50,
+   "pieces": [
+    {
+     "src": "parts/skirt_navy-0.png",
+     "orig": "4e40d8/blue-skirt/blue-skirt-1.png",
+     "x": 101.3,
+     "y": 299.6,
+     "w": 165.7,
+     "h": 104.0,
+     "scale": 1.01
+    }
+   ]
+  },
+  {
+   "id": "dress_blue",
+   "name": "하늘 프릴 드레스",
+   "slot": "dress",
+   "category": "dress",
+   "z": 60,
+   "pieces": [
+    {
+     "src": "parts/dress_blue-0.png",
+     "orig": "4e40d8/blue-frilly-dress.png",
+     "x": 50.0,
+     "y": 184.2,
+     "w": 283.0,
+     "h": 255.4,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "dress_pink",
+   "name": "분홍 프릴 드레스",
+   "slot": "dress",
+   "category": "dress",
+   "z": 60,
+   "pieces": [
+    {
+     "src": "parts/dress_pink-0.png",
+     "orig": "4e40d8/pink-frilly-dress/pink-frilly-dress-1.png",
+     "x": 44.6,
+     "y": 178,
+     "w": 274.8,
+     "h": 239.2,
+     "scale": 1.15
+    }
+   ]
+  },
+  {
+   "id": "onesie_bear",
+   "name": "보라 곰 우주복",
+   "slot": "dress",
+   "category": "dress",
+   "z": 65,
+   "pieces": [
+    {
+     "src": "parts/onesie_bear-0.png",
+     "orig": "4e40d8/purple-bear-onesie.png",
+     "x": 35.8,
+     "y": 10,
+     "w": 288.3,
+     "h": 561.8,
+     "scale": 1.06
+    }
+   ]
+  },
+  {
+   "id": "socks_long",
+   "name": "긴 양말",
+   "slot": "socks",
+   "category": "socks",
+   "z": 20,
+   "pieces": [
+    {
+     "src": "parts/socks_long-0.png",
+     "orig": "4e40d8/white-socks/white-socks-2.png",
+     "x": 126.6,
+     "y": 473.3,
+     "w": 42.4,
+     "h": 73.7,
+     "scale": 1.01
+    },
+    {
+     "src": "parts/socks_long-1.png",
+     "orig": "4e40d8/white-socks/white-socks-1.png",
+     "x": 215.5,
+     "y": 463.2,
+     "w": 49.5,
+     "h": 85.9,
+     "scale": 1.01
+    }
+   ]
+  },
+  {
+   "id": "socks_short",
+   "name": "프릴 양말",
+   "slot": "socks",
+   "category": "socks",
+   "z": 20,
+   "pieces": [
+    {
+     "src": "parts/socks_short-0.png",
+     "orig": "4e40d8/white-socks/white-socks-10.png",
+     "x": 109.4,
+     "y": 533.6,
+     "w": 43.6,
+     "h": 35.1,
+     "scale": 1.064
+    },
+    {
+     "src": "parts/socks_short-1.png",
+     "orig": "4e40d8/white-socks/white-socks-12.png",
+     "x": 228.5,
+     "y": 525.1,
+     "w": 46.8,
+     "h": 38.3,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "shoes_red",
+   "name": "빨간 운동화",
+   "slot": "shoes",
+   "category": "shoes",
+   "z": 30,
+   "pieces": [
+    {
+     "src": "parts/shoes_red-0.png",
+     "orig": "4e40d8/red-sneakers/red-sneakers-6.png",
+     "x": 91.1,
+     "y": 535.8,
+     "w": 66.3,
+     "h": 71.6,
+     "scale": 1.053
+    },
+    {
+     "src": "parts/shoes_red-1.png",
+     "orig": "4e40d8/red-sneakers/red-sneakers-4.png",
+     "x": 212.1,
+     "y": 529.5,
+     "w": 74.7,
+     "h": 75.8,
+     "scale": 1.053
+    }
+   ]
+  },
+  {
+   "id": "shoes_loafer",
+   "name": "검정 로퍼",
+   "slot": "shoes",
+   "category": "shoes",
+   "z": 30,
+   "pieces": [
+    {
+     "src": "parts/shoes_loafer-0.png",
+     "orig": "4e40d8/black-loafers/black-loafers-1.png",
+     "x": 93.0,
+     "y": 540.5,
+     "w": 62.0,
+     "h": 67.5,
+     "scale": 1.107
+    },
+    {
+     "src": "parts/shoes_loafer-1.png",
+     "orig": "4e40d8/black-loafers/black-loafers-4.png",
+     "x": 218.0,
+     "y": 539.4,
+     "w": 62.0,
+     "h": 66.6,
+     "scale": 1.148
+    }
+   ]
+  },
+  {
+   "id": "shoes_pink",
+   "name": "분홍 구두",
+   "slot": "shoes",
+   "category": "shoes",
+   "z": 30,
+   "pieces": [
+    {
+     "src": "parts/shoes_pink-0.png",
+     "orig": "4e40d8/pink-shoes/pink-shoes-1.png",
+     "x": 94.0,
+     "y": 537.6,
+     "w": 60.0,
+     "h": 70.4,
+     "scale": 1.154
+    },
+    {
+     "src": "parts/shoes_pink-1.png",
+     "orig": "4e40d8/pink-shoes/pink-shoes-2.png",
+     "x": 220.0,
+     "y": 542.0,
+     "w": 58.0,
+     "h": 64.0,
+     "scale": 1.208
+    }
+   ]
+  },
+  {
+   "id": "hb_blue",
+   "name": "하늘 레이스 머리띠",
+   "slot": "head",
+   "category": "head",
+   "z": 80,
+   "pieces": [
+    {
+     "src": "parts/hb_blue-0.png",
+     "orig": "4e40d8/blue-headband/blue-headband-2.png",
+     "x": 108.3,
+     "y": 27.2,
+     "w": 185.1,
+     "h": 124.5,
+     "scale": 1.064
+    }
+   ]
+  },
+  {
+   "id": "bow_pink",
+   "name": "분홍 큰 리본",
+   "slot": "head",
+   "category": "head",
+   "z": 82,
+   "pieces": [
+    {
+     "src": "parts/bow_pink-0.png",
+     "orig": "4e40d8/pink-bow/pink-bow-1.png",
+     "x": 129.0,
+     "y": 26,
+     "w": 102.0,
+     "h": 52.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "bow_pink_side",
+   "name": "분홍 옆 리본",
+   "slot": "pin",
+   "category": "pin",
+   "z": 82,
+   "pieces": [
+    {
+     "src": "parts/bow_pink_side-0.png",
+     "orig": "4e40d8/pink-bow/pink-bow-3.png",
+     "x": 201.0,
+     "y": 80,
+     "w": 68.0,
+     "h": 64.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "tiara_gold",
+   "name": "하트 티아라",
+   "slot": "head",
+   "category": "head",
+   "z": 84,
+   "pieces": [
+    {
+     "src": "parts/tiara_gold-0.png",
+     "orig": "adb08a/tiara.png",
+     "x": 109.4,
+     "y": 32,
+     "w": 143.2,
+     "h": 78.7,
+     "scale": 0.62
+    }
+   ]
+  },
+  {
+   "id": "tiara_blue",
+   "name": "악마 뿔",
+   "slot": "head",
+   "category": "head",
+   "z": 84,
+   "pieces": [
+    {
+     "src": "parts/tiara_blue-0.png",
+     "orig": "8d0099/tiara/tiara-10.png",
+     "x": 104.9,
+     "y": 30,
+     "w": 152.2,
+     "h": 108.0,
+     "scale": 0.85
+    }
+   ]
+  },
+  {
+   "id": "hb_rose",
+   "name": "검은 장미 머리띠",
+   "slot": "head",
+   "category": "head",
+   "z": 80,
+   "pieces": [
+    {
+     "src": "parts/hb_rose-0.png",
+     "orig": "8d0099/black-rose-headband/black-rose-headband-2.png",
+     "x": 101.0,
+     "y": 26,
+     "w": 160.0,
+     "h": 148.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "hat_straw",
+   "name": "밀짚모자",
+   "slot": "head",
+   "category": "head",
+   "z": 86,
+   "pieces": [
+    {
+     "src": "parts/hat_straw-0.png",
+     "orig": "8d0099/straw-hat.png",
+     "x": 86.0,
+     "y": 12,
+     "w": 188.0,
+     "h": 129.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "headphones",
+   "name": "헤드폰",
+   "slot": "head",
+   "category": "head",
+   "z": 86,
+   "pieces": [
+    {
+     "src": "parts/headphones-0.png",
+     "orig": "8d0099/headphones.png",
+     "x": 113.5,
+     "y": 40,
+     "w": 133.0,
+     "h": 108.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "bow_blue",
+   "name": "파란 리본 핀",
+   "slot": "pin",
+   "category": "pin",
+   "z": 82,
+   "pieces": [
+    {
+     "src": "parts/bow_blue-0.png",
+     "orig": "8d0099/blue-bow/blue-bow-1.png",
+     "x": 200.0,
+     "y": 70,
+     "w": 60.0,
+     "h": 63.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "flower_blue",
+   "name": "파란 꽃 핀",
+   "slot": "pin",
+   "category": "pin",
+   "z": 82,
+   "pieces": [
+    {
+     "src": "parts/flower_blue-0.png",
+     "orig": "8d0099/blue-flower-hair-accessory/blue-flower-hair-accessory-1.png",
+     "x": 214.5,
+     "y": 80,
+     "w": 41.0,
+     "h": 70.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "choker",
+   "name": "초커 목걸이",
+   "slot": "neck",
+   "category": "neck",
+   "z": 45,
+   "pieces": [
+    {
+     "src": "parts/choker-0.png",
+     "orig": "adb08a/choker-necklace.png",
+     "x": 150.6,
+     "y": 180,
+     "w": 58.9,
+     "h": 57.8,
+     "scale": 0.55
+    }
+   ]
+  },
+  {
+   "id": "lollipop",
+   "name": "무지개 막대사탕",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/lollipop.png",
+     "orig": "8d0099/rainbow-swirl-lollipop.png",
+     "x": 0,
+     "y": 0,
+     "w": 48.0,
+     "h": 134.4,
+     "scale": 0.8
+    }
+   ]
+  },
+  {
+   "id": "sunflower",
+   "name": "해바라기",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/sunflower.png",
+     "orig": "8d0099/sunflower.png",
+     "x": 0,
+     "y": 0,
+     "w": 46.0,
+     "h": 54.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "rose",
+   "name": "빨간 장미",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/rose.png",
+     "orig": "8d0099/red-rose/red-rose-1.png",
+     "x": 0,
+     "y": 0,
+     "w": 33.0,
+     "h": 39.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "heart",
+   "name": "하트 보석",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/heart.png",
+     "orig": "adb08a/pink-heart-gem/pink-heart-gem-1.png",
+     "x": 0,
+     "y": 0,
+     "w": 48.0,
+     "h": 53.0,
+     "scale": 1.0
+    }
+   ]
+  },
+  {
+   "id": "ribbon",
+   "name": "분홍 리본",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/ribbon.png",
+     "orig": "adb08a/pink-ribbon/pink-ribbon-1.png",
+     "x": 0,
+     "y": 0,
+     "w": 54.0,
+     "h": 72.6,
+     "scale": 0.6
+    }
+   ]
+  },
+  {
+   "id": "bluebow",
+   "name": "파란 보석 리본",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/bluebow.png",
+     "orig": "adb08a/blue-bow/blue-bow-2.png",
+     "x": 0,
+     "y": 0,
+     "w": 66.5,
+     "h": 86.5,
+     "scale": 0.5
+    }
+   ]
+  },
+  {
+   "id": "pendant",
+   "name": "하트 펜던트",
+   "slot": "prop",
+   "category": "prop",
+   "z": 90,
+   "free": true,
+   "pieces": [
+    {
+     "src": "parts/pendant.png",
+     "orig": "adb08a/pink-gem-pendant.png",
+     "x": 0,
+     "y": 0,
+     "w": 42.0,
+     "h": 53.0,
+     "scale": 1.0
+    }
+   ]
+  }
+ ]
+}
