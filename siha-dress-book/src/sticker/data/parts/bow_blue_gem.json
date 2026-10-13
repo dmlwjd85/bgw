@@ -29,5 +29,11 @@
  "occlusion": {
   "hideCharacterPieces": [],
   "clearsSlots": []
+ },
+ "anchorOffset": {
+  "crown": {
+   "dx": 0,
+   "dy": 10
+  }
  }
 }

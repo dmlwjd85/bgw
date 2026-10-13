@@ -7,37 +7,37 @@
  "pieces": [
   {
    "src": "x4/socks_long.png",
-   "x": 110.5,
+   "x": 110.75,
    "y": 466.5,
-   "w": 151.5,
-   "h": 132.0,
+   "w": 150.75,
+   "h": 131.75,
    "from": "양말 조각 + 몸 발 모양(양말색) 합침",
    "unlessSlot": "shoes"
   },
   {
    "src": "x4/socks_long-in-shoes_red.png",
-   "x": 110.5,
+   "x": 110.75,
    "y": 466.5,
-   "w": 151.5,
-   "h": 132.0,
+   "w": 150.75,
+   "h": 131.75,
    "from": "양말 조각 + 몸 발 모양(양말색) 합침",
    "onlyWith": "shoes_red"
   },
   {
    "src": "x4/socks_long-in-shoes_loafer.png",
-   "x": 110.5,
+   "x": 110.75,
    "y": 466.5,
-   "w": 151.5,
-   "h": 132.0,
+   "w": 150.75,
+   "h": 131.75,
    "from": "양말 조각 + 몸 발 모양(양말색) 합침",
    "onlyWith": "shoes_loafer"
   },
   {
    "src": "x4/socks_long-in-shoes_pink.png",
-   "x": 110.5,
+   "x": 110.75,
    "y": 466.5,
-   "w": 151.5,
-   "h": 132.0,
+   "w": 150.75,
+   "h": 131.75,
    "from": "양말 조각 + 몸 발 모양(양말색) 합침",
    "onlyWith": "shoes_pink"
   }

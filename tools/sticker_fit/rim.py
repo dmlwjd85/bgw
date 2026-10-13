@@ -75,10 +75,13 @@ def defringe(u,shrink=3):
     rgb=np.where(part[...,None],np.clip(c,0,255),rgb)
     A=ndimage.grey_erosion(a,size=(2*shrink+1,2*shrink+1)) if shrink else a
     return np.dstack([rgb,A*255]).astype(np.uint8)
-def restroke(u,width=4.0,color=LINE,sigma=2.6):
+def restroke(u,width=4.0,color=LINE,sigma=2.6,smooth_from=None,sigma2=7.0):
     """바깥 윤곽을 매끈한 실루엣으로 다시 만들고, 그 안쪽 width px 를 한 줄짜리 AA 선(color)으로 다시 그린다. 블러 없음(알파는 가파른 램프)."""
     a=u[...,3].astype(np.float32)/255
     g=ndimage.gaussian_filter((a>0.5).astype(np.float32),sigma)
+    if smooth_from is not None:   # 다리처럼 긴 매끈한 선은 더 강하게 펴서 울퉁불퉁함 제거
+        g2=ndimage.gaussian_filter((a>0.5).astype(np.float32),sigma2)
+        t=np.clip((np.arange(a.shape[0])-smooth_from)/40.0,0,1)[:,None]; g=g*(1-t)+g2*t
     A=np.clip((g-0.5)*3.2+0.5,0,1)
     inside=ndimage.distance_transform_edt(A>0.5)
     cov=np.clip(width-inside+0.5,0,1)
@@ -93,7 +96,8 @@ def strip_white_connected(u,y0=0,lo=228,sat=22):
     rgb=u[...,:3].astype(int); a=u[...,3]
     wh=(rgb.min(-1)>=lo)&((rgb.max(-1)-rgb.min(-1))<=sat)&(a>0)
     wh[:y0]=False
-    lab,n=ndimage.label(wh|(a==0))
-    out=set(np.unique(lab[a==0]))-{0}
-    kill=np.isin(lab,list(out))&wh
+    lab,n=ndimage.label(wh)
+    near=ndimage.binary_dilation(a==0,iterations=8)   # 얇은 선 찌꺼기 너머 바깥과 붙은 흰 덩어리도 포함
+    out=set(np.unique(lab[near&wh]))-{0}
+    kill=np.isin(lab,list(out))
     u=u.copy(); u[kill]=0; return u

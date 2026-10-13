@@ -13,6 +13,8 @@ def compose(ids,accs=(),bg=(255,253,248)):
         p=PART[i]
         for s in p['occlusion']['clearsSlots']: worn.pop(s,None)
         worn[p['slot']]=i
+    hs={s for i in worn.values() for s in PART[i]['occlusion'].get('hideSlots',[])}
+    worn={k:v for k,v in worn.items() if k not in hs}
     hidden={k for i in worn.values() for k in PART[i]['occlusion']['hideCharacterPieces']}
     L=[]
     rep={k:v for i in worn.values() for k,v in PART[i]['occlusion'].get('replaceCharacterPieces',{}).items()}
@@ -28,7 +30,7 @@ def compose(ids,accs=(),bg=(255,253,248)):
             L.append((Z[pc.get('layer',part['layer'])]+10+n,q))
     for n,(aid,anc) in enumerate(accs):
         part=PART[aid]; a=CH['anchors'][anc]; w=part['size']['w']*a['size']; h=part['size']['h']*a['size']
-        L.append((Z[a['layer']]+50+n,{'src':part['pieces'][0]['src'],'x':a['x']-w/2,'y':a['y']-h/2,'w':w,'h':h}))
+        L.append((Z[a['layer']]+50+n,{'src':part['pieces'][0]['src'],'x':a['x']-w/2+part.get('anchorOffset',{}).get(anc,{}).get('dx',0),'y':a['y']-h/2+part.get('anchorOffset',{}).get(anc,{}).get('dy',0),'w':w,'h':h}))
     c=Image.new('RGBA',(CH['stage']['w']*R,CH['stage']['h']*R),(bg+(255,)) if bg else (0,0,0,0))
     for _,p in sorted(L,key=lambda t:t[0]):
         im=Image.open(P+p['src']).convert('RGBA'); tw,th=round(p['w']*R),round(p['h']*R)

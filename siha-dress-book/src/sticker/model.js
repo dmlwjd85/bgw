@@ -31,9 +31,12 @@ export function wear(worn, part) {
 
 // 화면에 그릴 조각 목록 (z 오름차순)
 export function layersFor(worn, accs) {
-  const parts = Object.values(worn).map((id) => PART[id]).filter(Boolean)
+  const all = Object.values(worn).map((id) => PART[id]).filter(Boolean)
+  // 덮는 옷(예: 곰 우주복 발)이 가리는 슬롯은 그리지 않음(입은 정보는 그대로 둠)
+  const hideSlots = new Set(all.flatMap((p) => p.occlusion?.hideSlots || []))
+  const parts = all.filter((p) => !hideSlots.has(p.slot))
   const hidden = new Set(parts.flatMap((p) => p.occlusion?.hideCharacterPieces || []))
-  const has = (slot) => Boolean(worn[slot] && PART[worn[slot]])
+  const has = (slot) => !hideSlots.has(slot) && Boolean(worn[slot] && PART[worn[slot]])
   const out = []
   const replaced = Object.assign({}, ...parts.map((p) => p.occlusion?.replaceCharacterPieces || {}))
   CHARACTER.pieces.forEach((p, i) => {
@@ -65,8 +68,9 @@ export function accBox(a) {
   const k = anc ? anc.size : 0.6
   const w = part.size.w * k
   const h = part.size.h * k
-  const cx = anc ? anc.x : a.x
-  const cy = anc ? anc.y : a.y
+  const off = (anc && part.anchorOffset && part.anchorOffset[a.anchor]) || {}
+  const cx = anc ? anc.x + (off.dx || 0) : a.x
+  const cy = anc ? anc.y + (off.dy || 0) : a.y
   return { x: cx - w / 2, y: cy - h / 2, w, h }
 }
 

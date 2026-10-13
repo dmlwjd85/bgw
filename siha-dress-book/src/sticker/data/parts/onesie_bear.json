@@ -40,6 +40,10 @@
   "clearsSlots": [
    "top",
    "bottom"
+  ],
+  "hideSlots": [
+   "shoes",
+   "socks"
   ]
  }
 }
