@@ -105,3 +105,11 @@ def strip_white_connected(u,y0=0,lo=228,sat=22):
     out=set(np.unique(lab[near&wh]))-{0}
     kill=np.isin(lab,list(out))
     u=u.copy(); u[kill]=0; return u
+def strip_white_box(u,box,lo=225,sat=26,near_px=10):
+    """box(x0,y0,x1,y1, 픽셀) 안에서만: 바깥(투명)에 near_px 이내로 닿는 흰 덩어리를 지운다(손가락 사이 흰 배경). box 밖은 손대지 않음."""
+    x0,y0,x1,y1=box; sub=u[y0:y1,x0:x1]
+    rgb=sub[...,:3].astype(int); a=sub[...,3]
+    wh=(rgb.min(-1)>=lo)&((rgb.max(-1)-rgb.min(-1))<=sat)&(a>0)
+    lab,n=ndimage.label(wh); near=ndimage.binary_dilation(a==0,iterations=near_px)
+    ids=set(np.unique(lab[near&wh]))-{0}
+    u=u.copy(); u[y0:y1,x0:x1][np.isin(lab,list(ids))]=0; return u

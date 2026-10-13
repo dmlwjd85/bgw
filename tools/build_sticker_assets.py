@@ -19,6 +19,7 @@ for d in (PUB,DATA): shutil.rmtree(d,ignore_errors=True)
 os.makedirs(PUB+'/x4'); os.makedirs(PUB+'/bg'); os.makedirs(DATA+'/parts'); os.makedirs(DATA+'/characters'); os.makedirs(DATA+'/backgrounds')
 L='4e40d8/'
 def load(f): return np.array(Image.open(SRC+f).convert('RGBA'))
+HAND_BOX=(0,70,120,165)   # 흔드는 손 영역(원본 몸 좌표)
 def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shrink=3,cut=None):
     """원본 배열 → 4배 선명 + 흰 테두리 제거 → 배치 크기의 RES 배로 저장. 반환: 저장 파일, 스테이지 w,h"""
     up=esr.up_rgba(arr).astype(np.uint8)
@@ -29,6 +30,8 @@ def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shri
     if cut is not None:   # 위로 솟은 뒤축 등 잘라냄: (x0,y0,x1,y1) 비율 선 위쪽, x0 오른쪽
         H_,W_=u.shape[:2]; X,Y=np.meshgrid(np.arange(W_)/W_,np.arange(H_)/H_)
         x0c,y0c,x1c,y1c=cut; lineY=y0c+(X-x0c)*(y1c-y0c)/(x1c-x0c); u=u.copy(); u[(X>x0c)&(Y<lineY)]=0
+    if feetwhite is not None:   # 흔드는 손 영역만(원본 몸 기준 x 0~120, y 70~165) 손가락 사이 흰 배경 제거
+        k=u.shape[0]/arr.shape[0]; u=rim.strip_white_box(u,tuple(int(v*k) for v in HAND_BOX))
     u=rim.defringe(u,shrink=shrink)
     if stroke: u=rim.restroke(u,smooth_from=None if feetwhite is None else int(feetwhite*u.shape[0]/arr.shape[0]))
     im=Image.fromarray(u)
