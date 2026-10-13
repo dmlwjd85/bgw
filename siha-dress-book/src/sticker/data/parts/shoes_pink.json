@@ -7,11 +7,11 @@
  "pieces": [
   {
    "src": "x4/shoes_pink-0.png",
-   "x": 100.0,
+   "x": 97.0,
    "y": 541.75,
    "w": 60.0,
    "h": 66.25,
-   "from": "4e40d8/pink-shoes/pink-shoes-2.png"
+   "from": "4e40d8/pink-shoes/pink-shoes-2.png|flip"
   },
   {
    "src": "x4/shoes_pink-1.png",
