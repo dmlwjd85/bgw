@@ -1,0 +1,32 @@
+{
+ "id": "shoes_pink",
+ "name": "분홍 구두",
+ "category": "shoes",
+ "slot": "shoes",
+ "layer": "shoes",
+ "pieces": [
+  {
+   "src": "x4/shoes_pink-0.png",
+   "x": 97.0,
+   "y": 541.75,
+   "w": 60.0,
+   "h": 66.25,
+   "from": "4e40d8/pink-shoes/pink-shoes-2.png|flip"
+  },
+  {
+   "src": "x4/shoes_pink-1.png",
+   "x": 220.0,
+   "y": 541.96,
+   "w": 58.0,
+   "h": 64.0,
+   "from": "4e40d8/pink-shoes/pink-shoes-2.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [],
+  "replaceCharacterPieces": {
+   "feet": "x4/siha-feet-shoes_pink.png"
+  }
+ }
+}

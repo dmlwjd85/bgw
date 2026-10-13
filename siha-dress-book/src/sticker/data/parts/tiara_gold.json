@@ -1,0 +1,21 @@
+{
+ "id": "tiara_gold",
+ "name": "하트 티아라",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/tiara_gold-0.png",
+   "x": 109.39,
+   "y": 32,
+   "w": 143.25,
+   "h": 78.75,
+   "from": "adb08a/tiara.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

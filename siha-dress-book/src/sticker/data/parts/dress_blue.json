@@ -1,0 +1,43 @@
+{
+ "id": "dress_blue",
+ "name": "하늘 프릴 드레스",
+ "category": "dress",
+ "slot": "dress",
+ "layer": "top",
+ "pieces": [
+  {
+   "src": "x4/dress_blue-0.png",
+   "x": 50.0,
+   "y": 184.21,
+   "w": 283.0,
+   "h": 255.25,
+   "from": "4e40d8/blue-frilly-dress.png"
+  },
+  {
+   "src": "x4/dress_blue-hand.png",
+   "layer": "arms",
+   "x": 296.32,
+   "y": 323.16,
+   "w": 53.75,
+   "h": 63.25,
+   "from": "4e40d8/blue-frilly-dress.png (손, 시트 7)"
+  },
+  {
+   "src": "x4/patch-dress_blue.png",
+   "layer": "underwear",
+   "x": 171.0,
+   "y": 431.5,
+   "w": 2.5,
+   "h": 3.5,
+   "from": "자동 틈 메우기",
+   "patch": true
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ }
+}

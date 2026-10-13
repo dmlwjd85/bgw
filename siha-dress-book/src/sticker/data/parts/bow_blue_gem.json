@@ -1,0 +1,39 @@
+{
+ "id": "bow_blue_gem",
+ "name": "파란 보석 리본",
+ "category": "ribbon",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side",
+  "neck",
+  "waist",
+  "shoe_l",
+  "shoe_r"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 96.0,
+  "h": 124.75
+ },
+ "pieces": [
+  {
+   "src": "x4/bow_blue_gem.png",
+   "w": 96.0,
+   "h": 124.75,
+   "from": "adb08a/blue-bow/blue-bow-2.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "anchorOffset": {
+  "crown": {
+   "dx": 0,
+   "dy": 10
+  }
+ }
+}

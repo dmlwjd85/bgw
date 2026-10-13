@@ -1,0 +1,21 @@
+{
+ "id": "skirt_navy",
+ "name": "남색 주름치마",
+ "category": "bottom",
+ "slot": "bottom",
+ "layer": "bottom",
+ "pieces": [
+  {
+   "src": "x4/skirt_navy-0.png",
+   "x": 101.31,
+   "y": 299.6,
+   "w": 165.75,
+   "h": 104.0,
+   "from": "4e40d8/blue-skirt/blue-skirt-1.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}

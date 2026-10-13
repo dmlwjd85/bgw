@@ -1,0 +1,21 @@
+{
+ "id": "top_yellow",
+ "name": "노란 크롭 상의",
+ "category": "top",
+ "slot": "top",
+ "layer": "top",
+ "pieces": [
+  {
+   "src": "x4/top_yellow-0.png",
+   "x": 120.0,
+   "y": 201.7,
+   "w": 116.0,
+   "h": 100.0,
+   "from": "4e40d8/yellow-crop-top/yellow-crop-top-2.png"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ }
+}
