@@ -7,11 +7,11 @@
  "pieces": [
   {
    "src": "x4/shoes_pink-0.png",
-   "x": 94.0,
-   "y": 537.62,
+   "x": 100.0,
+   "y": 541.75,
    "w": 60.0,
-   "h": 70.5,
-   "from": "4e40d8/pink-shoes/pink-shoes-1.png"
+   "h": 66.25,
+   "from": "4e40d8/pink-shoes/pink-shoes-2.png"
   },
   {
    "src": "x4/shoes_pink-1.png",
@@ -20,16 +20,6 @@
    "w": 58.0,
    "h": 64.0,
    "from": "4e40d8/pink-shoes/pink-shoes-2.png"
-  },
-  {
-   "src": "x4/patch-shoes_pink.png",
-   "layer": "underwear",
-   "x": 109.0,
-   "y": 553.0,
-   "w": 38.75,
-   "h": 25.0,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ],
  "occlusion": {

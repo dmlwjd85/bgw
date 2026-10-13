@@ -6,7 +6,7 @@
 새 옷 추가: 아래 PARTS 에 한 줄 추가하거나, 이미 4배 PNG 가 있으면 data/parts/<id>.json 하나만 손으로 써도 된다."""
 import json,os,shutil,sys
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 HERE=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.join(HERE,'sticker_fit'))
 import esr,rim,fixes,hands,bgfill
 os.chdir(os.path.dirname(HERE))
@@ -20,7 +20,7 @@ os.makedirs(PUB+'/x4'); os.makedirs(PUB+'/bg'); os.makedirs(DATA+'/parts'); os.m
 L='4e40d8/'
 def load(f): return np.array(Image.open(SRC+f).convert('RGBA'))
 HAND_BOX=(0,70,120,165)   # 흔드는 손 영역(원본 몸 좌표)
-def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shrink=3,cut=None):
+def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shrink=3,cut=None,heel=False,sharp=False):
     """원본 배열 → 4배 선명 + 흰 테두리 제거 → 배치 크기의 RES 배로 저장. 반환: 저장 파일, 스테이지 w,h"""
     up=esr.up_rgba(arr).astype(np.uint8)
     u=rim.strip_rim(up)
@@ -32,6 +32,16 @@ def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shri
         x0c,y0c,x1c,y1c=cut; lineY=y0c+(X-x0c)*(y1c-y0c)/(x1c-x0c); u=u.copy(); u[(X>x0c)&(Y<lineY)]=0
     if feetwhite is not None:   # 흔드는 손 영역만(원본 몸 기준 x 0~120, y 70~165) 손가락 사이 흰 배경 제거
         k=u.shape[0]/arr.shape[0]; u=rim.strip_white_box(u,tuple(int(v*k) for v in HAND_BOX))
+    if heel:   # heel = 입구 높이 아래로 더 깎을 비율. 발목 뒤로 솟은 뒤축을 입구 높이로 둥글게 깎음(뒤축이 발목 뒤로 감싸 보이게)
+        A_=u[...,3]>128; H_,W_=A_.shape; cols=np.where(A_.any(0))[0]; c0,c1=cols.min(),cols.max(); r=c1-c0
+        top=np.array([np.argmax(A_[:,x]) if A_[:,x].any() else H_ for x in range(W_)])
+        mid=top[int(c0+0.35*r):int(c0+0.65*r)]; c=int(np.median(mid))       # 신발 입구(가운데) 높이
+        X,Y=np.meshgrid(np.arange(W_),np.arange(H_))
+        side=np.minimum(np.abs(X-(c0+0.5*r))/(0.5*r),1.0)                    # 가운데 0 → 양끝 1
+        lim=c+heel*H_                                                         # 입구 높이보다 위로 솟은 부분만 깎음(신발 몸통은 그대로)
+        u=u.copy(); u[(side>0.4)&(Y<lim)]=0
+    if sharp:
+        im_=Image.fromarray(u); rgb_=im_.convert('RGB').filter(ImageFilter.UnsharpMask(radius=2,percent=140,threshold=1)); u=np.dstack([np.array(rgb_),u[...,3]])
     u=rim.defringe(u,shrink=shrink)
     if stroke: u=rim.restroke(u,smooth_from=None if feetwhite is None else int(feetwhite*u.shape[0]/arr.shape[0]))
     im=Image.fromarray(u)
@@ -61,7 +71,7 @@ char={'id':'siha','name':'시하','stage':{'w':SW,'h':SH},'res':RES,
   'shoe_l':{'x':122,'y':578,'size':0.3,'layer':'hair_acc','label':'왼쪽 신발'},
   'shoe_r':{'x':250,'y':575,'size':0.3,'layer':'hair_acc','label':'오른쪽 신발'},
   'hand':{'x':60,'y':150,'size':0.55,'layer':'hand_prop','label':'손'}}}
-_full,_w,_h=process(base,1.0,'siha-full',save=False,feetwhite=360); _full=np.array(_full)
+_full,_w,_h=process(base,1.0,'siha-full',save=False,feetwhite=360,sharp=True); _full=np.array(_full)
 _t=_full.copy(); _t[FEET_Y*RES:]=0; _f=_full.copy(); _f[:(FEET_Y-6)*RES]=0
 for key,arr in (('body',_t),('feet',_f)):
     p=f'x4/siha-{key}.png'; Image.fromarray(arr).save(f'{PUB}/{p}',optimize=True)
@@ -202,7 +212,7 @@ PARTS=[
  ('socks_short','프릴 양말','socks','socks','socks',[F('white-socks/white-socks-10.png'),F('white-socks/white-socks-12.png')],{}),
  ('shoes_red','빨간 운동화','shoes','shoes','shoes',[F('red-sneakers/red-sneakers-6.png'),F('red-sneakers/red-sneakers-4.png')],{'hide':['feet']}),
  ('shoes_loafer','검정 로퍼','shoes','shoes','shoes',[shoe(L+'black-loafers/black-loafers-1.png',94,568,62),shoe(L+'black-loafers/black-loafers-4.png',219,566,62)],{'hide':['feet']}),
- ('shoes_pink','분홍 구두','shoes','shoes','shoes',[shoe(L+'pink-shoes/pink-shoes-1.png',94,568,60),shoe(L+'pink-shoes/pink-shoes-2.png',219,566,58)],{'hide':['feet']}),
+ ('shoes_pink','분홍 구두','shoes','shoes','shoes',[shoe(L+'pink-shoes/pink-shoes-2.png',100,568,60),shoe(L+'pink-shoes/pink-shoes-2.png',219,566,58)],{'hide':['feet']}),
  ('hb_blue','하늘 레이스 머리띠','head','head','hair_acc',[F('blue-headband/blue-headband-2.png',1)],{}),
  ('tiara_gold','하트 티아라','head','head','hair_acc',[at('adb08a/tiara.png',151,-8,0.62)],{}),
  ('devil_horns','악마 뿔','head','head','hair_acc',[at('8d0099/tiara/tiara-10.png',151,-10,0.85)],{}),
@@ -237,7 +247,7 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
             p,w,h=process(arr,s,f'{pid}-hand',stroke=False); out.append({'src':p,'layer':'arms','x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':pf+' (손, 시트 '+str(ci)+')'})
             continue
         f,x,y,s=pc; arr=load(f)
-        p,w,h=process(arr,s,f'{pid}-{n}',stroke=(slot!='socks'),shrink=(6 if slot=='shoes' else 3),cut=SHOE_CUT.get((pid,n)))
+        p,w,h=process(arr,s,f'{pid}-{n}',stroke=(slot!='socks'),shrink=(6 if slot=='shoes' else 3),cut=SHOE_CUT.get((pid,n)),heel={'shoes_pink':0.04,'shoes_loafer':0.10}.get(pid,0),sharp=(slot=='shoes'))
         e={'src':p,'x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':f}
         if occ.get('altWhen')=='shoes':
             ext=fixes.extend_bottom(arr,rows=12)

@@ -24,10 +24,10 @@
   {
    "src": "x4/patch-shoes_loafer.png",
    "layer": "underwear",
-   "x": 148.5,
-   "y": 558.75,
+   "x": 240.0,
+   "y": 553.0,
    "w": 0.25,
-   "h": 4.25,
+   "h": 1.5,
    "from": "자동 틈 메우기",
    "patch": true
   }
