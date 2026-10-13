@@ -82,9 +82,13 @@ def restroke(u,width=4.0,color=LINE,sigma=2.6,smooth_from=None,sigma2=7.0):
     if smooth_from is not None:   # 다리처럼 긴 매끈한 선은 더 강하게 펴서 울퉁불퉁함 제거
         g2=ndimage.gaussian_filter((a>0.5).astype(np.float32),sigma2)
         t=np.clip((np.arange(a.shape[0])-smooth_from)/40.0,0,1)[:,None]; g=g*(1-t)+g2*t
-    A=np.clip((g-0.5)*3.2+0.5,0,1)
-    inside=ndimage.distance_transform_edt(A>0.5)
-    cov=np.clip(width-inside+0.5,0,1)
+    M=g>0.5
+    # 부호 거리로 1px 짜리 AA 가장자리(번짐 없음)
+    sd=ndimage.distance_transform_edt(M)-ndimage.distance_transform_edt(~M)
+    gy,gx=np.gradient(g); gm=np.maximum(np.hypot(gx,gy),1e-3)
+    A=np.clip((g-0.5)/gm+0.5,0,1)   # 경계에서 정확히 1px 폭 AA
+    inside=np.maximum(sd,0)
+    cov=np.clip(width-inside+0.5,0,1)*(A>0)
     rgb=u[...,:3].astype(np.float32)
     # 바깥으로 새로 생긴 픽셀에는 선 색, 안쪽은 원래 색과 선 색을 섞음
     line=np.array(color,np.float32)

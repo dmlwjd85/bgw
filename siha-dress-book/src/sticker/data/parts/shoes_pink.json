@@ -24,9 +24,9 @@
   {
    "src": "x4/patch-shoes_pink.png",
    "layer": "underwear",
-   "x": 109.5,
-   "y": 552.0,
-   "w": 39.5,
+   "x": 109.0,
+   "y": 553.0,
+   "w": 38.75,
    "h": 25.0,
    "from": "자동 틈 메우기",
    "patch": true

@@ -41,3 +41,7 @@
  .sb-thumb{height:58px}
  .sb-thumb img{max-height:58px}
 }
+
+.sb-sticker.off{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
+.sb-sticker.off .sb-name{text-decoration:none}
+.sb-lock{font-size:10px;white-space:nowrap;color:#a05b7c;background:#fff0f6;border-radius:8px;padding:1px 6px}

@@ -25,10 +25,10 @@
   {
    "src": "x4/patch-onesie_bear.png",
    "layer": "underwear",
-   "x": 270.25,
-   "y": 115.0,
-   "w": 16.75,
-   "h": 47.25,
+   "x": 270.5,
+   "y": 115.5,
+   "w": 36.0,
+   "h": 250.75,
    "from": "자동 틈 메우기",
    "patch": true
   }

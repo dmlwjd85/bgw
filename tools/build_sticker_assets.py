@@ -19,14 +19,17 @@ for d in (PUB,DATA): shutil.rmtree(d,ignore_errors=True)
 os.makedirs(PUB+'/x4'); os.makedirs(PUB+'/bg'); os.makedirs(DATA+'/parts'); os.makedirs(DATA+'/characters'); os.makedirs(DATA+'/backgrounds')
 L='4e40d8/'
 def load(f): return np.array(Image.open(SRC+f).convert('RGBA'))
-def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None):
+def process(arr,scale,name,solid=False,stroke=True,save=True,feetwhite=None,shrink=3,cut=None):
     """원본 배열 → 4배 선명 + 흰 테두리 제거 → 배치 크기의 RES 배로 저장. 반환: 저장 파일, 스테이지 w,h"""
     up=esr.up_rgba(arr).astype(np.uint8)
     u=rim.strip_rim(up)
     u=rim.restore_holes(u,up)
     if solid: u=rim.solid_outline(u)
     if feetwhite is not None: u=rim.strip_white_connected(u,feetwhite*RES*u.shape[0]//(arr.shape[0]*RES) if False else int(feetwhite*u.shape[0]/arr.shape[0]))
-    u=rim.defringe(u,shrink=3)
+    if cut is not None:   # 위로 솟은 뒤축 등 잘라냄: (x0,y0,x1,y1) 비율 선 위쪽, x0 오른쪽
+        H_,W_=u.shape[:2]; X,Y=np.meshgrid(np.arange(W_)/W_,np.arange(H_)/H_)
+        x0c,y0c,x1c,y1c=cut; lineY=y0c+(X-x0c)*(y1c-y0c)/(x1c-x0c); u=u.copy(); u[(X>x0c)&(Y<lineY)]=0
+    u=rim.defringe(u,shrink=shrink)
     if stroke: u=rim.restroke(u,smooth_from=None if feetwhite is None else int(feetwhite*u.shape[0]/arr.shape[0]))
     im=Image.fromarray(u)
     w=arr.shape[1]*scale; h=arr.shape[0]*scale
@@ -94,6 +97,42 @@ def sock_foot(pid,pieces):
     ys,xs=np.where(F[...,3]>0); x0,y1,x1,y2=xs.min(),ys.min(),xs.max()+1,ys.max()+1
     p=f'x4/{pid}-foot.png'; Image.fromarray(F[y1:y2,x0:x1].astype(np.uint8)).save(f'{PUB}/{p}',optimize=True)
     return {'src':p,'layer':'socks','x':OX+x0/RES,'y':OY+y1/RES,'w':(x1-x0)/RES,'h':(y2-y1)/RES,'from':'몸의 발 모양을 양말 색으로'}
+def leg_sock(pid,pieces,short):
+    """양말을 다리 모양 그대로 새로 그린다: 몸(다리·발) 실루엣을 그대로 알파로 쓰고, 피부를 흰 양말 색으로 다시 칠함.
+    알파가 다리와 똑같아 옆으로 피부가 비치지 않고, 한 장이라 발목 이음선도 없다. 윗단은 자두색 AA 선 한 줄(짧은 양말은 물결 프릴)."""
+    from scipy import ndimage
+    F=np.zeros((570*RES,300*RES,4),np.float32)
+    for cp in char['pieces']:
+        im=np.array(Image.open(f"{PUB}/{cp['src']}").convert('RGBA')).astype(np.float32); F=np.where(im[...,3:4]>F[...,3:4],im,F)
+    H,W=F.shape[:2]; yy=np.arange(H)[:,None].astype(np.float32); xx=np.arange(W)[None,:].astype(np.float32)
+    top=np.zeros(W,np.float32)
+    for xa,xb in ((0,W//2),(W//2,W)):
+        ps=[pc for pc in pieces if xa<= (pc['x']+pc['w']/2-OX)*RES <xb]
+        t=(min(pc['y'] for pc in ps)-OY)*RES if (ps and not short) else (538-OY)*RES
+        top[xa:xb]=t+(6 if not short else 0)
+    if short: top=top+3*np.sin(xx[0]/9.0)          # 프릴 물결
+    a=F[...,3]/255; rgb=F[...,:3]
+    line=np.array(rim.LINE,np.float32)
+    edge=ndimage.distance_transform_edt(a>0.02)<7
+    isline=edge&((np.abs(rgb-line).sum(-1)<150)|(rgb.sum(-1)<420))   # 몸의 바깥 윤곽선 → 그대로 둠
+    lum=rgb@np.array([0.3,0.59,0.11]); skin=np.median(lum[(a>0.9)&~isline&(yy[:,0:1].repeat(W,1)>top[None,:])])
+    shade=np.clip(lum/skin,0.80,1.0)
+    sock=np.array([250,250,253],np.float32)*shade[...,None]
+    inner_line=(~isline)&(lum<skin*0.80)                       # 발가락 선 등 안쪽 선 → 연한 회보라
+    sock=np.where(inner_line[...,None],np.array([200,190,205],np.float32),sock)
+    out=np.where(isline[...,None],rgb,sock)
+    d=yy-top[None,:]
+    cov=np.clip(d+0.5,0,1)                                   # 윗단 AA
+    band=np.clip(1-np.abs(d-2.0)/2.5,0,1)                    # 윗단 선(두께 ~4px, 몸 선과 비슷)
+    out=out*(1-band[...,None])+line*band[...,None]
+    cb=(d>4)&(d<(14 if short else 22)); out=np.where(cb[...,None],out*0.965,out)   # 고무단 살짝 그늘
+    cuff=np.clip(1-np.abs(d-(14 if short else 22))/1.2,0,1)*0.55
+    out=out*(1-cuff[...,None])+np.array([205,190,210],np.float32)*cuff[...,None]
+    A=a*cov
+    R=np.dstack([np.clip(out,0,255),A*255]).astype(np.uint8)
+    ys,xs=np.where(R[...,3]>0); x0,y0,x1,y1=xs.min(),ys.min(),xs.max()+1,ys.max()+1
+    pth=f'x4/{pid}.png'; Image.fromarray(R[y0:y1,x0:x1]).save(f'{PUB}/{pth}',optimize=True)
+    return [{'src':pth,'x':OX+x0/RES,'y':OY+y0/RES,'w':(x1-x0)/RES,'h':(y1-y0)/RES,'from':'몸 다리 실루엣을 양말로 다시 칠함','unlessSlot':'shoes'}]
 def merge_socks(pid,pieces):
     """양말 발(아래) + 양말 조각(위)을 스테이지 4배 캔버스에 합쳐 하나의 조각으로 만들고 바깥 윤곽선을 다시 그린다 → 양말·발 이음선 없음."""
     H,W=SH*RES,SW*RES; C=Image.new('RGBA',(W,H),(0,0,0,0))
@@ -170,6 +209,7 @@ PARTS=[
  ('choker','초커 목걸이','neck','neck','outer',[at('adb08a/choker-necklace.png',150,140,0.55)],{}),
 ]
 # 여러 자리에 붙는 장식: (id, 이름, 분류, 원본, 정수리 기준 폭(스테이지 px), 앵커들)
+SHOE_CUT={('shoes_red',1):(0.50,0.10,1.0,0.30)}   # 빨간 운동화 오른쪽 뒤축 뿔 잘라냄
 ACC_OFFSET={'bow_blue_gem':{'crown':{'dx':0,'dy':10}}}  # 꼬리 사이로 머리와 틈이 생기지 않게 정수리에서 10 내림
 RIB=['crown','side','neck','waist','shoe_l','shoe_r']; FLO=['side','hand']
 ACCS=[
@@ -194,7 +234,7 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
             p,w,h=process(arr,s,f'{pid}-hand',stroke=False); out.append({'src':p,'layer':'arms','x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':pf+' (손, 시트 '+str(ci)+')'})
             continue
         f,x,y,s=pc; arr=load(f)
-        p,w,h=process(arr,s,f'{pid}-{n}',stroke=(slot!='socks'))
+        p,w,h=process(arr,s,f'{pid}-{n}',stroke=(slot!='socks'),shrink=(6 if slot=='shoes' else 3),cut=SHOE_CUT.get((pid,n)))
         e={'src':p,'x':round(x+OX,2),'y':round(y+OY,2),'w':w,'h':h,'from':f}
         if occ.get('altWhen')=='shoes':
             ext=fixes.extend_bottom(arr,rows=12)
@@ -203,13 +243,13 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
     j={'id':pid,'name':name,'category':cat,'slot':slot,'layer':layer,'pieces':out,
        'occlusion':{'hideCharacterPieces':occ.get('hide',[]),'clearsSlots':occ.get('clears',[]),**({'hideSlots':occ['hideSlots']} if 'hideSlots' in occ else {})}}
     if pid=='socks_long': fit_socks_to_legs(out)
-    if slot=='socks': out=merge_socks(pid,[sock_foot(pid,out)]+out); j['pieces']=out
+    if slot=='socks': out=leg_sock(pid,out,short=(pid=='socks_short')); j['pieces']=out
     if slot=='shoes':
         kp=shoe_keep(out); kps=shoe_keep(out,margin=10); fp=next(p for p in char['pieces'] if p['key']=='feet')
         j['occlusion']['replaceCharacterPieces']={'feet':masked_piece(fp,kp,f'siha-feet-{pid}')}; j['occlusion']['hideCharacterPieces']=[]
         for sid in [x for x in order if x.startswith('socks')]:
             sj=json.load(open(f'{DATA}/parts/{sid}.json')); base_pc=next(x for x in sj['pieces'] if x.get('unlessSlot'))
-            v=dict(base_pc); v.pop('unlessSlot'); v['onlyWith']=pid; v['src']=masked_piece(base_pc,kps,f'{sid}-in-{pid}',stroke=True)
+            v=dict(base_pc); v.pop('unlessSlot'); v['onlyWith']=pid; v['src']=masked_piece(base_pc,kp,f'{sid}-in-{pid}')
             sj['pieces'].append(v); json.dump(sj,open(f'{DATA}/parts/{sid}.json','w'),ensure_ascii=False,indent=1)
     json.dump(j,open(f'{DATA}/parts/{pid}.json','w'),ensure_ascii=False,indent=1); order.append(pid); print('part',pid,flush=True)
 for aid,name,cat,f,crownW,anchors in ACCS:

@@ -12,6 +12,16 @@
    "w": 133.0,
    "h": 108.0,
    "from": "8d0099/headphones.png"
+  },
+  {
+   "src": "x4/patch-headphones.png",
+   "layer": "underwear",
+   "x": 121.25,
+   "y": 86.5,
+   "w": 0.5,
+   "h": 0.75,
+   "from": "자동 틈 메우기",
+   "patch": true
   }
  ],
  "occlusion": {

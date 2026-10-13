@@ -151,6 +151,9 @@ export default function StickerBook() {
 
   const bgIndex = Math.max(0, BACKGROUNDS.findIndex((b) => b.id === bg))
 
+  // 덮는 옷(곰 우주복)이 가리는 슬롯 → 그 칸 스티커는 흐리게, 누르면 짧은 안내
+  const covered = new Map()
+  Object.values(worn).forEach((id) => (PART[id]?.occlusion?.hideSlots || []).forEach((sl) => covered.set(sl, PART[id].name)))
   return (
     <div className="sb" onPointerMove={move} onPointerUp={end} onPointerCancel={() => { drag.current = null; setGhost(null) }}>
       <header className="sb-head">
@@ -184,10 +187,13 @@ export default function StickerBook() {
           </div>
           <div className="sb-tray">
             {list.map((p) => (
-              <button key={p.id} type="button" className={`sb-sticker ${worn[p.slot] === p.id || accs.some((a) => a.id === p.id) ? 'on' : ''}`}
-                onPointerDown={(e) => start(e, { id: p.id, from: 'tray' })} aria-label={p.name}>
-                <span className="sb-thumb">{p.pieces.filter((pc) => !pc.layer).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />)}</span>
+              <button key={p.id} type="button" className={`sb-sticker ${worn[p.slot] === p.id || accs.some((a) => a.id === p.id) ? 'on' : ''} ${covered.has(p.slot) ? 'off' : ''}`}
+                aria-disabled={covered.has(p.slot) || undefined}
+                onPointerDown={(e) => covered.has(p.slot) ? setToast(`${covered.get(p.slot)}을 벗으면 신을 수 있어요`) : start(e, { id: p.id, from: 'tray' })}
+                aria-label={covered.has(p.slot) ? `${p.name} (${covered.get(p.slot)}을 벗으면 신을 수 있어요)` : p.name}>
+                <span className="sb-thumb">{p.pieces.filter((pc) => !pc.layer && !pc.onlyWith).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />)}</span>
                 <span className="sb-name">{p.name}</span>
+                {covered.has(p.slot) && <span className="sb-lock">곰 옷 벗기!</span>}
               </button>
             ))}
           </div>
