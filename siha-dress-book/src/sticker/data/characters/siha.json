@@ -6,8 +6,17 @@
     "h": 650
   },
   "res": 4,
-  "note": "몸은 한 장짜리 원본이라 뒷머리·얼굴·앞머리는 몸 레이어에 포함되어 있다. 속바지(흰 반바지)는 몸에 그려져 있고, 가장 짧은 치마 밑단(y≈399)보다 위(y≈388)에서 끝나게 복사본만 다시 칠했다. 옷·장식은 anchors 좌표에 붙인다.",
+  "note": "뒷머리·얼굴·앞머리·흔드는 팔은 몸 시트 복사본에서 분리. 속바지는 가장 짧은 치마보다 짧게 유지.",
   "pieces": [
+    {
+      "key": "back_hair",
+      "src": "x4/siha-back-hair.png",
+      "layer": "back_hair",
+      "x": 30,
+      "y": 40,
+      "w": 300.0,
+      "h": 570.0
+    },
     {
       "key": "body",
       "src": "x4/siha-body.png",
@@ -21,6 +30,33 @@
       "key": "feet",
       "src": "x4/siha-feet.png",
       "layer": "body",
+      "x": 30,
+      "y": 40,
+      "w": 300.0,
+      "h": 570.0
+    },
+    {
+      "key": "arm_wave",
+      "src": "x4/siha-arm-wave.png",
+      "layer": "arms",
+      "x": 30,
+      "y": 40,
+      "w": 300.0,
+      "h": 570.0
+    },
+    {
+      "key": "face",
+      "src": "x4/siha-face.png",
+      "layer": "face",
+      "x": 30,
+      "y": 40,
+      "w": 300.0,
+      "h": 570.0
+    },
+    {
+      "key": "front_hair",
+      "src": "x4/siha-front-hair.png",
+      "layer": "front_hair",
       "x": 30,
       "y": 40,
       "w": 300.0,
@@ -108,6 +144,20 @@
       "size": 0.55,
       "layer": "hand_prop",
       "label": "손"
+    },
+    "face": {
+      "x": 180,
+      "y": 118,
+      "size": 0.7,
+      "layer": "face",
+      "label": "얼굴"
+    },
+    "bangs": {
+      "x": 180,
+      "y": 78,
+      "size": 0.8,
+      "layer": "front_hair",
+      "label": "앞머리"
     }
   }
 }

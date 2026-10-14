@@ -13,10 +13,30 @@
    "y": 27.23,
    "w": 185.0,
    "h": 124.5,
-   "from": "4e40d8/blue-headband/blue-headband-2.png"
+   "from": "4e40d8/blue-headband/blue-headband-2.png",
+   "preview": true
+  },
+  {
+   "x": 174.0,
+   "y": 34.5,
+   "w": 114.5,
+   "h": 113.25,
+   "src": "x4/hb_blue-front.png",
+   "layer": "hair_acc",
+   "from": "4e40d8/blue-headband/blue-headband-2.png (앞)"
   }
  ],
- "back": [],
+ "back": [
+  {
+   "x": 113.25,
+   "y": 34.5,
+   "w": 72.75,
+   "h": 67.5,
+   "src": "x4/hb_blue-back.png",
+   "layer": "back_hair",
+   "from": "4e40d8/blue-headband/blue-headband-2.png (뒤, 머리 뒤로)"
+  }
+ ],
  "connectors": [
   {
    "src": "x4/patch-hb_blue.png",

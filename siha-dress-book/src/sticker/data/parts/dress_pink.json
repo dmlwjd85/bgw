@@ -21,5 +21,15 @@
   }
  ],
  "back": [],
- "connectors": []
+ "connectors": [
+  {
+   "x": 97.75,
+   "y": 182.25,
+   "w": 73.0,
+   "h": 64.25,
+   "src": "x4/dress_pink-sleeve.png",
+   "layer": "arms",
+   "from": "소매 이음 (팔 레이어)"
+  }
+ ]
 }

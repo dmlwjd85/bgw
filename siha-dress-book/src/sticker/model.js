@@ -163,6 +163,7 @@ export function layersFor(worn, accs, sizes) {
   })
   parts.forEach((part) => {
     part.pieces.forEach((pc, i) => {
+      if (pc.preview) return
       if (pc.onlyWith && !Object.values(worn).includes(pc.onlyWith)) return
       if (pc.unlessSlot && has(pc.unlessSlot)) return
       const alt = pc.alt && has(pc.alt.when) ? { ...pc, ...pc.alt } : pc

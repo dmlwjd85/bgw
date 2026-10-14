@@ -8,7 +8,8 @@
  "anchor": "torso",
  "hides": [
   "top",
-  "bottom"
+  "bottom",
+  "arm_wave"
  ],
  "front": [
   {

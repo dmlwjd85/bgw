@@ -17,5 +17,15 @@
   }
  ],
  "back": [],
- "connectors": []
+ "connectors": [
+  {
+   "x": 144.25,
+   "y": 205.25,
+   "w": 26.5,
+   "h": 41.25,
+   "src": "x4/top_yellow-sleeve.png",
+   "layer": "arms",
+   "from": "소매 이음 (팔 레이어)"
+  }
+ ]
 }

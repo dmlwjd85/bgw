@@ -61,8 +61,10 @@ function usePartSizes() {
 }
 
 function thumbPieces(part) {
-  // 앞면 대표 그림만 썸네일로 (손 이음·틈 메움·조건부 조각 제외)
-  return part.pieces.filter((pc) => !pc.onlyWith && !pc.patch && (pc.layer === part.layer || !pc.layer)).slice(0, 2)
+  // 앞면 대표 그림만 썸네일로 (손 이음·틈 메움·조건부 조각 제외). preview 가 있으면 자른 앞면 대신 원본 한 장을 씀.
+  const thumbs = part.pieces.filter((pc) => pc.preview)
+  if (thumbs.length) return thumbs.slice(0, 2)
+  return part.pieces.filter((pc) => !pc.onlyWith && !pc.patch && !pc.preview && (pc.layer === part.layer || !pc.layer)).slice(0, 2)
 }
 
 export default function StickerBook() {

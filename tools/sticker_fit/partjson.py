@@ -1,5 +1,11 @@
 """부품 JSON (새 형식 + 예전 형식)을 앱과 같은 규칙으로 읽는다."""
-CHAR_PIECES = {'body', 'feet'}
+import json, os
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_CHAR = os.path.join(_HERE, '../../siha-dress-book/src/sticker/data/characters/siha.json')
+try:
+    CHAR_PIECES = {p['key'] for p in json.load(open(_CHAR)).get('pieces') or []}
+except OSError:
+    CHAR_PIECES = {'body', 'feet'}
 SLOTS = {'dress', 'top', 'bottom', 'socks', 'shoes', 'head', 'neck'}
 SLOT_ANCHOR = {
     'dress': 'torso',
@@ -19,6 +25,8 @@ def pieces_of(p):
             q.setdefault('layer', 'back_hair')
             out.append(q)
         for pc in p.get('front') or []:
+            if pc.get('preview'):
+                continue
             q = dict(pc)
             q.setdefault('layer', p.get('layer'))
             out.append(q)
@@ -39,7 +47,10 @@ def occ_of(p):
         }
     hp, cl = [], []
     for h in p.get('hides') or []:
-        (hp if h in CHAR_PIECES else cl).append(h)
+        if h in CHAR_PIECES or h not in SLOTS:
+            hp.append(h)
+        else:
+            cl.append(h)
     return {
         'hideCharacterPieces': hp,
         'clearsSlots': cl,

@@ -13,9 +13,29 @@
    "y": 30,
    "w": 152.25,
    "h": 108.0,
-   "from": "8d0099/tiara/tiara-10.png"
+   "from": "8d0099/tiara/tiara-10.png",
+   "preview": true
+  },
+  {
+   "x": 205.25,
+   "y": 32.75,
+   "w": 48.75,
+   "h": 103.0,
+   "src": "x4/devil_horns-front.png",
+   "layer": "hair_acc",
+   "from": "8d0099/tiara/tiara-10.png (앞)"
   }
  ],
- "back": [],
+ "back": [
+  {
+   "x": 108.25,
+   "y": 43.0,
+   "w": 38.0,
+   "h": 67.25,
+   "src": "x4/devil_horns-back.png",
+   "layer": "back_hair",
+   "from": "8d0099/tiara/tiara-10.png (뒤, 머리 뒤로)"
+  }
+ ],
  "connectors": []
 }
