@@ -1,0 +1,53 @@
+{
+ "id": "hanbok",
+ "name": "색동 한복",
+ "theme": "한복",
+ "category": "dress",
+ "slot": "dress",
+ "layer": "top",
+ "pieces": [
+  {
+   "src": "x4/hanbok-0.png",
+   "x": 53.0,
+   "y": 201.0,
+   "w": 245.0,
+   "h": 124.0,
+   "from": "gen2/hanbok.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/hanbok-1.png",
+   "x": 78.0,
+   "y": 320.0,
+   "w": 226.0,
+   "h": 285.0,
+   "layer": "bottom",
+   "from": "gen2/hanbok.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/hanbok-3.png",
+   "x": 58.0,
+   "y": 186.0,
+   "w": 38.0,
+   "h": 21.0,
+   "layer": "back_hair",
+   "from": "gen2/hanbok.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/hanbok-4.png",
+   "x": 60.0,
+   "y": 186.0,
+   "w": 32.0,
+   "h": 21.0,
+   "layer": "hair_acc",
+   "from": "gen2/hanbok.jpg (v2 몸 편집본 차분 추출)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2"
+}

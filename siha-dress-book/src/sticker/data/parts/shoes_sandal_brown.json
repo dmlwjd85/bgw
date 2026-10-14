@@ -1,0 +1,28 @@
+{
+ "id": "shoes_sandal_brown",
+ "name": "갈색 샌들",
+ "theme": "여름",
+ "category": "shoes",
+ "slot": "shoes",
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/shoes_sandal_brown.png",
+   "x": 99.73,
+   "y": 547.94,
+   "w": 164.0,
+   "h": 61.5,
+   "from": "gen_new/shoes_sandal_brown.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [],
+  "hideSlots": [
+   "socks"
+  ]
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
+}

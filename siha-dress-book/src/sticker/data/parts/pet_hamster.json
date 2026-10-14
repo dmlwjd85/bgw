@@ -1,0 +1,42 @@
+{
+ "id": "pet_hamster",
+ "name": "햄스터",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 173.8,
+  "h": 208.8
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 0,
+   "dy": 18.4
+  },
+  "pet_l": {
+   "dx": 0,
+   "dy": 18.4
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_hamster.png",
+   "w": 173.8,
+   "h": 208.8,
+   "from": "gen_new/pet_hamster.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

@@ -1,0 +1,24 @@
+{
+ "id": "bag_crossbody_strawberry",
+ "name": "딸기 크로스백",
+ "theme": "여름",
+ "category": "bag",
+ "slot": "bag",
+ "layer": "bag",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/bag_crossbody_strawberry-0.png",
+   "x": 158.61,
+   "y": 216.43,
+   "w": 120.5,
+   "h": 197.0,
+   "from": "gen_new/bag_crossbody_strawberry.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

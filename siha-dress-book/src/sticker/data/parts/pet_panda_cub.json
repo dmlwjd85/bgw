@@ -1,0 +1,42 @@
+{
+ "id": "pet_panda_cub",
+ "name": "아기 판다",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 151.49,
+  "h": 182.4
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 29.8
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 29.8
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_panda_cub.png",
+   "w": 222.5,
+   "h": 267.9,
+   "from": "gen_new/pet_panda_cub.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

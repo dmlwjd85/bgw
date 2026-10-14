@@ -1,0 +1,42 @@
+{
+ "id": "pet_puppy",
+ "name": "강아지",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 150.47,
+  "h": 180.94
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 29.9
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 29.9
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_puppy.png",
+   "w": 280.0,
+   "h": 336.7,
+   "from": "gen_new/pet_puppy.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

@@ -1,0 +1,46 @@
+{
+ "id": "norigae",
+ "name": "노리개",
+ "theme": "한복",
+ "category": "charm",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "waist",
+  "hand",
+  "neck"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 105.5,
+  "h": 212.0
+ },
+ "anchorOffset": {
+  "waist": {
+   "dx": 43.2,
+   "dy": 69.2
+  },
+  "neck": {
+   "dx": 0,
+   "dy": 60
+  },
+  "hand": {
+   "dx": 8,
+   "dy": 50
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/norigae.png",
+   "w": 105.5,
+   "h": 212.0,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

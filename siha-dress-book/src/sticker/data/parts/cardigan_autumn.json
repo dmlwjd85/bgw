@@ -1,0 +1,53 @@
+{
+ "id": "cardigan_autumn",
+ "name": "가을 가디건 세트",
+ "theme": "가을",
+ "category": "dress",
+ "slot": "dress",
+ "layer": "top",
+ "pieces": [
+  {
+   "src": "x4/cardigan_autumn-0.png",
+   "x": 55.0,
+   "y": 201.0,
+   "w": 241.0,
+   "h": 124.0,
+   "from": "gen2/cardigan_autumn.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/cardigan_autumn-1.png",
+   "x": 107.0,
+   "y": 320.0,
+   "w": 178.0,
+   "h": 286.0,
+   "layer": "bottom",
+   "from": "gen2/cardigan_autumn.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/cardigan_autumn-3.png",
+   "x": 55.0,
+   "y": 184.0,
+   "w": 45.0,
+   "h": 23.0,
+   "layer": "back_hair",
+   "from": "gen2/cardigan_autumn.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/cardigan_autumn-4.png",
+   "x": 57.0,
+   "y": 184.0,
+   "w": 35.0,
+   "h": 23.0,
+   "layer": "hair_acc",
+   "from": "gen2/cardigan_autumn.jpg (v2 몸 편집본 차분 추출)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2"
+}

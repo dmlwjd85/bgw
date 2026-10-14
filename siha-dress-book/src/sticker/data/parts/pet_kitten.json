@@ -1,0 +1,42 @@
+{
+ "id": "pet_kitten",
+ "name": "아기 고양이",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 151.46,
+  "h": 190.65
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 27.3
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 27.3
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_kitten.png",
+   "w": 223.8,
+   "h": 281.7,
+   "from": "gen_new/pet_kitten.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

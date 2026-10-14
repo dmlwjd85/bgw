@@ -1,0 +1,24 @@
+{
+ "id": "bag_basket_picnic",
+ "name": "피크닉 바구니",
+ "theme": "봄",
+ "category": "bag",
+ "slot": "bag",
+ "layer": "bag",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/bag_basket_picnic-0.png",
+   "x": 227.98,
+   "y": 290.64,
+   "w": 99.5,
+   "h": 117.25,
+   "from": "gen_new/bag_basket_picnic.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

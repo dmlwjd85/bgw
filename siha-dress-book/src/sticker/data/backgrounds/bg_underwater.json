@@ -1,0 +1,6 @@
+{
+ "id": "bg_underwater",
+ "name": "바닷속",
+ "src": "bg/bg_underwater.jpg",
+ "from": "gen_new/bg_underwater.jpg (가운데 360:650 크롭 → 1440×2600)"
+}

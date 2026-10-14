@@ -1,0 +1,24 @@
+{
+ "id": "crown_princess",
+ "name": "공주 왕관",
+ "theme": "공주",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/crown_princess-0.png",
+   "x": 120.7,
+   "y": 59.1,
+   "w": 125.25,
+   "h": 48.0,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
+}

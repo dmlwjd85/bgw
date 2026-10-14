@@ -3,6 +3,7 @@ import {
   BACKGROUNDS,
   CHARACTER,
   DEFAULT_ATTACH,
+  DEFAULT_BG,
   LAYER_Z,
   PART,
   layersFor,
@@ -11,6 +12,7 @@ import {
   resolvePiece,
   snapDrop,
   wear,
+  withDefaults,
 } from './model.js'
 
 describe('normalizePart', () => {
@@ -86,7 +88,7 @@ describe('snapDrop', () => {
 
 describe('layersFor', () => {
   it('레이어 순서대로 그린다', () => {
-    const layers = layersFor({ shoes: 'shoes_red', bottom: 'skirt_navy', top: 'top_yellow' }, [])
+    const layers = layersFor({ shoes: 'shoes_sandal_brown', bottom: 'skirt_navy', top: 'top_yellow' }, [])
     const zs = layers.map((l) => l.z)
     expect(zs).toEqual([...zs].sort((a, b) => a - b))
     expect(LAYER_Z.socks).toBeLessThan(LAYER_Z.shoes)
@@ -94,20 +96,23 @@ describe('layersFor', () => {
     expect(LAYER_Z.bottom).toBeLessThan(LAYER_Z.top)
   })
 
-  it('신발을 신으면 맨발 조각을 가린 그림으로 바꾼다', () => {
-    const layers = layersFor({ shoes: 'shoes_red' }, [])
-    const feet = layers.find((l) => l.key === 'c-feet')
-    expect(feet.p.src).toBe('x4/siha-feet-shoes_red.png')
+  it('샌들은 양말 슬롯을 가린다', () => {
+    const layers = layersFor({ shoes: 'shoes_sandal_brown', socks: 'socks_knee_navy' }, [])
+    expect(layers.some((l) => l.partId === 'socks_knee_navy')).toBe(false)
+    expect(layers.some((l) => l.partId === 'shoes_sandal_brown')).toBe(true)
   })
 
-  it('신발이 맨발을 숨기면 발 조각을 그리지 않는다', () => {
+  it('새 아이돌 신발을 신으면 그 조각이 그려진다', () => {
     const layers = layersFor({ shoes: 'shoes_idol_platform' }, [])
-    expect(layers.some((l) => l.key === 'c-feet')).toBe(false)
     expect(layers.some((l) => l.partId === 'shoes_idol_platform')).toBe(true)
   })
 
-  it('시하 조각은 원본 몸·발 한 장이다', () => {
-    expect(CHARACTER.pieces.map((p) => p.key)).toEqual(['body', 'feet'])
+  it('시하 조각은 v2 민머리 몸 한 장이고, 기본 머리가 붙는다', () => {
+    expect(CHARACTER.pieces.map((p) => p.key)).toEqual(['body'])
+    expect(CHARACTER.pieces[0].src).toBe('x4/siha-body-v2-bald.png')
+    expect(withDefaults({}).hair).toBe('hair_long_default')
+    const layers = layersFor({}, [])
+    expect(layers.some((l) => l.partId === 'hair_long_default')).toBe(true)
   })
 
   it('코드로 그린 옛 원피스·우주복은 카탈로그에 없다', () => {
@@ -147,8 +152,13 @@ describe('layersFor', () => {
     }
     expect(['mic_handheld', 'mic_headset', 'mic_stand'].every((id) => PART[id])).toBe(true)
     expect(PART.bag_tote).toBeTruthy()
+    expect(PART.bag_tote_canvas).toBeTruthy()
+    expect(PART.hanbok).toBeTruthy()
+    expect(PART.hair_long_default).toBeTruthy()
     expect(BACKGROUNDS.some((b) => b.id === 'concert_purple')).toBe(true)
     expect(BACKGROUNDS.some((b) => b.id === 'concert_gold')).toBe(true)
+    expect(DEFAULT_BG).toBe('grid_blue')
+    expect(BACKGROUNDS[0].id).toBe(DEFAULT_BG)
   })
 })
 

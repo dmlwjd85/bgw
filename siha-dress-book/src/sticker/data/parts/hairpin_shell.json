@@ -1,0 +1,37 @@
+{
+ "id": "hairpin_shell",
+ "name": "조개 머리핀",
+ "theme": "바다",
+ "category": "flower",
+ "slot": null,
+ "layer": "hair_acc",
+ "multi": true,
+ "anchors": [
+  "side",
+  "crown"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 69.2,
+  "h": 69.2
+ },
+ "pieces": [
+  {
+   "src": "x4/hairpin_shell.png",
+   "w": 69.2,
+   "h": 69.2,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchorOffset": {
+  "side": {
+   "dx": 7.9,
+   "dy": 27.1
+  }
+ }
+}
