@@ -5,7 +5,6 @@ import { BACKGROUNDS, CATEGORIES, CHARACTER, PART, PARTS, STAGE, accBox, fixId, 
 const STORAGE_KEY = 'siha-sticker-book-v1'
 const BASE = `${import.meta.env.BASE_URL}sticker/`
 const { w: SW, h: SH } = STAGE
-const SNAP_RADIUS = 0.42 // 슬롯 부품: 스테이지 폭 대비 이 거리 안이면 정해진 자리로
 
 function load() {
   try {
@@ -25,10 +24,19 @@ function load() {
       const part = PART[id]
       if (!part?.multi) continue
       const anchor = a.anchor && part.anchors.includes(a.anchor) ? a.anchor : null
-      accs.push({ id, uid: String(a.uid ?? Math.random()), anchor, x: a.x ?? SW / 2, y: a.y ?? SH / 2 })
+      accs.push({ id, uid: String(a.uid ?? Math.random()), anchor, x: a.x ?? SW / 2, y: a.y ?? SH / 2, ...(a.size != null ? { size: a.size, layer: a.layer } : {}) })
     }
     const bg = BACKGROUNDS.some((b) => b.id === d.bg) ? d.bg : BACKGROUNDS[0]?.id
-    return { worn, accs: accs.slice(0, ACC_LIMIT), bg }
+    // v3 이전 저장본: 붙어 있던(스냅된) 자리·크기·층을 그대로 고정 위치로 바꿈
+    const free = accs.map((a) => {
+      if (a.size != null) return a
+      const b = accBox(a)
+      const anc = a.anchor && CHARACTER.anchors[a.anchor]
+      return { id: a.id, uid: a.uid, anchor: null, x: b.x + b.w / 2, y: b.y + b.h / 2, size: anc ? anc.size : 0.6, layer: anc ? anc.layer : 'hand_prop' }
+    })
+    const pos = {}
+    for (const [slot, o] of Object.entries(d.pos || {})) if (worn[slot] && Number.isFinite(o?.dx) && Number.isFinite(o?.dy)) pos[slot] = { dx: o.dx, dy: o.dy }
+    return { worn, accs: free.slice(0, ACC_LIMIT), bg, pos }
   } catch {
     return null
   }
@@ -47,6 +55,7 @@ export default function StickerBook() {
   const [worn, setWorn] = useState(saved.current?.worn || {})
   const [accs, setAccs] = useState(saved.current?.accs || [])
   const [bg, setBg] = useState(saved.current?.bg || BACKGROUNDS[0]?.id)
+  const [pos, setPos] = useState(saved.current?.pos || {})
   const [cat, setCat] = useState('dress')
   const [ghost, setGhost] = useState(null)
   const [toast, setToast] = useState('')
@@ -55,8 +64,8 @@ export default function StickerBook() {
   const drag = useRef(null)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 2, worn, accs, bg }))
-  }, [worn, accs, bg])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 3, worn, pos, accs, bg }))
+  }, [worn, pos, accs, bg])
   useEffect(() => {
     if (!toast) return
     const t = setTimeout(() => setToast(''), 1600)
@@ -64,7 +73,7 @@ export default function StickerBook() {
   }, [toast])
 
   const list = useMemo(() => PARTS.filter((p) => p.category === cat), [cat])
-  const layers = layersFor(worn, accs)
+  const layers = layersFor(worn, accs, pos)
   const bgItem = BACKGROUNDS.find((b) => b.id === bg) || BACKGROUNDS[0]
 
   function pt(e) {
@@ -72,24 +81,39 @@ export default function StickerBook() {
     return { x: ((e.clientX - r.left) / r.width) * SW, y: ((e.clientY - r.top) / r.height) * SH, inside: e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom }
   }
   const flash = (k) => { setSnapKey(k); setTimeout(() => setSnapKey(null), 350) }
-  function put(part) { setWorn((w) => wear(w, part)); flash(part.id) }
-  function takeOff(part) { setWorn((w) => { const n = { ...w }; delete n[part.slot]; return n }) }
+  // 옷: 놓은 자리 그대로(정해진 자리에서 dx,dy 만큼). 잡은 점을 기억해 손가락 아래 그 점이 오도록.
+  function put(part, o = { dx: 0, dy: 0 }) {
+    const cleared = wear(worn, part)
+    setWorn(cleared)
+    setPos((p) => { const n = {}; for (const s of Object.keys(cleared)) if (p[s] && s !== part.slot) n[s] = p[s]; n[part.slot] = o; return n })
+    flash(part.id)
+  }
+  function takeOff(part) { setWorn((w) => { const n = { ...w }; delete n[part.slot]; return n }); setPos((p) => { const n = { ...p }; delete n[part.slot]; return n }) }
   function placeAcc(part, x, y, uid) {
-    const anchor = nearestAnchor(part, x, y)
-    const next = { id: part.id, uid: uid || `${part.id}-${Date.now()}`, anchor, x, y }
+    // 놓은 자리에 그대로. 크기·층은 가장 가까운 자리의 것을 씀(위치는 바꾸지 않음)
+    const prev = uid && accs.find((a) => a.uid === uid)
+    const near = CHARACTER.anchors[nearestAnchor(part, x, y, Infinity) || part.anchors[0]]
+    const next = { id: part.id, uid: uid || `${part.id}-${Date.now()}`, anchor: null, x, y, size: prev?.size ?? near.size, layer: prev?.layer ?? near.layer }
     setAccs((list) => {
       const rest = list.filter((a) => a.uid !== next.uid)
       if (!uid && rest.length >= ACC_LIMIT) { setToast(`장식은 ${ACC_LIMIT}개까지 붙일 수 있어요`); return list }
       return [...rest, next]
     })
     flash(next.uid)
-    setToast(anchor ? `${CHARACTER.anchors[anchor].label}에 붙였어요` : '원하는 자리에 붙였어요')
+    setToast('놓은 자리에 붙였어요')
   }
 
   function start(e, payload) {
     e.preventDefault()
     e.currentTarget.setPointerCapture?.(e.pointerId)
-    drag.current = { ...payload, sx: e.clientX, sy: e.clientY, moved: false }
+    const p0 = stageRef.current ? pt(e) : null
+    // 무대 위 스티커를 잡으면 잡은 점과 스티커 기준점의 차이를 기억 → 놓을 때 그대로
+    let grab = { x: 0, y: 0 }
+    if (payload.from === 'stage' && p0) {
+      if (payload.uid) { const a = accs.find((q) => q.uid === payload.uid); const b = accBox(a); grab = { x: p0.x - (b.x + b.w / 2), y: p0.y - (b.y + b.h / 2) } }
+      else { const part = PART[payload.id]; const c = anchorOf(part); const o = pos[part.slot] || { dx: 0, dy: 0 }; grab = { x: p0.x - (c.x + o.dx), y: p0.y - (c.y + o.dy) } }
+    }
+    drag.current = { ...payload, grab, sx: e.clientX, sy: e.clientY, moved: false }
   }
   function move(e) {
     const d = drag.current
@@ -117,18 +141,18 @@ export default function StickerBook() {
         if (d.uid) setAccs((l) => l.filter((a) => a.uid !== d.uid))
         return
       }
-      placeAcc(part, p.x, p.y, d.uid)
+      placeAcc(part, p.x - d.grab.x, p.y - d.grab.y, d.uid)
       return
     }
     const a = anchorOf(part)
-    if (p.inside && Math.hypot(p.x - a.x, p.y - a.y) < SW * SNAP_RADIUS) put(part)
+    if (p.inside) put(part, { dx: p.x - d.grab.x - a.x, dy: p.y - d.grab.y - a.y })
     else if (d.from === 'stage') { takeOff(part); setToast(`${part.name}을(를) 벗었어요`) }
-    else setToast('몸 가까이에 놓으면 딱 맞게 붙어요')
   }
 
   function reset() {
     if (!window.confirm('입힌 옷과 장식을 모두 벗길까요?')) return
     setWorn({})
+    setPos({})
     setAccs([])
   }
 
@@ -177,7 +201,7 @@ export default function StickerBook() {
               )
             })}
           </div>
-          <p className="sb-hint">옷은 몸 가까이에 놓으면 딱 맞게 붙어요. 리본·꽃은 가장 가까운 자리(정수리·옆머리·목·허리·신발·손)에 붙고, 멀리 놓으면 그 자리에 그대로 붙어요. 몸 밖으로 끌어내면 떼어져요.</p>
+          <p className="sb-hint">스티커는 놓은 자리에 그대로 붙어요. 누르면 제자리에 입혀지고, 무대 밖으로 끌어내면 떼어져요.</p>
         </section>
         <section className="sb-sheet" aria-label="스티커 시트">
           <div className="sb-cats" role="tablist">
