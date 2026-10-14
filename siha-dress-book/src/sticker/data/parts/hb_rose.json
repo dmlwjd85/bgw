@@ -13,40 +13,9 @@
    "y": 26,
    "w": 160.0,
    "h": 148.0,
-   "from": "8d0099/black-rose-headband/black-rose-headband-2.png",
-   "preview": true
-  },
-  {
-   "x": 174.0,
-   "y": 37.5,
-   "w": 83.25,
-   "h": 128.75,
-   "src": "x4/hb_rose-front.png",
-   "layer": "hair_acc",
-   "from": "8d0099/black-rose-headband/black-rose-headband-2.png (앞)"
+   "from": "8d0099/black-rose-headband/black-rose-headband-2.png"
   }
  ],
- "back": [
-  {
-   "x": 105.75,
-   "y": 28.75,
-   "w": 80.25,
-   "h": 100.25,
-   "src": "x4/hb_rose-back.png",
-   "layer": "back_hair",
-   "from": "8d0099/black-rose-headband/black-rose-headband-2.png (뒤, 머리 뒤로)"
-  }
- ],
- "connectors": [
-  {
-   "src": "x4/patch-hb_rose.png",
-   "layer": "underwear",
-   "x": 114.75,
-   "y": 92.5,
-   "w": 4.75,
-   "h": 11.75,
-   "from": "자동 틈 메우기",
-   "patch": true
-  }
- ]
+ "back": [],
+ "connectors": []
 }

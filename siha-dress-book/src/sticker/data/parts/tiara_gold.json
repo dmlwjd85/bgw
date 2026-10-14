@@ -13,29 +13,9 @@
    "y": 32,
    "w": 143.25,
    "h": 78.75,
-   "from": "adb08a/tiara.png",
-   "preview": true
-  },
-  {
-   "x": 174.0,
-   "y": 37.5,
-   "w": 76.25,
-   "h": 59.25,
-   "src": "x4/tiara_gold-front.png",
-   "layer": "hair_acc",
-   "from": "adb08a/tiara.png (앞)"
+   "from": "adb08a/tiara.png"
   }
  ],
- "back": [
-  {
-   "x": 111.25,
-   "y": 33.75,
-   "w": 74.75,
-   "h": 74.75,
-   "src": "x4/tiara_gold-back.png",
-   "layer": "back_hair",
-   "from": "adb08a/tiara.png (뒤, 머리 뒤로)"
-  }
- ],
+ "back": [],
  "connectors": []
 }

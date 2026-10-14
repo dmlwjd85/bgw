@@ -13,29 +13,9 @@
    "y": 12,
    "w": 188.0,
    "h": 129.0,
-   "from": "8d0099/straw-hat.png",
-   "preview": true
-  },
-  {
-   "x": 174.0,
-   "y": 15.75,
-   "w": 97.25,
-   "h": 121.5,
-   "src": "x4/hat_straw-front.png",
-   "layer": "hair_acc",
-   "from": "8d0099/straw-hat.png (앞)"
+   "from": "8d0099/straw-hat.png"
   }
  ],
- "back": [
-  {
-   "x": 91.75,
-   "y": 15.75,
-   "w": 94.25,
-   "h": 70.75,
-   "src": "x4/hat_straw-back.png",
-   "layer": "back_hair",
-   "from": "8d0099/straw-hat.png (뒤, 머리 뒤로)"
-  }
- ],
+ "back": [],
  "connectors": []
 }

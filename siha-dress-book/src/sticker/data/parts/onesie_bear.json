@@ -9,8 +9,7 @@
  "hides": [
   "feet",
   "top",
-  "bottom",
-  "arm_wave"
+  "bottom"
  ],
  "covers": [
   "shoes",
@@ -36,16 +35,6 @@
    "w": 68.5,
    "h": 69.75,
    "from": "4e40d8/purple-bear-onesie.png (손, 시트 9)"
-  },
-  {
-   "src": "x4/patch-onesie_bear.png",
-   "layer": "underwear",
-   "x": 270.5,
-   "y": 115.5,
-   "w": 36.0,
-   "h": 250.75,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ]
 }

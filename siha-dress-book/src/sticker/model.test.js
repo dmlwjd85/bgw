@@ -85,7 +85,7 @@ describe('snapDrop', () => {
 
 describe('layersFor', () => {
   it('레이어 순서대로 그린다', () => {
-    const layers = layersFor({ socks: 'socks_long', shoes: 'shoes_red', bottom: 'skirt_navy', top: 'top_yellow' }, [])
+    const layers = layersFor({ shoes: 'shoes_red', bottom: 'skirt_navy', top: 'top_yellow' }, [])
     const zs = layers.map((l) => l.z)
     expect(zs).toEqual([...zs].sort((a, b) => a - b))
     expect(LAYER_Z.socks).toBeLessThan(LAYER_Z.shoes)
@@ -99,33 +99,36 @@ describe('layersFor', () => {
     expect(feet.p.src).toBe('x4/siha-feet-shoes_red.png')
   })
 
-  it('곰 우주복은 신발·양말을 덮고 맨발·흔드는 팔을 숨긴다', () => {
-    const layers = layersFor({ dress: 'onesie_bear', shoes: 'shoes_red', socks: 'socks_long' }, [])
+  it('곰 우주복은 신발·양말을 덮고 맨발을 숨긴다', () => {
+    const layers = layersFor({ dress: 'onesie_bear', shoes: 'shoes_red' }, [])
     expect(layers.some((l) => l.partId === 'shoes_red')).toBe(false)
-    expect(layers.some((l) => l.partId === 'socks_long')).toBe(false)
     expect(layers.some((l) => l.key === 'c-feet')).toBe(false)
-    expect(layers.some((l) => l.key === 'c-arm_wave')).toBe(false)
     expect(layers.some((l) => l.partId === 'onesie_bear')).toBe(true)
   })
 
-  it('시하 조각에 뒷머리·얼굴·앞머리·흔드는 팔이 있다', () => {
-    const keys = CHARACTER.pieces.map((p) => p.key)
-    expect(keys).toEqual(expect.arrayContaining(['back_hair', 'body', 'feet', 'arm_wave', 'face', 'front_hair']))
+  it('시하 조각은 원본 몸·발 한 장이다', () => {
+    expect(CHARACTER.pieces.map((p) => p.key)).toEqual(['body', 'feet'])
   })
 
-  it('하늘 드레스는 흔드는 맨팔을 가린다', () => {
-    const layers = layersFor({ dress: 'dress_blue' }, [])
-    expect(layers.some((l) => l.key === 'c-arm_wave')).toBe(false)
-    expect(PART.dress_blue.occlusion.hideCharacterPieces).toContain('arm_wave')
+  it('하늘 드레스는 엉덩이 손 이음이 팔 레이어에 있다', () => {
+    const hand = PART.dress_blue.pieces.filter((p) => (p.src || '').includes('dress_blue-hand'))
+    expect(hand).toHaveLength(1)
+    expect(hand[0].layer).toBe('arms')
   })
 
-  it('밀짚모자는 뒤 조각이 뒷머리 레이어에 있고 미리보기는 그리지 않는다', () => {
-    const back = PART.hat_straw.pieces.filter((p) => p.layer === 'back_hair' && !p.preview)
-    expect(back.length).toBeGreaterThan(0)
+  it('밀짚모자는 원본 한 장을 머리장식 레이어에 그린다', () => {
     const layers = layersFor({ head: 'hat_straw' }, [])
-    expect(layers.some((l) => l.p.preview)).toBe(false)
-    expect(layers.some((l) => (l.p.src || '').includes('hat_straw-0'))).toBe(false)
-    expect(layers.some((l) => (l.p.src || '').includes('hat_straw-back'))).toBe(true)
+    expect(layers.some((l) => (l.p.src || '').includes('hat_straw-0'))).toBe(true)
+    expect(layers.some((l) => (l.p.src || '').includes('hat_straw-back'))).toBe(false)
+    expect(PART.hat_straw.pieces.every((p) => !p.preview)).toBe(true)
+  })
+
+  it('코드로 자른 소매·앞뒤 조각과 그려 넣은 양말은 카탈로그에 없다', () => {
+    expect(PART.socks_long).toBeUndefined()
+    expect(PART.socks_short).toBeUndefined()
+    expect(PART.dress_pink.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
+    expect(PART.top_yellow.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
+    expect(PART.hat_straw.pieces.every((p) => !(p.src || '').includes('-front') && !(p.src || '').includes('-back'))).toBe(true)
   })
 })
 

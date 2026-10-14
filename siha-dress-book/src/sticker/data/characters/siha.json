@@ -6,17 +6,8 @@
     "h": 650
   },
   "res": 4,
-  "note": "뒷머리·얼굴·앞머리·흔드는 팔은 몸 시트 복사본에서 분리. 속바지는 가장 짧은 치마보다 짧게 유지.",
+  "note": "몸은 원본 스티커 한 장(뒷머리·얼굴·앞머리·팔 포함). 스크립트로 자른 레이어는 목·어깨 이음이 원본과 달라 쓰지 않는다. 속바지는 몸에 그려져 있다.",
   "pieces": [
-    {
-      "key": "back_hair",
-      "src": "x4/siha-back-hair.png",
-      "layer": "back_hair",
-      "x": 30,
-      "y": 40,
-      "w": 300.0,
-      "h": 570.0
-    },
     {
       "key": "body",
       "src": "x4/siha-body.png",
@@ -30,33 +21,6 @@
       "key": "feet",
       "src": "x4/siha-feet.png",
       "layer": "body",
-      "x": 30,
-      "y": 40,
-      "w": 300.0,
-      "h": 570.0
-    },
-    {
-      "key": "arm_wave",
-      "src": "x4/siha-arm-wave.png",
-      "layer": "arms",
-      "x": 30,
-      "y": 40,
-      "w": 300.0,
-      "h": 570.0
-    },
-    {
-      "key": "face",
-      "src": "x4/siha-face.png",
-      "layer": "face",
-      "x": 30,
-      "y": 40,
-      "w": 300.0,
-      "h": 570.0
-    },
-    {
-      "key": "front_hair",
-      "src": "x4/siha-front-hair.png",
-      "layer": "front_hair",
       "x": 30,
       "y": 40,
       "w": 300.0,
@@ -144,20 +108,6 @@
       "size": 0.55,
       "layer": "hand_prop",
       "label": "손"
-    },
-    "face": {
-      "x": 180,
-      "y": 118,
-      "size": 0.7,
-      "layer": "face",
-      "label": "얼굴"
-    },
-    "bangs": {
-      "x": 180,
-      "y": 78,
-      "size": 0.8,
-      "layer": "front_hair",
-      "label": "앞머리"
     }
   }
 }

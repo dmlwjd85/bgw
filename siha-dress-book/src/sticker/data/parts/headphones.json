@@ -13,40 +13,9 @@
    "y": 40,
    "w": 133.0,
    "h": 108.0,
-   "from": "8d0099/headphones.png",
-   "preview": true
-  },
-  {
-   "x": 174.0,
-   "y": 44.75,
-   "w": 69.75,
-   "h": 97.0,
-   "src": "x4/headphones-front.png",
-   "layer": "hair_acc",
-   "from": "8d0099/headphones.png (앞)"
+   "from": "8d0099/headphones.png"
   }
  ],
- "back": [
-  {
-   "x": 118.25,
-   "y": 44.75,
-   "w": 67.75,
-   "h": 43.25,
-   "src": "x4/headphones-back.png",
-   "layer": "back_hair",
-   "from": "8d0099/headphones.png (뒤, 머리 뒤로)"
-  }
- ],
- "connectors": [
-  {
-   "src": "x4/patch-headphones.png",
-   "layer": "underwear",
-   "x": 121.25,
-   "y": 86.5,
-   "w": 0.5,
-   "h": 0.75,
-   "from": "자동 틈 메우기",
-   "patch": true
-  }
- ]
+ "back": [],
+ "connectors": []
 }

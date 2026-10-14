@@ -8,8 +8,7 @@
  "anchor": "torso",
  "hides": [
   "top",
-  "bottom",
-  "arm_wave"
+  "bottom"
  ],
  "front": [
   {
@@ -31,16 +30,6 @@
    "w": 53.75,
    "h": 63.25,
    "from": "4e40d8/blue-frilly-dress.png (손, 시트 7)"
-  },
-  {
-   "src": "x4/patch-dress_blue.png",
-   "layer": "underwear",
-   "x": 171.0,
-   "y": 431.5,
-   "w": 2.5,
-   "h": 3.5,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ]
 }

@@ -7,7 +7,8 @@
 - `python3 tools/build_sticker_assets.py` → `siha-dress-book/public/sticker/x4/*.png`(4배 해상도 복사본), `public/sticker/bg/*.jpg`,
   `src/sticker/data/{layers.json,characters/siha.json,parts/*.json,backgrounds/*.json}`
 - 새 옷은 보통 이 스크립트 없이 **투명 PNG 하나 + `data/parts/<id>.json` 하나**로 추가합니다. 안내: `siha-dress-book/docs/부품-추가하기.md`
-- `python3 tools/sticker_fit/qa_matrix.py` → 모든 부품·치마×양말×신발×상의 조합의 구멍 검사
+- `python3 tools/sticker_fit/qa_matrix.py` → 모든 부품·치마×신발×상의 조합의 구멍 검사
+- `finish_art.py` 는 더 이상 에셋을 만들지 않습니다 (목·손 이음 품질 미달 코드 그림은 삭제).
 - `qa_compose.py` 는 앱(model.js)과 같은 규칙으로 합성해 400% 크롭을 만든다.
 
 ## 부품 JSON (부품 1개 = 파일 1개)
