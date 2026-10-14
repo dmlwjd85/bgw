@@ -1,0 +1,24 @@
+{
+ "id": "beanie_winter",
+ "name": "겨울 방울 비니",
+ "theme": "겨울",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/beanie_winter-0.png",
+   "x": 101.3,
+   "y": 22.8,
+   "w": 204.25,
+   "h": 188.25,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
+}

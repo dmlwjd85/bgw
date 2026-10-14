@@ -1,18 +1,23 @@
 {
  "order": [
+  "background",
   "back_hair",
+  "bag_back",
   "body",
+  "hair",
   "underwear",
   "socks",
   "shoes",
   "bottom",
   "top",
   "outer",
+  "bag",
   "arms",
   "face",
   "front_hair",
   "hair_acc",
-  "hand_prop"
+  "hand_prop",
+  "pet"
  ],
  "labels": {
   "back_hair": "뒷머리",
@@ -27,7 +32,12 @@
   "face": "얼굴",
   "front_hair": "앞머리",
   "hair_acc": "머리장식",
-  "hand_prop": "손 소품"
+  "hand_prop": "손 소품",
+  "background": "배경",
+  "bag_back": "가방 뒤",
+  "hair": "머리 모양",
+  "bag": "가방",
+  "pet": "반려동물"
  },
  "categories": [
   {
@@ -69,6 +79,22 @@
   {
    "id": "charm",
    "label": "소품"
+  },
+  {
+   "id": "hair",
+   "label": "머리 모양"
+  },
+  {
+   "id": "bag",
+   "label": "가방"
+  },
+  {
+   "id": "background",
+   "label": "배경"
+  },
+  {
+   "id": "pet",
+   "label": "반려동물"
   }
  ],
  "partOrder": [
@@ -79,11 +105,6 @@
   "dress_blue",
   "dress_pink",
   "onesie_bear",
-  "socks_long",
-  "socks_short",
-  "shoes_red",
-  "shoes_loafer",
-  "shoes_pink",
   "hb_blue",
   "tiara_gold",
   "devil_horns",
@@ -101,6 +122,45 @@
   "rose",
   "lollipop",
   "heart",
-  "pendant"
+  "pendant",
+  "bag_backpack_yellow",
+  "bag_basket_picnic",
+  "bag_crossbody_strawberry",
+  "bag_pochette_star",
+  "bag_tote_canvas",
+  "beanie_winter",
+  "bokjumeoni",
+  "cardigan_autumn",
+  "charm_planet",
+  "crown_princess",
+  "hair_bob",
+  "hair_braid",
+  "hair_bun",
+  "hair_long_default",
+  "hair_ponytail",
+  "hair_twintails",
+  "hairpin_maple",
+  "hairpin_shell",
+  "hanbok",
+  "headband_bunny",
+  "norigae",
+  "pet_bunny",
+  "pet_chick",
+  "pet_corgi",
+  "pet_duck",
+  "pet_fox_cub",
+  "pet_hamster",
+  "pet_kitten",
+  "pet_panda_cub",
+  "pet_penguin",
+  "pet_puppy",
+  "sailor_ocean",
+  "scarf_winter",
+  "shoes_loafer_navy",
+  "shoes_maryjane_red",
+  "shoes_sandal_brown",
+  "shoes_winterboot_tan",
+  "suit_space",
+  "wand_star"
  ]
 }

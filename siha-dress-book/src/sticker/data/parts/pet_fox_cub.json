@@ -1,0 +1,42 @@
+{
+ "id": "pet_fox_cub",
+ "name": "아기 여우",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 151.27,
+  "h": 195.11
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 25.9
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 25.9
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_fox_cub.png",
+   "w": 232.9,
+   "h": 300.4,
+   "from": "gen_new/pet_fox_cub.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

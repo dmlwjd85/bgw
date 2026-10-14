@@ -1,0 +1,56 @@
+{
+ "id": "hair_ponytail",
+ "name": "포니테일",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_ponytail-0.png",
+   "x": 122.56,
+   "y": 68.93,
+   "w": 148.5,
+   "h": 250.25,
+   "layer": "hair",
+   "from": "gen_new/hair_ponytail.jpg (민머리 편집본과 차분)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail-0-beanie.png",
+   "x": 122.56,
+   "y": 68.93,
+   "w": 148.5,
+   "h": 250.25,
+   "layer": "hair",
+   "from": "비니를 쓸 때: 비니 밖·윗선 위로 나온 머리 지움",
+   "onlyWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail-1.png",
+   "x": 97.31,
+   "y": 20.43,
+   "w": 223.0,
+   "h": 293.25,
+   "layer": "back_hair",
+   "from": "gen_new/hair_ponytail.jpg (민머리 편집본과 차분)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail-1-beanie.png",
+   "x": 97.31,
+   "y": 20.43,
+   "w": 223.0,
+   "h": 293.25,
+   "layer": "back_hair",
+   "from": "비니를 쓸 때: 비니 밖·윗선 위로 나온 머리 지움",
+   "onlyWith": "beanie_winter"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

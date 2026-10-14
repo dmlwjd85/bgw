@@ -1,0 +1,37 @@
+{
+ "id": "charm_planet",
+ "name": "토성 풍선",
+ "theme": "우주",
+ "category": "charm",
+ "slot": null,
+ "layer": "hand_prop",
+ "multi": true,
+ "anchors": [
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 270.5,
+  "h": 315.5
+ },
+ "anchorOffset": {
+  "hand": {
+   "dx": 20,
+   "dy": -72.5
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/charm_planet.png",
+   "w": 270.5,
+   "h": 315.5,
+   "from": "siha-designs/acc_v2.py",
+   "note": "풍선 줄은 코드로 그림(외곽선 색)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

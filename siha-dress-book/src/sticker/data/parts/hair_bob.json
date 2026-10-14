@@ -1,0 +1,34 @@
+{
+ "id": "hair_bob",
+ "name": "단발 보브",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_bob-0.png",
+   "x": 122.42,
+   "y": 69.03,
+   "w": 134.5,
+   "h": 163.0,
+   "layer": "hair",
+   "from": "gen_new/hair_bob.jpg (민머리 편집본과 차분)"
+  },
+  {
+   "src": "x4/hair_bob-1.png",
+   "x": 98.92,
+   "y": 57.53,
+   "w": 192.25,
+   "h": 168.75,
+   "layer": "back_hair",
+   "from": "gen_new/hair_bob.jpg (민머리 편집본과 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

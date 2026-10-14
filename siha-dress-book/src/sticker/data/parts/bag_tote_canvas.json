@@ -1,0 +1,24 @@
+{
+ "id": "bag_tote_canvas",
+ "name": "캔버스 토트백",
+ "theme": "봄",
+ "category": "bag",
+ "slot": "bag",
+ "layer": "bag",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/bag_tote_canvas-0.png",
+   "x": 43.17,
+   "y": 227.08,
+   "w": 106.0,
+   "h": 184.25,
+   "from": "gen_new/bag_tote_canvas.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

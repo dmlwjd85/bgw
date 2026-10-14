@@ -1,0 +1,42 @@
+{
+ "id": "pet_corgi",
+ "name": "코기",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 151.13,
+  "h": 189.98
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 27.4
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 27.4
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_corgi.png",
+   "w": 240.0,
+   "h": 301.7,
+   "from": "gen_new/pet_corgi.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

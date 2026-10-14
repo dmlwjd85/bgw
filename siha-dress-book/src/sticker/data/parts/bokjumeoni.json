@@ -1,0 +1,37 @@
+{
+ "id": "bokjumeoni",
+ "name": "복주머니",
+ "theme": "한복",
+ "category": "charm",
+ "slot": null,
+ "layer": "hand_prop",
+ "multi": true,
+ "anchors": [
+  "hand",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 93.7,
+  "h": 301.7
+ },
+ "anchorOffset": {
+  "hand": {
+   "dx": -1.1,
+   "dy": 80
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/bokjumeoni.png",
+   "w": 93.7,
+   "h": 301.7,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

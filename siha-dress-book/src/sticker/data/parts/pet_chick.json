@@ -1,0 +1,42 @@
+{
+ "id": "pet_chick",
+ "name": "병아리",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 142.9,
+  "h": 180.8
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 0,
+   "dy": 23.5
+  },
+  "pet_l": {
+   "dx": 0,
+   "dy": 23.5
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_chick.png",
+   "w": 142.9,
+   "h": 180.8,
+   "from": "gen_new/pet_chick.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

@@ -1,0 +1,42 @@
+{
+ "id": "pet_duck",
+ "name": "오리",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 153.8,
+  "h": 229.2
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 0,
+   "dy": 14.8
+  },
+  "pet_l": {
+   "dx": 0,
+   "dy": 14.8
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_duck.png",
+   "w": 153.8,
+   "h": 229.2,
+   "from": "gen_new/pet_duck.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

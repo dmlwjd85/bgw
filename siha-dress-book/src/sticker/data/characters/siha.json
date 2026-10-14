@@ -6,20 +6,11 @@
   "h": 650
  },
  "res": 4,
- "note": "몸은 한 장짜리 원본이라 뒷머리·얼굴·앞머리는 몸 레이어에 포함. 속바지(흰 반바지)는 몸에 그려져 있고 가장 짧은 치마 밑단(y≈399)보다 위(y≈388)에서 끝나게 다시 칠함.",
+ "note": "v2 기준 몸(크롭탑·짧은 반바지). 발 포함 한 장. 기준점은 v1 기준점의 랜드마크 상대 위치를 v2 랜드마크에 옮겨 계산. / 기본 몸은 민머리(siha-body-v2-bald.png), 머리는 hair 슬롯 기본 스티커 hair_long_default(앞 hair층 + 뒤 back_hair층). 민머리+기본머리 = 이전 v2 몸.",
  "pieces": [
   {
    "key": "body",
-   "src": "x4/siha-body.png",
-   "layer": "body",
-   "x": 30,
-   "y": 40,
-   "w": 300.0,
-   "h": 570.0
-  },
-  {
-   "key": "feet",
-   "src": "x4/siha-feet.png",
+   "src": "x4/siha-body-v2-bald.png",
    "layer": "body",
    "x": 30,
    "y": 40,
@@ -29,53 +20,107 @@
  ],
  "anchors": {
   "crown": {
-   "x": 180,
-   "y": 52,
+   "x": 177.5,
+   "y": 64.2,
    "size": 1.0,
    "layer": "hair_acc",
    "label": "정수리"
   },
   "side": {
-   "x": 236,
-   "y": 86,
+   "x": 236.0,
+   "y": 97.2,
    "size": 0.6,
    "layer": "hair_acc",
    "label": "옆머리"
   },
   "neck": {
-   "x": 180,
-   "y": 192,
+   "x": 177.9,
+   "y": 207.8,
    "size": 0.42,
    "layer": "hair_acc",
    "label": "목"
   },
   "waist": {
-   "x": 180,
-   "y": 306,
+   "x": 177.3,
+   "y": 318.0,
    "size": 0.5,
    "layer": "hair_acc",
    "label": "허리"
   },
   "shoe_l": {
-   "x": 122,
-   "y": 578,
+   "x": 122.3,
+   "y": 578.1,
    "size": 0.3,
    "layer": "hair_acc",
    "label": "왼쪽 신발"
   },
   "shoe_r": {
-   "x": 250,
-   "y": 575,
+   "x": 249.4,
+   "y": 575.6,
    "size": 0.3,
    "layer": "hair_acc",
    "label": "오른쪽 신발"
   },
   "hand": {
-   "x": 60,
-   "y": 150,
+   "x": 58.2,
+   "y": 165.6,
    "size": 0.55,
    "layer": "hand_prop",
    "label": "손"
+  },
+  "feet": {
+   "x": 184.5,
+   "y": 582.0,
+   "size": 1.0,
+   "layer": "shoes",
+   "label": "발"
+  },
+  "pet_l": {
+   "x": 55.0,
+   "y": 545.0,
+   "size": 0.6,
+   "layer": "pet",
+   "label": "왼쪽 반려동물"
+  },
+  "pet_r": {
+   "x": 305.0,
+   "y": 545.0,
+   "size": 0.6,
+   "layer": "pet",
+   "label": "오른쪽 반려동물"
   }
+ },
+ "landmarks_v2_stage": {
+  "crown": [
+   189.4,
+   58.0
+  ],
+  "side": [
+   264.8,
+   106.5
+  ],
+  "neck": [
+   185.2,
+   212.5
+  ],
+  "waist": [
+   180.0,
+   330.8
+  ],
+  "shoe_l": [
+   136.7,
+   581.7
+  ],
+  "shoe_r": [
+   242.7,
+   582.9
+  ],
+  "hand": [
+   72.6,
+   174.1
+  ]
+ },
+ "defaultParts": {
+  "hair": "hair_long_default"
  }
 }

@@ -1,0 +1,25 @@
+{
+ "id": "shoes_loafer_navy",
+ "name": "남색 로퍼",
+ "theme": "학교",
+ "category": "shoes",
+ "slot": "shoes",
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/shoes_loafer_navy.png",
+   "x": 102.25,
+   "y": 552.0,
+   "w": 161.75,
+   "h": 56.0,
+   "from": "gen_new/shoes_loafer_navy.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
+}

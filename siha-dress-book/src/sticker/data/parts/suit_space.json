@@ -1,0 +1,47 @@
+{
+ "id": "suit_space",
+ "name": "우주비행사 점프슈트",
+ "theme": "우주",
+ "category": "dress",
+ "slot": "dress",
+ "layer": "outer",
+ "pieces": [
+  {
+   "src": "x4/suit_space-0.png",
+   "x": 54.0,
+   "y": 201.0,
+   "w": 239.0,
+   "h": 405.0,
+   "from": "gen2/suit_space.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/suit_space-2.png",
+   "x": 55.0,
+   "y": 184.0,
+   "w": 44.0,
+   "h": 23.0,
+   "layer": "back_hair",
+   "from": "gen2/suit_space.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/suit_space-3.png",
+   "x": 56.0,
+   "y": 184.0,
+   "w": 36.0,
+   "h": 23.0,
+   "layer": "hair_acc",
+   "from": "gen2/suit_space.jpg (v2 몸 편집본 차분 추출)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ],
+  "hideSlots": [
+   "socks"
+  ]
+ },
+ "character": "siha-v2"
+}

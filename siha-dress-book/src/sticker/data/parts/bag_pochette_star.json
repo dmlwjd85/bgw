@@ -1,0 +1,24 @@
+{
+ "id": "bag_pochette_star",
+ "name": "별 포셰트",
+ "theme": "우주",
+ "category": "bag",
+ "slot": "bag",
+ "layer": "bag",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/bag_pochette_star-0.png",
+   "x": 159.42,
+   "y": 217.24,
+   "w": 112.5,
+   "h": 186.75,
+   "from": "gen_new/bag_pochette_star.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

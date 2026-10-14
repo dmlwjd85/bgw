@@ -1,0 +1,26 @@
+{
+ "id": "hair_long_default",
+ "name": "기본 긴 머리",
+ "theme": "기본",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "pieces": [
+  {
+   "src": "x4/hair_long_default-0.png",
+   "x": 71.0,
+   "y": 55.0,
+   "w": 259.0,
+   "h": 327.0,
+   "layer": "hair",
+   "from": "v2 원본 픽셀을 (v2−민머리) 마스크로 그대로 잘라냄"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "default": true,
+ "note": "민머리 몸 + 이 머리 = 기존 v2 몸과 동일"
+}

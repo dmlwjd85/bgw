@@ -1,0 +1,37 @@
+{
+ "id": "wand_star",
+ "name": "별 요술봉",
+ "theme": "공주",
+ "category": "charm",
+ "slot": null,
+ "layer": "hand_prop",
+ "multi": true,
+ "anchors": [
+  "hand",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 106.4,
+  "h": 200.0
+ },
+ "anchorOffset": {
+  "hand": {
+   "dx": 0.3,
+   "dy": -34.3
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/wand_star.png",
+   "w": 106.4,
+   "h": 200.0,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

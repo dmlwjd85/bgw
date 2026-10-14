@@ -1,0 +1,35 @@
+{
+ "id": "sailor_ocean",
+ "name": "바다 세일러 원피스",
+ "theme": "바다",
+ "category": "dress",
+ "slot": "dress",
+ "layer": "top",
+ "pieces": [
+  {
+   "src": "x4/sailor_ocean-0.png",
+   "x": 130.0,
+   "y": 215.0,
+   "w": 120.0,
+   "h": 110.0,
+   "from": "gen2/sailor_ocean.jpg (v2 몸 편집본 차분 추출)"
+  },
+  {
+   "src": "x4/sailor_ocean-1.png",
+   "x": 92.0,
+   "y": 320.0,
+   "w": 178.0,
+   "h": 286.0,
+   "layer": "bottom",
+   "from": "gen2/sailor_ocean.jpg (v2 몸 편집본 차분 추출)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2"
+}

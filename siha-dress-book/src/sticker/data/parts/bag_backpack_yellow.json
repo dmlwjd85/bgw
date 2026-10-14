@@ -1,0 +1,34 @@
+{
+ "id": "bag_backpack_yellow",
+ "name": "노란 책가방",
+ "theme": "학교",
+ "category": "bag",
+ "slot": "bag",
+ "layer": "bag",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/bag_backpack_yellow-0.png",
+   "x": 130.38,
+   "y": 214.82,
+   "w": 156.0,
+   "h": 150.25,
+   "layer": "bag",
+   "from": "gen_new/bag_backpack_yellow.jpg (v2 편집본 차분)"
+  },
+  {
+   "src": "x4/bag_backpack_yellow-1.png",
+   "x": 232.88,
+   "y": 329.07,
+   "w": 52.0,
+   "h": 36.0,
+   "layer": "bag_back",
+   "from": "gen_new/bag_backpack_yellow.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

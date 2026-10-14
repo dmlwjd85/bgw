@@ -1,0 +1,24 @@
+{
+ "id": "scarf_winter",
+ "name": "빨간 목도리",
+ "theme": "겨울",
+ "category": "neck",
+ "slot": "neck",
+ "layer": "outer",
+ "pieces": [
+  {
+   "src": "x4/scarf_winter-0.png",
+   "x": 139.3,
+   "y": 193.0,
+   "w": 100.25,
+   "h": 135.0,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "neck"
+}

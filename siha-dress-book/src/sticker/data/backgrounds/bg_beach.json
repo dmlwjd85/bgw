@@ -1,0 +1,6 @@
+{
+ "id": "bg_beach",
+ "name": "바다",
+ "src": "bg/bg_beach.jpg",
+ "from": "gen_new/bg_beach.jpg (가운데 360:650 크롭 → 1440×2600)"
+}

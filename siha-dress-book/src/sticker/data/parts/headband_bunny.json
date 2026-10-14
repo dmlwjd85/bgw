@@ -1,0 +1,24 @@
+{
+ "id": "headband_bunny",
+ "name": "토끼귀 머리띠",
+ "theme": "동물",
+ "category": "head",
+ "slot": "head",
+ "layer": "hair_acc",
+ "pieces": [
+  {
+   "src": "x4/headband_bunny-0.png",
+   "x": 96.5,
+   "y": 18.8,
+   "w": 166.5,
+   "h": 164.0,
+   "from": "siha-designs/acc_v2.py"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
+}

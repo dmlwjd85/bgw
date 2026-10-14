@@ -1,0 +1,6 @@
+{
+ "id": "bg_bedroom",
+ "name": "방",
+ "src": "bg/bg_bedroom.jpg",
+ "from": "gen_new/bg_bedroom.jpg (가운데 360:650 크롭 → 1440×2600)"
+}

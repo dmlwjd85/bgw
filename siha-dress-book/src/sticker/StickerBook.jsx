@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ACC_LIMIT } from './const.js'
-import { BACKGROUNDS, CATEGORIES, CHARACTER, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, wear } from './model.js'
+import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, thumbPieces, wear } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
 const BASE = `${import.meta.env.BASE_URL}sticker/`
@@ -27,7 +27,7 @@ function load() {
       const anchor = a.anchor && part.anchors.includes(a.anchor) ? a.anchor : null
       accs.push({ id, uid: String(a.uid ?? Math.random()), anchor, x: a.x ?? SW / 2, y: a.y ?? SH / 2 })
     }
-    const bg = BACKGROUNDS.some((b) => b.id === d.bg) ? d.bg : BACKGROUNDS[0]?.id
+    const bg = BACKGROUNDS.some((b) => b.id === d.bg) ? d.bg : DEFAULT_BG
     return { worn, accs: accs.slice(0, ACC_LIMIT), bg }
   } catch {
     return null
@@ -46,7 +46,7 @@ export default function StickerBook() {
   const saved = useRef(load())
   const [worn, setWorn] = useState(saved.current?.worn || {})
   const [accs, setAccs] = useState(saved.current?.accs || [])
-  const [bg, setBg] = useState(saved.current?.bg || BACKGROUNDS[0]?.id)
+  const [bg, setBg] = useState(saved.current?.bg || DEFAULT_BG)
   const [cat, setCat] = useState('dress')
   const [ghost, setGhost] = useState(null)
   const [toast, setToast] = useState('')
@@ -189,11 +189,11 @@ export default function StickerBook() {
             {list.map((p) => (
               <button key={p.id} type="button" className={`sb-sticker ${worn[p.slot] === p.id || accs.some((a) => a.id === p.id) ? 'on' : ''} ${covered.has(p.slot) ? 'off' : ''}`}
                 aria-disabled={covered.has(p.slot) || undefined}
-                onPointerDown={(e) => covered.has(p.slot) ? setToast(`${covered.get(p.slot)}을 벗으면 신을 수 있어요`) : start(e, { id: p.id, from: 'tray' })}
-                aria-label={covered.has(p.slot) ? `${p.name} (${covered.get(p.slot)}을 벗으면 신을 수 있어요)` : p.name}>
-                <span className="sb-thumb">{p.pieces.filter((pc) => !pc.layer && !pc.onlyWith).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />)}</span>
+                onPointerDown={(e) => covered.has(p.slot) ? setToast(`${covered.get(p.slot)}을(를) 벗으면 입을 수 있어요`) : start(e, { id: p.id, from: 'tray' })}
+                aria-label={covered.has(p.slot) ? `${p.name} (${covered.get(p.slot)}을(를) 벗으면 입을 수 있어요)` : p.name}>
+                <span className="sb-thumb">{thumbPieces(p).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />)}</span>
                 <span className="sb-name">{p.name}</span>
-                {covered.has(p.slot) && <span className="sb-lock">곰 옷 벗기!</span>}
+                {covered.has(p.slot) && <span className="sb-lock">{covered.get(p.slot)} 벗기!</span>}
               </button>
             ))}
           </div>
@@ -201,7 +201,7 @@ export default function StickerBook() {
       </main>
       {ghost && (
         <div className="sb-ghost" style={{ left: ghost.x, top: ghost.y }}>
-          {PART[ghost.id].pieces.filter((pc) => !pc.layer).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" />)}
+          {thumbPieces(PART[ghost.id]).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" />)}
         </div>
       )}
       {toast && <div className="sb-toast" role="status">{toast}</div>}

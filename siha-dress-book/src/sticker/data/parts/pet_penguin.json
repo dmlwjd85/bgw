@@ -1,0 +1,42 @@
+{
+ "id": "pet_penguin",
+ "name": "펭귄",
+ "theme": "반려동물",
+ "category": "pet",
+ "slot": null,
+ "layer": "pet",
+ "set": "new",
+ "multi": true,
+ "anchors": [
+  "pet_r",
+  "pet_l"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 151.16,
+  "h": 187.89
+ },
+ "anchorOffset": {
+  "pet_r": {
+   "dx": 5.1,
+   "dy": 28.1
+  },
+  "pet_l": {
+   "dx": 1.1,
+   "dy": 28.1
+  }
+ },
+ "pieces": [
+  {
+   "src": "x4/pet_penguin.png",
+   "w": 238.3,
+   "h": 296.2,
+   "from": "gen_new/pet_penguin.jpg (v2 편집본 차분)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}
