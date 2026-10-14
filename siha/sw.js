@@ -1,0 +1,58 @@
+/* 시하 스티커북 서비스 워커. 빌드가 버전·미리 캐시 목록을 넣는다. */
+const VERSION = "siha-stickerbook-v12e199309d"
+const PRECACHE = ["./","./assets/index-C-cUmjqp.css","./assets/index-Dr7KxI7q.js","./fonts/OFL-Gaegu.txt","./fonts/OFL-Jua.txt","./fonts/gaegu-400.woff2","./fonts/gaegu-700.woff2","./fonts/jua-400.woff2","./icons/apple-touch-icon.png","./icons/icon-192-maskable.png","./icons/icon-192.png","./icons/icon-512-maskable.png","./icons/icon-512.png","./index.html","./manifest.webmanifest","./privacy.html","./sticker/README.md","./sticker/bg/bg_beach.jpg","./sticker/bg/bg_bedroom.jpg","./sticker/bg/bg_cherry_blossom_street.jpg","./sticker/bg/bg_classroom.jpg","./sticker/bg/bg_forest.jpg","./sticker/bg/bg_hanok_village.jpg","./sticker/bg/bg_outer_space.jpg","./sticker/bg/bg_park.jpg","./sticker/bg/bg_snowy_village.jpg","./sticker/bg/bg_underwater.jpg","./sticker/bg/concert_gold.jpg","./sticker/bg/concert_purple.jpg","./sticker/bg/grid_blue.jpg","./sticker/bg/grid_soft.jpg","./sticker/x4/bag_backpack_yellow-0.png","./sticker/x4/bag_backpack_yellow-1.png","./sticker/x4/bag_basket_picnic-0.png","./sticker/x4/bag_crossbody_strawberry-0.png","./sticker/x4/bag_pochette_star-0.png","./sticker/x4/bag_tote.png","./sticker/x4/bag_tote_canvas-0.png","./sticker/x4/beanie_winter-0.png","./sticker/x4/bokjumeoni.png","./sticker/x4/bow_blue.png","./sticker/x4/bow_blue_gem.png","./sticker/x4/bow_pink.png","./sticker/x4/bow_pink_small.png","./sticker/x4/cardigan_autumn-0.png","./sticker/x4/cardigan_autumn-1.png","./sticker/x4/cardigan_autumn-3.png","./sticker/x4/cardigan_autumn-4.png","./sticker/x4/charm_planet.png","./sticker/x4/choker-0.png","./sticker/x4/crown_princess-0.png","./sticker/x4/devil_horns-0.png","./sticker/x4/dress_check_red.png","./sticker/x4/dress_idol_stage.png","./sticker/x4/dress_idol_star.png","./sticker/x4/dress_knit_cream.png","./sticker/x4/dress_sailor_mint.png","./sticker/x4/flower_blue.png","./sticker/x4/flower_cherry.png","./sticker/x4/flower_daisy.png","./sticker/x4/flower_idol_corsage.png","./sticker/x4/flower_idol_crown.png","./sticker/x4/flower_tulip_pink.png","./sticker/x4/hair_bob-0.png","./sticker/x4/hair_bob-1.png","./sticker/x4/hair_braid-0.png","./sticker/x4/hair_braid-1.png","./sticker/x4/hair_bun-0-beanie.png","./sticker/x4/hair_bun-0.png","./sticker/x4/hair_bun-1-beanie.png","./sticker/x4/hair_bun-1.png","./sticker/x4/hair_long_default-0.png","./sticker/x4/hair_ponytail-0-beanie.png","./sticker/x4/hair_ponytail-0.png","./sticker/x4/hair_ponytail-1-beanie.png","./sticker/x4/hair_ponytail-1.png","./sticker/x4/hair_twintails-0.png","./sticker/x4/hair_twintails-1.png","./sticker/x4/hairpin_maple.png","./sticker/x4/hairpin_shell.png","./sticker/x4/hanbok-0.png","./sticker/x4/hanbok-1.png","./sticker/x4/hanbok-3.png","./sticker/x4/hanbok-4.png","./sticker/x4/hat_straw-0.png","./sticker/x4/hb_blue-0.png","./sticker/x4/hb_rose-0.png","./sticker/x4/head_beret_red.png","./sticker/x4/head_cat_ears.png","./sticker/x4/head_clip_heart.png","./sticker/x4/head_idol_headset.png","./sticker/x4/head_idol_tiara.png","./sticker/x4/headband_bunny-0.png","./sticker/x4/headphones-0.png","./sticker/x4/heart.png","./sticker/x4/lollipop.png","./sticker/x4/mic_handheld.png","./sticker/x4/mic_headset.png","./sticker/x4/mic_stand.png","./sticker/x4/neck_idol_choker.png","./sticker/x4/neck_idol_ribbon.png","./sticker/x4/neck_pearl.png","./sticker/x4/neck_scarf.png","./sticker/x4/neck_star.png","./sticker/x4/norigae.png","./sticker/x4/pants_jeans_wide.png","./sticker/x4/pendant.png","./sticker/x4/pet_bunny.png","./sticker/x4/pet_chick.png","./sticker/x4/pet_corgi.png","./sticker/x4/pet_duck.png","./sticker/x4/pet_fox_cub.png","./sticker/x4/pet_hamster.png","./sticker/x4/pet_kitten.png","./sticker/x4/pet_panda_cub.png","./sticker/x4/pet_penguin.png","./sticker/x4/pet_puppy.png","./sticker/x4/prop_lightstick.png","./sticker/x4/ribbon_gingham.png","./sticker/x4/ribbon_idol_stage.png","./sticker/x4/ribbon_idol_twin.png","./sticker/x4/ribbon_navy.png","./sticker/x4/ribbon_organza.png","./sticker/x4/ribbon_pink.png","./sticker/x4/rose.png","./sticker/x4/sailor_ocean-0.png","./sticker/x4/sailor_ocean-1.png","./sticker/x4/scarf_winter-0.png","./sticker/x4/shoes_balletflat_pink.png","./sticker/x4/shoes_boots_brown.png","./sticker/x4/shoes_hightop_purple.png","./sticker/x4/shoes_idol_glitter.png","./sticker/x4/shoes_idol_platform.png","./sticker/x4/shoes_loafer_navy.png","./sticker/x4/shoes_maryjane.png","./sticker/x4/shoes_maryjane_red.png","./sticker/x4/shoes_sandal_brown.png","./sticker/x4/shoes_sneaker_mint.png","./sticker/x4/shoes_white_sneaker.png","./sticker/x4/shoes_winterboot_tan.png","./sticker/x4/shorts_denim.png","./sticker/x4/shorts_idol_stage.png","./sticker/x4/siha-body-v2-bald.png","./sticker/x4/siha-body-v2.png","./sticker/x4/siha-body.png","./sticker/x4/siha-feet.png","./sticker/x4/skirt_denim-0.png","./sticker/x4/skirt_denim2-0.png","./sticker/x4/skirt_idol_pleat.png","./sticker/x4/skirt_navy-0.png","./sticker/x4/skirt_tulle_pastel.png","./sticker/x4/socks_ankle_stripe-in-shoes_balletflat_pink.png","./sticker/x4/socks_ankle_stripe-in-shoes_hightop_purple.png","./sticker/x4/socks_ankle_stripe-in-shoes_loafer_navy.png","./sticker/x4/socks_ankle_stripe-in-shoes_maryjane_red.png","./sticker/x4/socks_ankle_stripe-in-shoes_rainboot_yellow.png","./sticker/x4/socks_ankle_stripe-in-shoes_slipper_bunny.png","./sticker/x4/socks_ankle_stripe-in-shoes_sneaker_blue.png","./sticker/x4/socks_ankle_stripe-in-shoes_sneaker_mint.png","./sticker/x4/socks_ankle_stripe-in-shoes_winterboot_tan.png","./sticker/x4/socks_ankle_stripe.png","./sticker/x4/socks_black_knee.png","./sticker/x4/socks_crew_blue-in-shoes_balletflat_pink.png","./sticker/x4/socks_crew_blue-in-shoes_hightop_purple.png","./sticker/x4/socks_crew_blue-in-shoes_loafer_navy.png","./sticker/x4/socks_crew_blue-in-shoes_maryjane_red.png","./sticker/x4/socks_crew_blue-in-shoes_rainboot_yellow.png","./sticker/x4/socks_crew_blue-in-shoes_slipper_bunny.png","./sticker/x4/socks_crew_blue-in-shoes_sneaker_blue.png","./sticker/x4/socks_crew_blue-in-shoes_sneaker_mint.png","./sticker/x4/socks_crew_blue-in-shoes_winterboot_tan.png","./sticker/x4/socks_crew_blue.png","./sticker/x4/socks_frill_lavender-in-shoes_balletflat_pink.png","./sticker/x4/socks_frill_lavender-in-shoes_hightop_purple.png","./sticker/x4/socks_frill_lavender-in-shoes_loafer_navy.png","./sticker/x4/socks_frill_lavender-in-shoes_maryjane_red.png","./sticker/x4/socks_frill_lavender-in-shoes_rainboot_yellow.png","./sticker/x4/socks_frill_lavender-in-shoes_slipper_bunny.png","./sticker/x4/socks_frill_lavender-in-shoes_sneaker_blue.png","./sticker/x4/socks_frill_lavender-in-shoes_sneaker_mint.png","./sticker/x4/socks_frill_lavender-in-shoes_winterboot_tan.png","./sticker/x4/socks_frill_lavender.png","./sticker/x4/socks_idol_overknee.png","./sticker/x4/socks_idol_stripe.png","./sticker/x4/socks_knee_navy-in-shoes_balletflat_pink.png","./sticker/x4/socks_knee_navy-in-shoes_hightop_purple.png","./sticker/x4/socks_knee_navy-in-shoes_loafer_navy.png","./sticker/x4/socks_knee_navy-in-shoes_maryjane_red.png","./sticker/x4/socks_knee_navy-in-shoes_rainboot_yellow.png","./sticker/x4/socks_knee_navy-in-shoes_slipper_bunny.png","./sticker/x4/socks_knee_navy-in-shoes_sneaker_blue.png","./sticker/x4/socks_knee_navy-in-shoes_sneaker_mint.png","./sticker/x4/socks_knee_navy-in-shoes_winterboot_tan.png","./sticker/x4/socks_knee_navy.png","./sticker/x4/socks_pink_ankle.png","./sticker/x4/socks_white_frill.png","./sticker/x4/suit_space-0.png","./sticker/x4/suit_space-2.png","./sticker/x4/suit_space-3.png","./sticker/x4/sunflower.png","./sticker/x4/tiara_gold-0.png","./sticker/x4/top_cardigan_white.png","./sticker/x4/top_hoodie_pink.png","./sticker/x4/top_idol_sailor.png","./sticker/x4/top_idol_sparkle.png","./sticker/x4/top_tee_star.png","./sticker/x4/top_yellow-0.png","./sticker/x4/wand_star.png"]
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(VERSION)
+      await Promise.all(
+        PRECACHE.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('[siha sw] precache skip', url, err)
+          }),
+        ),
+      )
+      await self.skipWaiting()
+    })(),
+  )
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys()
+      await Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key)))
+      await self.clients.claim()
+    })(),
+  )
+})
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request
+  if (req.method !== 'GET') return
+  const url = new URL(req.url)
+  if (url.origin !== self.location.origin) return
+
+  event.respondWith(
+    (async () => {
+      const cached = await caches.match(req)
+      if (cached) return cached
+      try {
+        const res = await fetch(req)
+        if (res && res.ok) {
+          const copy = res.clone()
+          const cache = await caches.open(VERSION)
+          await cache.put(req, copy)
+        }
+        return res
+      } catch (err) {
+        if (req.mode === 'navigate') {
+          const fallback = await caches.match('./index.html')
+          if (fallback) return fallback
+        }
+        throw err
+      }
+    })(),
+  )
+})
