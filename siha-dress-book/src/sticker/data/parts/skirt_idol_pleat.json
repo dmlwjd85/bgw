@@ -1,0 +1,20 @@
+{
+ "id": "skirt_idol_pleat",
+ "name": "아이돌 플리츠 치마",
+ "category": "bottom",
+ "layer": "bottom",
+ "scale": 1,
+ "slot": "bottom",
+ "anchor": "waist",
+ "front": [
+  {
+   "src": "x4/skirt_idol_pleat.png",
+   "x": 92.5,
+   "y": 300.0,
+   "w": 175.0,
+   "h": 121.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

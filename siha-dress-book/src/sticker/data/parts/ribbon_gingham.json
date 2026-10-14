@@ -1,0 +1,28 @@
+{
+ "id": "ribbon_gingham",
+ "name": "체크 리본",
+ "category": "ribbon",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 75.0,
+  "h": 39.5
+ },
+ "front": [
+  {
+   "src": "x4/ribbon_gingham.png",
+   "w": 75.0,
+   "h": 39.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

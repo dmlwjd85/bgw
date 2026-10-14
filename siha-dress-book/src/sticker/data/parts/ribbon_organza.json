@@ -1,0 +1,27 @@
+{
+ "id": "ribbon_organza",
+ "name": "오간자 리본",
+ "category": "ribbon",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 75.0,
+  "h": 76.75
+ },
+ "front": [
+  {
+   "src": "x4/ribbon_organza.png",
+   "w": 75.0,
+   "h": 76.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

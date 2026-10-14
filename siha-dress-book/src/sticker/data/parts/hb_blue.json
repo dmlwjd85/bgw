@@ -2,9 +2,11 @@
  "id": "hb_blue",
  "name": "하늘 레이스 머리띠",
  "category": "head",
- "slot": "head",
  "layer": "hair_acc",
- "pieces": [
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
   {
    "src": "x4/hb_blue-0.png",
    "x": 108.3,
@@ -12,20 +14,8 @@
    "w": 185.0,
    "h": 124.5,
    "from": "4e40d8/blue-headband/blue-headband-2.png"
-  },
-  {
-   "src": "x4/patch-hb_blue.png",
-   "layer": "underwear",
-   "x": 118.5,
-   "y": 91.25,
-   "w": 1.5,
-   "h": 2.25,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

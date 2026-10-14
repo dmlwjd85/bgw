@@ -1,0 +1,20 @@
+{
+ "id": "top_idol_sparkle",
+ "name": "아이돌 스팽글 크롭",
+ "category": "top",
+ "layer": "top",
+ "scale": 1,
+ "slot": "top",
+ "anchor": "torso",
+ "front": [
+  {
+   "src": "x4/top_idol_sparkle.png",
+   "x": 115.0,
+   "y": 198.0,
+   "w": 130.0,
+   "h": 92.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

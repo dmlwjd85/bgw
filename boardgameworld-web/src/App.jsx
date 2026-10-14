@@ -1692,7 +1692,7 @@ export default function App() {
             <h1 className="nf-title text-4xl text-white">보드게임 월드</h1>
             <p className="text-sm text-stone-400 mt-2">침묵의 1to100 · 남은 카드 한 장!을 같은 테이블에서 즐기세요.</p>
             <a href={`${import.meta.env.BASE_URL}siha/`} className="inline-block mt-3 text-sm text-amber-200 underline">
-              시하 드레스 북
+              시하 스티커북
             </a>
           </div>
           <p className="text-stone-300 text-sm mb-4 text-center">다른 플레이어에게 보일 닉네임을 입력하세요.</p>

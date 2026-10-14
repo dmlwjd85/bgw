@@ -12,9 +12,9 @@ def holes(img):
     return [(i,int(s)) for i,s in zip(range(1,n+1),sizes) if i not in border and s>=4]
 res={}
 singles=[[p] for p,v in q.PART.items() if not v.get('multi')]
-tops=[[],['top_yellow']]; bots=[['skirt_denim'],['skirt_denim2'],['skirt_navy']]; socks=[[],['socks_long'],['socks_short']]; shoes=[[],['shoes_red'],['shoes_loafer'],['shoes_pink']]
-combos=[sum(c,[]) for c in itertools.product(tops,bots,socks,shoes)]
-combos+=[sum(c,[]) for c in itertools.product([['dress_blue'],['dress_pink'],['onesie_bear']],socks,shoes)]
+tops=[[],['top_yellow']]; bots=[['skirt_denim'],['skirt_denim2'],['skirt_navy']]; shoes=[[],['shoes_red'],['shoes_loafer'],['shoes_pink']]
+combos=[sum(c,[]) for c in itertools.product(tops,bots,shoes)]
+combos+=[sum(c,[]) for c in itertools.product([['dress_idol_star'],['dress_idol_stage'],['dress_sailor_mint']],shoes)]
 accs=[(a,anc) for a,v in q.PART.items() if v.get('multi') for anc in v['anchors']]
 bad=0
 for ids in [[]]+singles+combos:

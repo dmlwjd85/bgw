@@ -1,0 +1,23 @@
+{
+ "id": "shoes_idol_glitter",
+ "name": "아이돌 글리터 구두",
+ "category": "shoes",
+ "layer": "shoes",
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "hides": [
+  "feet"
+ ],
+ "front": [
+  {
+   "src": "x4/shoes_idol_glitter.png",
+   "x": 92.25,
+   "y": 555.0,
+   "w": 187.25,
+   "h": 74.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

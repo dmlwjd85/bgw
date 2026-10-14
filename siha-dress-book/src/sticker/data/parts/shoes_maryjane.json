@@ -1,0 +1,23 @@
+{
+ "id": "shoes_maryjane",
+ "name": "메리제인",
+ "category": "shoes",
+ "layer": "shoes",
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "hides": [
+  "feet"
+ ],
+ "front": [
+  {
+   "src": "x4/shoes_maryjane.png",
+   "x": 102.75,
+   "y": 573.0,
+   "w": 167.0,
+   "h": 50.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

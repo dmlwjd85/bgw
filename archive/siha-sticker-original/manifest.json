@@ -1,0 +1,63 @@
+{
+  "note": "원본 PNG 는 이 폴더에만 두고 수정하지 않는다. 앱은 가공 복사본을 쓴다.",
+  "source": "삼봉님 스티커 업로드",
+  "bundles": {
+    "A": {
+      "folder": "4e40d8",
+      "contents": "몸, 옷, 신발, 양말, 리본, 하늘 모눈종이",
+      "files": [
+        "pink-haired-anime-girl/pink-haired-anime-girl-2.png",
+        "pink-haired-anime-girl/pink-haired-anime-girl-7.png",
+        "pink-haired-anime-girl/pink-haired-anime-girl-9.png",
+        "yellow-crop-top/yellow-crop-top-2.png",
+        "denim-skirt/denim-skirt-1.png",
+        "denim-skirt/denim-skirt-2.png",
+        "blue-skirt/blue-skirt-1.png",
+        "blue-frilly-dress.png",
+        "pink-frilly-dress/pink-frilly-dress-1.png",
+        "purple-bear-onesie.png",
+        "white-socks/white-socks-1.png",
+        "white-socks/white-socks-2.png",
+        "white-socks/white-socks-10.png",
+        "white-socks/white-socks-12.png",
+        "red-sneakers/red-sneakers-4.png",
+        "red-sneakers/red-sneakers-6.png",
+        "black-loafers/black-loafers-1.png",
+        "black-loafers/black-loafers-4.png",
+        "pink-shoes/pink-shoes-2.png",
+        "blue-headband/blue-headband-2.png",
+        "pink-bow/pink-bow-1.png",
+        "pink-bow/pink-bow-3.png",
+        "grid-paper-background.png"
+      ]
+    },
+    "B": {
+      "folder": "8d0099",
+      "contents": "머리 장식, 소품, 연한 모눈종이",
+      "files": [
+        "tiara/tiara-10.png",
+        "black-rose-headband/black-rose-headband-2.png",
+        "straw-hat.png",
+        "headphones.png",
+        "blue-bow/blue-bow-1.png",
+        "blue-flower-hair-accessory/blue-flower-hair-accessory-1.png",
+        "sunflower.png",
+        "red-rose/red-rose-1.png",
+        "rainbow-swirl-lollipop.png",
+        "grid-background.png"
+      ]
+    },
+    "C": {
+      "folder": "adb08a",
+      "contents": "티아라, 리본, 보석",
+      "files": [
+        "tiara.png",
+        "choker-necklace.png",
+        "pink-ribbon/pink-ribbon-1.png",
+        "blue-bow/blue-bow-2.png",
+        "pink-heart-gem/pink-heart-gem-1.png",
+        "pink-gem-pendant.png"
+      ]
+    }
+  }
+}

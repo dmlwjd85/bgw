@@ -2,8 +2,9 @@
  "id": "rose",
  "name": "빨간 장미",
  "category": "flower",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "side",
@@ -14,7 +15,7 @@
   "w": 33.0,
   "h": 39.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/rose.png",
    "w": 33.0,
@@ -22,8 +23,6 @@
    "from": "8d0099/red-rose/red-rose-1.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

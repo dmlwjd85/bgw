@@ -1,0 +1,26 @@
+{
+ "id": "mic_stand",
+ "name": "스탠드 마이크",
+ "category": "charm",
+ "layer": "hand_prop",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 50.0,
+  "h": 193.5
+ },
+ "front": [
+  {
+   "src": "x4/mic_stand.png",
+   "w": 50.0,
+   "h": 193.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

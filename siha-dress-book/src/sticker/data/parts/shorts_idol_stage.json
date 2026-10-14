@@ -1,0 +1,20 @@
+{
+ "id": "shorts_idol_stage",
+ "name": "아이돌 무대 반바지",
+ "category": "bottom",
+ "layer": "bottom",
+ "scale": 1,
+ "slot": "bottom",
+ "anchor": "waist",
+ "front": [
+  {
+   "src": "x4/shorts_idol_stage.png",
+   "x": 107.25,
+   "y": 300.0,
+   "w": 145.5,
+   "h": 100.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,20 @@
+{
+ "id": "neck_idol_choker",
+ "name": "아이돌 보석 초커",
+ "category": "neck",
+ "layer": "outer",
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
+  {
+   "src": "x4/neck_idol_choker.png",
+   "x": 149.5,
+   "y": 184.8,
+   "w": 61.0,
+   "h": 60.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,20 @@
+{
+ "id": "head_beret_red",
+ "name": "빨간 베레모",
+ "category": "head",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
+  {
+   "src": "x4/head_beret_red.png",
+   "x": 131.25,
+   "y": 34.5,
+   "w": 97.5,
+   "h": 70.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

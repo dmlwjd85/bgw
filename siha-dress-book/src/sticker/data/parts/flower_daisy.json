@@ -1,0 +1,27 @@
+{
+ "id": "flower_daisy",
+ "name": "데이지",
+ "category": "flower",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "side",
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 50.0,
+  "h": 51.5
+ },
+ "front": [
+  {
+   "src": "x4/flower_daisy.png",
+   "w": 50.0,
+   "h": 51.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

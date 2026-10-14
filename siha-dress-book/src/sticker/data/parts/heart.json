@@ -2,8 +2,9 @@
  "id": "heart",
  "name": "하트 보석",
  "category": "charm",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "hand",
@@ -15,7 +16,7 @@
   "w": 48.0,
   "h": 53.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/heart.png",
    "w": 48.0,
@@ -23,8 +24,6 @@
    "from": "adb08a/pink-heart-gem/pink-heart-gem-1.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }
