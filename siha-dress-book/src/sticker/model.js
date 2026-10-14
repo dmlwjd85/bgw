@@ -14,9 +14,8 @@ const rank = (id) => { const i = LAYERS.partOrder.indexOf(id); return i < 0 ? 99
 // 검토 미통과 부품: 옛 몸용이라 파일이 남아 있어도 트레이·착용에서 숨김
 const HIDDEN_IDS = new Set([
   'dress_summer', 'onesie_bunny', 'dress_princess', 'dress_spring', 'coat_winter', 'tutu_ballet',
-  'shoes_sneaker_mint', 'shoes_sneaker_blue', 'shoes_slipper_bunny', 'shoes_hightop_purple',
-  'shoes_balletflat_pink', 'shoes_rainboot_yellow',
-  'socks_ankle_stripe', 'socks_crew_blue', 'socks_knee_navy', 'socks_frill_lavender', 'socks_holiday',
+  'shoes_sneaker_blue', 'shoes_slipper_bunny', 'shoes_rainboot_yellow',
+  'socks_holiday',
 ])
 export const PARTS = all.filter((p) => !HIDDEN_IDS.has(p.id)).sort((a, b) => rank(a.id) - rank(b.id))
 export const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]))
