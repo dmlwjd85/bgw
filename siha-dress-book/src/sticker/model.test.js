@@ -110,10 +110,10 @@ describe('layersFor', () => {
     expect(CHARACTER.pieces.map((p) => p.key)).toEqual(['body', 'feet'])
   })
 
-  it('하늘 드레스는 엉덩이 손 이음이 팔 레이어에 있다', () => {
-    const hand = PART.dress_blue.pieces.filter((p) => (p.src || '').includes('dress_blue-hand'))
-    expect(hand).toHaveLength(1)
-    expect(hand[0].layer).toBe('arms')
+  it('옷 PNG에는 원본 시트에서 떼 온 손·발 이음이 없다', () => {
+    expect(PART.dress_blue.pieces.every((p) => !(p.src || '').includes('-hand'))).toBe(true)
+    expect(PART.onesie_bear.pieces.every((p) => !(p.src || '').includes('-hand'))).toBe(true)
+    expect(PART.dress_blue.pieces.every((p) => (p.layer || PART.dress_blue.layer) !== 'arms')).toBe(true)
   })
 
   it('밀짚모자는 원본 한 장을 머리장식 레이어에 그린다', () => {

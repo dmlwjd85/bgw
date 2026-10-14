@@ -26,15 +26,5 @@
   }
  ],
  "back": [],
- "connectors": [
-  {
-   "src": "x4/onesie_bear-hand.png",
-   "layer": "arms",
-   "x": 302.56,
-   "y": 333.02,
-   "w": 68.5,
-   "h": 69.75,
-   "from": "4e40d8/purple-bear-onesie.png (손, 시트 9)"
-  }
- ]
+ "connectors": []
 }
