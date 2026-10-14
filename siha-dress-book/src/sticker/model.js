@@ -149,7 +149,7 @@ export function resolvePiece(part, pc, sizes) {
 // 화면에 그릴 조각 목록 (z 오름차순)
 export function layersFor(worn, accs, sizes) {
   const allWorn = Object.values(worn).map((id) => PART[id]).filter(Boolean)
-  // 덮는 옷(예: 곰 우주복)이 가리는 슬롯은 그리지 않음(입은 정보는 그대로 둠)
+  // covers 가 있는 옷이 가리는 슬롯은 그리지 않음(입은 정보는 그대로 둠)
   const hideSlots = new Set(allWorn.flatMap((p) => p.occlusion?.hideSlots || []))
   const parts = allWorn.filter((p) => !hideSlots.has(p.slot))
   const hidden = new Set(parts.flatMap((p) => p.occlusion?.hideCharacterPieces || []))

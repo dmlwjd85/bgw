@@ -1,0 +1,20 @@
+{
+ "id": "neck_star",
+ "name": "별 펜던트",
+ "category": "neck",
+ "layer": "outer",
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
+  {
+   "src": "x4/neck_star.png",
+   "x": 163.75,
+   "y": 186.0,
+   "w": 32.5,
+   "h": 50.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

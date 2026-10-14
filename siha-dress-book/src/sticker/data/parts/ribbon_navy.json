@@ -1,0 +1,28 @@
+{
+ "id": "ribbon_navy",
+ "name": "남색 새틴 리본",
+ "category": "ribbon",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side",
+  "neck"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 75.0,
+  "h": 75.0
+ },
+ "front": [
+  {
+   "src": "x4/ribbon_navy.png",
+   "w": 75.0,
+   "h": 75.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

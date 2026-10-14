@@ -1,0 +1,20 @@
+{
+ "id": "head_cat_ears",
+ "name": "고양이 귀 머리띠",
+ "category": "head",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
+  {
+   "src": "x4/head_cat_ears.png",
+   "x": 127.12,
+   "y": 28.0,
+   "w": 105.75,
+   "h": 80.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

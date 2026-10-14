@@ -1,0 +1,27 @@
+{
+ "id": "flower_idol_crown",
+ "name": "아이돌 꽃관",
+ "category": "flower",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "head"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 160.0,
+  "h": 91.25
+ },
+ "front": [
+  {
+   "src": "x4/flower_idol_crown.png",
+   "w": 160.0,
+   "h": 91.25
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

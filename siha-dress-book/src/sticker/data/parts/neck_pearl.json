@@ -1,0 +1,20 @@
+{
+ "id": "neck_pearl",
+ "name": "진주 목걸이",
+ "category": "neck",
+ "layer": "outer",
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
+  {
+   "src": "x4/neck_pearl.png",
+   "x": 141.75,
+   "y": 183.6,
+   "w": 76.5,
+   "h": 70.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

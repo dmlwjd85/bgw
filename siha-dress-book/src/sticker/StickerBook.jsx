@@ -255,7 +255,7 @@ export default function StickerBook() {
                   ))}
                 </span>
                 <span className="sb-name">{p.name}</span>
-                {covered.has(p.slot) && <span className="sb-lock">곰 옷 벗기!</span>}
+                {covered.has(p.slot) && <span className="sb-lock">먼저 벗기!</span>}
               </button>
             ))}
           </div>

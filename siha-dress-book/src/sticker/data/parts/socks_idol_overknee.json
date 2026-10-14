@@ -1,0 +1,20 @@
+{
+ "id": "socks_idol_overknee",
+ "name": "아이돌 오버니",
+ "category": "socks",
+ "layer": "socks",
+ "scale": 1,
+ "slot": "socks",
+ "anchor": "legs",
+ "front": [
+  {
+   "src": "x4/socks_idol_overknee.png",
+   "x": 103.0,
+   "y": 392.0,
+   "w": 167.0,
+   "h": 217.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

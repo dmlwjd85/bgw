@@ -1,0 +1,27 @@
+{
+ "id": "ribbon_idol_twin",
+ "name": "아이돌 트윈 리본",
+ "category": "ribbon",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "side"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 33.5,
+  "h": 63.0
+ },
+ "front": [
+  {
+   "src": "x4/ribbon_idol_twin.png",
+   "w": 33.5,
+   "h": 63.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

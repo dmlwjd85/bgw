@@ -1,0 +1,23 @@
+{
+ "id": "shoes_idol_platform",
+ "name": "아이돌 플랫폼",
+ "category": "shoes",
+ "layer": "shoes",
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "hides": [
+  "feet"
+ ],
+ "front": [
+  {
+   "src": "x4/shoes_idol_platform.png",
+   "x": 96.0,
+   "y": 549.5,
+   "w": 178.75,
+   "h": 79.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

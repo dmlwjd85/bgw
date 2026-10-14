@@ -1,0 +1,20 @@
+{
+ "id": "socks_idol_stripe",
+ "name": "아이돌 줄무늬 양말",
+ "category": "socks",
+ "layer": "socks",
+ "scale": 1,
+ "slot": "socks",
+ "anchor": "legs",
+ "front": [
+  {
+   "src": "x4/socks_idol_stripe.png",
+   "x": 100.75,
+   "y": 518.0,
+   "w": 170.0,
+   "h": 97.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

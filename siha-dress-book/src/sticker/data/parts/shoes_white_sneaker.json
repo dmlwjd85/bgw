@@ -1,0 +1,23 @@
+{
+ "id": "shoes_white_sneaker",
+ "name": "흰 운동화",
+ "category": "shoes",
+ "layer": "shoes",
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "hides": [
+  "feet"
+ ],
+ "front": [
+  {
+   "src": "x4/shoes_white_sneaker.png",
+   "x": 99.5,
+   "y": 569.0,
+   "w": 172.5,
+   "h": 54.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

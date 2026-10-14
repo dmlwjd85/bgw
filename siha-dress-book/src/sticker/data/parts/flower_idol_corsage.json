@@ -1,0 +1,28 @@
+{
+ "id": "flower_idol_corsage",
+ "name": "아이돌 코르사주",
+ "category": "flower",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "side",
+  "hand",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 65.0,
+  "h": 64.0
+ },
+ "front": [
+  {
+   "src": "x4/flower_idol_corsage.png",
+   "w": 65.0,
+   "h": 64.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

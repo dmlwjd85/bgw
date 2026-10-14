@@ -1,0 +1,20 @@
+{
+ "id": "top_cardigan_white",
+ "name": "흰 가디건",
+ "category": "top",
+ "layer": "top",
+ "scale": 1,
+ "slot": "top",
+ "anchor": "torso",
+ "front": [
+  {
+   "src": "x4/top_cardigan_white.png",
+   "x": 105.0,
+   "y": 198.0,
+   "w": 150.0,
+   "h": 149.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

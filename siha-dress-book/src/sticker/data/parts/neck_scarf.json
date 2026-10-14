@@ -1,0 +1,20 @@
+{
+ "id": "neck_scarf",
+ "name": "줄무늬 스카프",
+ "category": "neck",
+ "layer": "outer",
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
+  {
+   "src": "x4/neck_scarf.png",
+   "x": 144.88,
+   "y": 183.6,
+   "w": 70.25,
+   "h": 70.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

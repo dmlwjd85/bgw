@@ -1,0 +1,26 @@
+{
+ "id": "mic_handheld",
+ "name": "핸드마이크",
+ "category": "charm",
+ "layer": "hand_prop",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 45.0,
+  "h": 125.25
+ },
+ "front": [
+  {
+   "src": "x4/mic_handheld.png",
+   "w": 45.0,
+   "h": 125.25
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BACKGROUNDS,
   CHARACTER,
   DEFAULT_ATTACH,
   LAYER_Z,
@@ -53,14 +54,14 @@ describe('normalizePart', () => {
 
 describe('wear', () => {
   it('원피스를 입으면 따로 입은 상의·하의를 벗긴다', () => {
-    const next = wear({ top: 'top_yellow', bottom: 'skirt_navy' }, PART.dress_blue)
-    expect(next.dress).toBe('dress_blue')
+    const next = wear({ top: 'top_yellow', bottom: 'skirt_navy' }, PART.dress_idol_star)
+    expect(next.dress).toBe('dress_idol_star')
     expect(next.top).toBeUndefined()
     expect(next.bottom).toBeUndefined()
   })
 
   it('상의를 입으면 원피스를 벗긴다', () => {
-    const next = wear({ dress: 'dress_blue' }, PART.top_yellow)
+    const next = wear({ dress: 'dress_idol_star' }, PART.top_yellow)
     expect(next.top).toBe('top_yellow')
     expect(next.dress).toBeUndefined()
   })
@@ -99,21 +100,27 @@ describe('layersFor', () => {
     expect(feet.p.src).toBe('x4/siha-feet-shoes_red.png')
   })
 
-  it('곰 우주복은 신발·양말을 덮고 맨발을 숨긴다', () => {
-    const layers = layersFor({ dress: 'onesie_bear', shoes: 'shoes_red' }, [])
-    expect(layers.some((l) => l.partId === 'shoes_red')).toBe(false)
+  it('신발이 맨발을 숨기면 발 조각을 그리지 않는다', () => {
+    const layers = layersFor({ shoes: 'shoes_idol_platform' }, [])
     expect(layers.some((l) => l.key === 'c-feet')).toBe(false)
-    expect(layers.some((l) => l.partId === 'onesie_bear')).toBe(true)
+    expect(layers.some((l) => l.partId === 'shoes_idol_platform')).toBe(true)
   })
 
   it('시하 조각은 원본 몸·발 한 장이다', () => {
     expect(CHARACTER.pieces.map((p) => p.key)).toEqual(['body', 'feet'])
   })
 
+  it('코드로 그린 옛 원피스·우주복은 카탈로그에 없다', () => {
+    expect(PART.dress_blue).toBeUndefined()
+    expect(PART.dress_pink).toBeUndefined()
+    expect(PART.onesie_bear).toBeUndefined()
+  })
+
   it('옷 PNG에는 원본 시트에서 떼 온 손·발 이음이 없다', () => {
-    expect(PART.dress_blue.pieces.every((p) => !(p.src || '').includes('-hand'))).toBe(true)
-    expect(PART.onesie_bear.pieces.every((p) => !(p.src || '').includes('-hand'))).toBe(true)
-    expect(PART.dress_blue.pieces.every((p) => (p.layer || PART.dress_blue.layer) !== 'arms')).toBe(true)
+    for (const p of Object.values(PART)) {
+      expect(p.pieces.every((pc) => !(pc.src || '').includes('-hand'))).toBe(true)
+      expect(p.pieces.every((pc) => (pc.layer || p.layer) !== 'arms')).toBe(true)
+    }
   })
 
   it('밀짚모자는 원본 한 장을 머리장식 레이어에 그린다', () => {
@@ -123,12 +130,25 @@ describe('layersFor', () => {
     expect(PART.hat_straw.pieces.every((p) => !p.preview)).toBe(true)
   })
 
-  it('코드로 자른 소매·앞뒤 조각과 그려 넣은 양말은 카탈로그에 없다', () => {
+  it('코드로 자른 소매·앞뒤 조각과 그려 넣은 옛 양말은 카탈로그에 없다', () => {
     expect(PART.socks_long).toBeUndefined()
     expect(PART.socks_short).toBeUndefined()
-    expect(PART.dress_pink.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
     expect(PART.top_yellow.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
     expect(PART.hat_straw.pieces.every((p) => !(p.src || '').includes('-front') && !(p.src || '').includes('-back'))).toBe(true)
+  })
+
+  it('트레이 탭마다 새로 넣은 옷이 있고, 소품에는 마이크가 여러 개다', () => {
+    const byCat = {}
+    for (const p of Object.values(PART)) {
+      byCat[p.category] = (byCat[p.category] || 0) + 1
+    }
+    for (const cat of ['dress', 'top', 'bottom', 'socks', 'shoes', 'head', 'ribbon', 'flower', 'neck', 'charm']) {
+      expect(byCat[cat], cat).toBeGreaterThanOrEqual(5)
+    }
+    expect(['mic_handheld', 'mic_headset', 'mic_stand'].every((id) => PART[id])).toBe(true)
+    expect(PART.bag_tote).toBeTruthy()
+    expect(BACKGROUNDS.some((b) => b.id === 'concert_purple')).toBe(true)
+    expect(BACKGROUNDS.some((b) => b.id === 'concert_gold')).toBe(true)
   })
 })
 

@@ -1,0 +1,23 @@
+{
+ "id": "shoes_boots_brown",
+ "name": "갈색 앵클부츠",
+ "category": "shoes",
+ "layer": "shoes",
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "hides": [
+  "feet"
+ ],
+ "front": [
+  {
+   "src": "x4/shoes_boots_brown.png",
+   "x": 99.0,
+   "y": 561.0,
+   "w": 171.25,
+   "h": 64.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

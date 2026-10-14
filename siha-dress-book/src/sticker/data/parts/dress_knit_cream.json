@@ -1,0 +1,24 @@
+{
+ "id": "dress_knit_cream",
+ "name": "크림 니트 원피스",
+ "category": "dress",
+ "layer": "top",
+ "scale": 1,
+ "slot": "dress",
+ "anchor": "torso",
+ "hides": [
+  "top",
+  "bottom"
+ ],
+ "front": [
+  {
+   "src": "x4/dress_knit_cream.png",
+   "x": 80.0,
+   "y": 186.0,
+   "w": 200.0,
+   "h": 243.25
+  }
+ ],
+ "back": [],
+ "connectors": []
+}
