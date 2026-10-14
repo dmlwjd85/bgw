@@ -2,9 +2,14 @@
  "id": "shoes_loafer",
  "name": "검정 로퍼",
  "category": "shoes",
- "slot": "shoes",
  "layer": "shoes",
- "pieces": [
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "replacePieces": {
+  "feet": "x4/siha-feet-shoes_loafer.png"
+ },
+ "front": [
   {
    "src": "x4/shoes_loafer-0.png",
    "x": 93.0,
@@ -22,11 +27,6 @@
    "from": "4e40d8/black-loafers/black-loafers-4.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": [],
-  "replaceCharacterPieces": {
-   "feet": "x4/siha-feet-shoes_loafer.png"
-  }
- }
+ "back": [],
+ "connectors": []
 }

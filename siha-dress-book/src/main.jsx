@@ -19,6 +19,9 @@ function useMode() {
 
 function Root() {
   const mode = useMode()
+  useEffect(() => {
+    document.title = mode === 'dress' ? '시하 드레스 북' : '시하 스티커북'
+  }, [mode])
   return (
     <>
       <nav className="sb-modes" aria-label="화면 고르기">

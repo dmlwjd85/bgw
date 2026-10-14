@@ -2,8 +2,9 @@
  "id": "bow_pink_small",
  "name": "분홍 작은 리본",
  "category": "ribbon",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "crown",
@@ -18,7 +19,7 @@
   "w": 68.0,
   "h": 64.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/bow_pink_small.png",
    "w": 68.0,
@@ -26,8 +27,6 @@
    "from": "4e40d8/pink-bow/pink-bow-3.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

@@ -2,9 +2,11 @@
  "id": "socks_long",
  "name": "긴 양말",
  "category": "socks",
- "slot": "socks",
  "layer": "socks",
- "pieces": [
+ "scale": 1,
+ "slot": "socks",
+ "anchor": "legs",
+ "front": [
   {
    "src": "x4/socks_long.png",
    "x": 111.0,
@@ -42,8 +44,6 @@
    "onlyWith": "shoes_pink"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

@@ -2,9 +2,15 @@
  "id": "dress_blue",
  "name": "하늘 프릴 드레스",
  "category": "dress",
- "slot": "dress",
  "layer": "top",
- "pieces": [
+ "scale": 1,
+ "slot": "dress",
+ "anchor": "torso",
+ "hides": [
+  "top",
+  "bottom"
+ ],
+ "front": [
   {
    "src": "x4/dress_blue-0.png",
    "x": 50.0,
@@ -12,7 +18,10 @@
    "w": 283.0,
    "h": 255.25,
    "from": "4e40d8/blue-frilly-dress.png"
-  },
+  }
+ ],
+ "back": [],
+ "connectors": [
   {
    "src": "x4/dress_blue-hand.png",
    "layer": "arms",
@@ -32,12 +41,5 @@
    "from": "자동 틈 메우기",
    "patch": true
   }
- ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": [
-   "top",
-   "bottom"
-  ]
- }
+ ]
 }

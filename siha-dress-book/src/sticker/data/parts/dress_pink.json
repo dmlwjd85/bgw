@@ -2,9 +2,15 @@
  "id": "dress_pink",
  "name": "분홍 프릴 드레스",
  "category": "dress",
- "slot": "dress",
  "layer": "top",
- "pieces": [
+ "scale": 1,
+ "slot": "dress",
+ "anchor": "torso",
+ "hides": [
+  "top",
+  "bottom"
+ ],
+ "front": [
   {
    "src": "x4/dress_pink-0.png",
    "x": 44.58,
@@ -14,11 +20,6 @@
    "from": "4e40d8/pink-frilly-dress/pink-frilly-dress-1.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": [
-   "top",
-   "bottom"
-  ]
- }
+ "back": [],
+ "connectors": []
 }

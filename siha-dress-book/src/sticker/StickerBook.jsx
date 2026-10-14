@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ACC_LIMIT } from './const.js'
-import { BACKGROUNDS, CATEGORIES, CHARACTER, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, wear } from './model.js'
+import { BACKGROUNDS, CATEGORIES, CHARACTER, PART, PARTS, STAGE, layersFor, partSrcs, snapDrop, wear, fixId } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
 const BASE = `${import.meta.env.BASE_URL}sticker/`
 const { w: SW, h: SH } = STAGE
-const SNAP_RADIUS = 0.42 // 슬롯 부품: 스테이지 폭 대비 이 거리 안이면 정해진 자리로
 
 function load() {
   try {
@@ -36,10 +35,34 @@ function load() {
 
 const pct = (v, total) => `${(v / total) * 100}%`
 
-function anchorOf(part) {
-  const xs = part.pieces.flatMap((p) => [p.x, p.x + p.w])
-  const ys = part.pieces.flatMap((p) => [p.y, p.y + p.h])
-  return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+function usePartSizes() {
+  const [sizes, setSizes] = useState({})
+  useEffect(() => {
+    let live = true
+    const srcs = new Set()
+    PARTS.forEach((p) => partSrcs(p).forEach((s) => srcs.add(s)))
+    CHARACTER.pieces.forEach((p) => srcs.add(p.src))
+    srcs.forEach((src) => {
+      const img = new Image()
+      img.onload = () => {
+        if (!live) return
+        setSizes((prev) => ({
+          ...prev,
+          [src]: { w: img.naturalWidth / CHARACTER.res, h: img.naturalHeight / CHARACTER.res },
+        }))
+      }
+      img.src = BASE + src
+    })
+    return () => {
+      live = false
+    }
+  }, [])
+  return sizes
+}
+
+function thumbPieces(part) {
+  // 앞면 대표 그림만 썸네일로 (손 이음·틈 메움·조건부 조각 제외)
+  return part.pieces.filter((pc) => !pc.onlyWith && !pc.patch && (pc.layer === part.layer || !pc.layer)).slice(0, 2)
 }
 
 export default function StickerBook() {
@@ -53,6 +76,7 @@ export default function StickerBook() {
   const [snapKey, setSnapKey] = useState(null)
   const stageRef = useRef(null)
   const drag = useRef(null)
+  const sizes = usePartSizes()
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 2, worn, accs, bg }))
@@ -64,22 +88,36 @@ export default function StickerBook() {
   }, [toast])
 
   const list = useMemo(() => PARTS.filter((p) => p.category === cat), [cat])
-  const layers = layersFor(worn, accs)
+  const layers = layersFor(worn, accs, sizes)
   const bgItem = BACKGROUNDS.find((b) => b.id === bg) || BACKGROUNDS[0]
 
   function pt(e) {
     const r = stageRef.current.getBoundingClientRect()
     return { x: ((e.clientX - r.left) / r.width) * SW, y: ((e.clientY - r.top) / r.height) * SH, inside: e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom }
   }
-  const flash = (k) => { setSnapKey(k); setTimeout(() => setSnapKey(null), 350) }
-  function put(part) { setWorn((w) => wear(w, part)); flash(part.id) }
-  function takeOff(part) { setWorn((w) => { const n = { ...w }; delete n[part.slot]; return n }) }
-  function placeAcc(part, x, y, uid) {
-    const anchor = nearestAnchor(part, x, y)
+  const flash = (k) => {
+    setSnapKey(k)
+    setTimeout(() => setSnapKey(null), 350)
+  }
+  function put(part) {
+    setWorn((w) => wear(w, part))
+    flash(part.id)
+  }
+  function takeOff(part) {
+    setWorn((w) => {
+      const n = { ...w }
+      delete n[part.slot]
+      return n
+    })
+  }
+  function placeAcc(part, x, y, uid, anchor) {
     const next = { id: part.id, uid: uid || `${part.id}-${Date.now()}`, anchor, x, y }
     setAccs((list) => {
       const rest = list.filter((a) => a.uid !== next.uid)
-      if (!uid && rest.length >= ACC_LIMIT) { setToast(`장식은 ${ACC_LIMIT}개까지 붙일 수 있어요`); return list }
+      if (!uid && rest.length >= ACC_LIMIT) {
+        setToast(`장식은 ${ACC_LIMIT}개까지 붙일 수 있어요`)
+        return list
+      }
       return [...rest, next]
     })
     flash(next.uid)
@@ -107,23 +145,25 @@ export default function StickerBook() {
     const p = pt(e)
     if (!d.moved) {
       if (d.from !== 'tray') return
-      if (part.multi) placeAcc(part, CHARACTER.anchors[part.anchors[0]].x, CHARACTER.anchors[part.anchors[0]].y)
+      if (part.multi) placeAcc(part, CHARACTER.anchors[part.anchors[0]].x, CHARACTER.anchors[part.anchors[0]].y, null, part.anchors[0])
       else if (worn[part.slot] === part.id) takeOff(part)
       else put(part)
       return
     }
+    const snap = snapDrop(part, p.x, p.y, p.inside)
     if (part.multi) {
-      if (!p.inside) {
+      if (snap.action === 'discard') {
         if (d.uid) setAccs((l) => l.filter((a) => a.uid !== d.uid))
         return
       }
-      placeAcc(part, p.x, p.y, d.uid)
+      placeAcc(part, p.x, p.y, d.uid, snap.action === 'anchor' ? snap.anchor : null)
       return
     }
-    const a = anchorOf(part)
-    if (p.inside && Math.hypot(p.x - a.x, p.y - a.y) < SW * SNAP_RADIUS) put(part)
-    else if (d.from === 'stage') { takeOff(part); setToast(`${part.name}을(를) 벗었어요`) }
-    else setToast('몸 가까이에 놓으면 딱 맞게 붙어요')
+    if (snap.action === 'wear') put(part)
+    else if (d.from === 'stage') {
+      takeOff(part)
+      setToast(`${part.name}을(를) 벗었어요`)
+    } else setToast('캐릭터 위에 놓으면 정해진 자리에 붙어요')
   }
 
   function reset() {
@@ -139,7 +179,13 @@ export default function StickerBook() {
     c.height = SH * R
     const g = c.getContext('2d')
     g.imageSmoothingQuality = 'high'
-    const img = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = BASE + src })
+    const img = (src) =>
+      new Promise((ok, no) => {
+        const i = new Image()
+        i.onload = () => ok(i)
+        i.onerror = no
+        i.src = BASE + src
+      })
     if (bgItem) g.drawImage(await img(bgItem.src), 0, 0, c.width, c.height)
     for (const l of layers) g.drawImage(await img(l.p.src), l.p.x * R, l.p.y * R, l.p.w * R, l.p.h * R)
     const a = document.createElement('a')
@@ -171,13 +217,19 @@ export default function StickerBook() {
               const draggable = l.partId || l.accUid
               const flashOn = snapKey && (snapKey === l.partId || snapKey === l.accUid)
               return (
-                <img key={l.key} className={`sb-piece ${draggable ? 'sb-drag' : ''} ${flashOn ? 'snap' : ''}`} src={BASE + l.p.src} alt="" draggable={false}
+                <img
+                  key={l.key}
+                  className={`sb-piece ${draggable ? 'sb-drag' : ''} ${flashOn ? 'snap' : ''}`}
+                  src={BASE + l.p.src}
+                  alt=""
+                  draggable={false}
                   onPointerDown={draggable ? (e) => start(e, l.accUid ? { id: accs.find((a) => a.uid === l.accUid).id, uid: l.accUid, from: 'stage' } : { id: l.partId, from: 'stage' }) : undefined}
-                  style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z }} />
+                  style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z }}
+                />
               )
             })}
           </div>
-          <p className="sb-hint">옷은 몸 가까이에 놓으면 딱 맞게 붙어요. 리본·꽃은 가장 가까운 자리(정수리·옆머리·목·허리·신발·손)에 붙고, 멀리 놓으면 그 자리에 그대로 붙어요. 몸 밖으로 끌어내면 떼어져요.</p>
+          <p className="sb-hint">옷·신발은 캐릭터 위에 놓으면 정해진 자리에 붙어요. 리본·꽃은 가까운 자리(정수리·옆머리·목·허리·신발·손)에 붙고, 멀리 놓으면 그 자리에 그대로 붙어요. 몸 밖으로 끌어내면 떼어져요.</p>
         </section>
         <section className="sb-sheet" aria-label="스티커 시트">
           <div className="sb-cats" role="tablist">
@@ -187,11 +239,19 @@ export default function StickerBook() {
           </div>
           <div className="sb-tray">
             {list.map((p) => (
-              <button key={p.id} type="button" className={`sb-sticker ${worn[p.slot] === p.id || accs.some((a) => a.id === p.id) ? 'on' : ''} ${covered.has(p.slot) ? 'off' : ''}`}
+              <button
+                key={p.id}
+                type="button"
+                className={`sb-sticker ${worn[p.slot] === p.id || accs.some((a) => a.id === p.id) ? 'on' : ''} ${covered.has(p.slot) ? 'off' : ''}`}
                 aria-disabled={covered.has(p.slot) || undefined}
-                onPointerDown={(e) => covered.has(p.slot) ? setToast(`${covered.get(p.slot)}을 벗으면 신을 수 있어요`) : start(e, { id: p.id, from: 'tray' })}
-                aria-label={covered.has(p.slot) ? `${p.name} (${covered.get(p.slot)}을 벗으면 신을 수 있어요)` : p.name}>
-                <span className="sb-thumb">{p.pieces.filter((pc) => !pc.layer && !pc.onlyWith).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />)}</span>
+                onPointerDown={(e) => (covered.has(p.slot) ? setToast(`${covered.get(p.slot)}을 벗으면 신을 수 있어요`) : start(e, { id: p.id, from: 'tray' }))}
+                aria-label={covered.has(p.slot) ? `${p.name} (${covered.get(p.slot)}을 벗으면 신을 수 있어요)` : p.name}
+              >
+                <span className="sb-thumb">
+                  {thumbPieces(p).map((pc) => (
+                    <img key={pc.src} src={BASE + pc.src} alt="" draggable={false} />
+                  ))}
+                </span>
                 <span className="sb-name">{p.name}</span>
                 {covered.has(p.slot) && <span className="sb-lock">곰 옷 벗기!</span>}
               </button>
@@ -201,10 +261,16 @@ export default function StickerBook() {
       </main>
       {ghost && (
         <div className="sb-ghost" style={{ left: ghost.x, top: ghost.y }}>
-          {PART[ghost.id].pieces.filter((pc) => !pc.layer).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" />)}
+          {thumbPieces(PART[ghost.id]).map((pc) => (
+            <img key={pc.src} src={BASE + pc.src} alt="" />
+          ))}
         </div>
       )}
-      {toast && <div className="sb-toast" role="status">{toast}</div>}
+      {toast && (
+        <div className="sb-toast" role="status">
+          {toast}
+        </div>
+      )}
     </div>
   )
 }

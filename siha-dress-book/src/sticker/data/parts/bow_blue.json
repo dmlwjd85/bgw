@@ -2,8 +2,9 @@
  "id": "bow_blue",
  "name": "파란 리본",
  "category": "ribbon",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "crown",
@@ -18,7 +19,7 @@
   "w": 60.0,
   "h": 63.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/bow_blue.png",
    "w": 60.0,
@@ -26,8 +27,6 @@
    "from": "8d0099/blue-bow/blue-bow-1.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

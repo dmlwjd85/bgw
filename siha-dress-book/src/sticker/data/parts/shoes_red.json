@@ -2,9 +2,14 @@
  "id": "shoes_red",
  "name": "빨간 운동화",
  "category": "shoes",
- "slot": "shoes",
  "layer": "shoes",
- "pieces": [
+ "scale": 1,
+ "slot": "shoes",
+ "anchor": "feet",
+ "replacePieces": {
+  "feet": "x4/siha-feet-shoes_red.png"
+ },
+ "front": [
   {
    "src": "x4/shoes_red-0.png",
    "x": 91.05,
@@ -22,11 +27,6 @@
    "from": "4e40d8/red-sneakers/red-sneakers-4.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": [],
-  "replaceCharacterPieces": {
-   "feet": "x4/siha-feet-shoes_red.png"
-  }
- }
+ "back": [],
+ "connectors": []
 }

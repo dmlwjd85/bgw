@@ -2,9 +2,20 @@
  "id": "onesie_bear",
  "name": "보라 곰 우주복",
  "category": "dress",
- "slot": "dress",
  "layer": "outer",
- "pieces": [
+ "scale": 1,
+ "slot": "dress",
+ "anchor": "torso",
+ "hides": [
+  "feet",
+  "top",
+  "bottom"
+ ],
+ "covers": [
+  "shoes",
+  "socks"
+ ],
+ "front": [
   {
    "src": "x4/onesie_bear-0.png",
    "x": 42.09,
@@ -12,7 +23,10 @@
    "w": 314.25,
    "h": 612.5,
    "from": "4e40d8/purple-bear-onesie.png"
-  },
+  }
+ ],
+ "back": [],
+ "connectors": [
   {
    "src": "x4/onesie_bear-hand.png",
    "layer": "arms",
@@ -32,18 +46,5 @@
    "from": "자동 틈 메우기",
    "patch": true
   }
- ],
- "occlusion": {
-  "hideCharacterPieces": [
-   "feet"
-  ],
-  "clearsSlots": [
-   "top",
-   "bottom"
-  ],
-  "hideSlots": [
-   "shoes",
-   "socks"
-  ]
- }
+ ]
 }

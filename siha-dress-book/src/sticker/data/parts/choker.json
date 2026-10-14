@@ -2,9 +2,11 @@
  "id": "choker",
  "name": "초커 목걸이",
  "category": "neck",
- "slot": "neck",
  "layer": "outer",
- "pieces": [
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
   {
    "src": "x4/choker-0.png",
    "x": 150.57,
@@ -14,8 +16,6 @@
    "from": "adb08a/choker-necklace.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }
