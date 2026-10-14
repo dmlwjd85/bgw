@@ -22,7 +22,8 @@ export const PARTS = all.filter((p) => !HIDDEN_IDS.has(p.id)).sort((a, b) => ran
 export const PART = Object.fromEntries(PARTS.map((p) => [p.id, p]))
 // 트레이 썸네일: 조건부·기워 넣기 조각은 빼고, 본편 레이어를 우선(머리처럼 모든 조각에 layer가 있는 경우)
 export function thumbPieces(part) {
-  const base = part.pieces.filter((pc) => !pc.onlyWith && !pc.unlessWith && !pc.patch)
+  // onlyWith는 다른 부품을 입었을 때만 쓰는 대체 그림이라 빼고, 기본 모습(unlessWith 포함)은 남긴다
+  const base = part.pieces.filter((pc) => !pc.onlyWith && !pc.patch)
   const main = base.filter((pc) => !pc.layer || pc.layer === part.layer)
   return (main.length ? main : base).slice(0, 2)
 }
