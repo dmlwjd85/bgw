@@ -1,0 +1,20 @@
+{
+ "id": "socks_white_frill",
+ "name": "흰 프릴 양말",
+ "category": "socks",
+ "layer": "socks",
+ "scale": 1,
+ "slot": "socks",
+ "anchor": "legs",
+ "front": [
+  {
+   "src": "x4/socks_white_frill.png",
+   "x": 101.0,
+   "y": 528.0,
+   "w": 169.75,
+   "h": 87.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,20 @@
+{
+ "id": "head_clip_heart",
+ "name": "하트 머리핀",
+ "category": "head",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
+  {
+   "src": "x4/head_clip_heart.png",
+   "x": 165.0,
+   "y": 54.0,
+   "w": 30.0,
+   "h": 40.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,22 +1,24 @@
 """시하 스티커북 에셋 빌드 (v2)
-원본(STICKER_SRC, 기본 /workspace/sticker_upload)은 읽기만 하고, 가공한 복사본과 부품별 JSON 을 만든다.
+원본(STICKER_SRC, 기본 archive/siha-sticker-original/)은 읽기만 하고, 가공한 복사본과 부품별 JSON 을 만든다.
   python3 tools/build_sticker_assets.py
 처리: 원본 해상도 손질(속바지 밑단, 양말 연장, 손 떼기) → Real-ESRGAN anime 4배 → 흰 칼선 테두리 제거(AA 유지)
      → 배치 배율로 축소(Lanczos, 확대 없음) → public/sticker/x4/*.png, src/sticker/data/parts/*.json
-새 옷 추가: 아래 PARTS 에 한 줄 추가하거나, 이미 4배 PNG 가 있으면 data/parts/<id>.json 하나만 손으로 써도 된다."""
-import json,os,shutil,sys
+새 옷 추가: 보통은 투명 PNG 하나 + data/parts/<id>.json 하나만 손으로 쓰면 된다(README 참고).
+이 스크립트는 원본 묶음을 다시 가공할 때만 쓴다. 손으로 추가한 부품 JSON·PNG 는 지우지 않는다."""
+import json,os,sys
 import numpy as np
 from PIL import Image, ImageFilter
 HERE=os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0,os.path.join(HERE,'sticker_fit'))
-import esr,rim,fixes,hands,bgfill
+import esr,rim,fixes,hands,bgfill,partjson
 os.chdir(os.path.dirname(HERE))
-SRC=os.environ.get('STICKER_SRC','/workspace/sticker_upload/')
+_SRC=os.environ.get('STICKER_SRC', os.path.join(os.path.dirname(HERE),'archive/siha-sticker-original/'))
+SRC=_SRC if _SRC.endswith(os.sep) else _SRC+os.sep
 fit=json.load(open(os.path.join(HERE,'sticker_fit/fit.json')))
 RES=4                 # 저장 해상도 = 스테이지 1단위당 4px (DPR 3 폰에서 몸 350css px → 1050px 필요, 1200px 제공)
 OX,OY,SW,SH=30,40,360,650
 PUB='siha-dress-book/public/sticker'; DATA='siha-dress-book/src/sticker/data'
-for d in (PUB,DATA): shutil.rmtree(d,ignore_errors=True)
-os.makedirs(PUB+'/x4'); os.makedirs(PUB+'/bg'); os.makedirs(DATA+'/parts'); os.makedirs(DATA+'/characters'); os.makedirs(DATA+'/backgrounds')
+os.makedirs(PUB+'/x4', exist_ok=True); os.makedirs(PUB+'/bg', exist_ok=True)
+os.makedirs(DATA+'/parts', exist_ok=True); os.makedirs(DATA+'/characters', exist_ok=True); os.makedirs(DATA+'/backgrounds', exist_ok=True)
 L='4e40d8/'
 def load(f):
     """'경로|flip' 이면 좌우 뒤집어 읽음(원본 파일은 그대로)."""
@@ -64,9 +66,13 @@ FEET_Y=512
 base=fixes.shorten_shorts(load(L+'pink-haired-anime-girl/pink-haired-anime-girl-2.png'),new_hem=348)
 top=base.copy(); top[FEET_Y:]=0; feet=base.copy(); feet[:FEET_Y-6]=0   # 발 조각은 6px 겹쳐 이음매 없음
 char={'id':'siha','name':'시하','stage':{'w':SW,'h':SH},'res':RES,
- 'note':'몸은 한 장짜리 원본이라 뒷머리·얼굴·앞머리는 몸 레이어에 포함. 속바지(흰 반바지)는 몸에 그려져 있고 가장 짧은 치마 밑단(y≈399)보다 위(y≈388)에서 끝나게 다시 칠함.',
+ 'note':'몸은 한 장짜리 원본이라 뒷머리·얼굴·앞머리는 몸 레이어에 포함되어 있다. 속바지(흰 반바지)는 몸에 그려져 있고, 가장 짧은 치마 밑단(y≈399)보다 위(y≈388)에서 끝나게 복사본만 다시 칠했다. 옷·장식은 anchors 좌표에 붙인다.',
  'pieces':[],
  'anchors':{
+  'torso':{'x':180,'y':248,'size':1.0,'layer':'top','label':'몸통','slot':True},
+  'head':{'x':180,'y':80,'size':1.0,'layer':'hair_acc','label':'머리','slot':True},
+  'legs':{'x':180,'y':520,'size':1.0,'layer':'socks','label':'다리','slot':True},
+  'feet':{'x':180,'y':575,'size':1.0,'layer':'shoes','label':'발','slot':True},
   'crown':{'x':180,'y':52,'size':1.0,'layer':'hair_acc','label':'정수리'},
   'side':{'x':236,'y':86,'size':0.6,'layer':'hair_acc','label':'옆머리'},
   'neck':{'x':180,'y':192,'size':0.42,'layer':'hair_acc','label':'목'},
@@ -256,27 +262,31 @@ for pid,name,cat,slot,layer,pieces,occ in PARTS:
             ext=fixes.extend_bottom(arr,rows=12)
             pa,wa,ha=process(ext,s,f'{pid}-{n}-inshoe'); e['alt']={'when':'shoes','src':pa,'w':wa,'h':ha}
         out.append(e)
-    j={'id':pid,'name':name,'category':cat,'slot':slot,'layer':layer,'pieces':out,
-       'occlusion':{'hideCharacterPieces':occ.get('hide',[]),'clearsSlots':occ.get('clears',[]),**({'hideSlots':occ['hideSlots']} if 'hideSlots' in occ else {})}}
+    base={'id':pid,'name':name,'category':cat,'slot':slot,'layer':layer,'scale':1,
+          'occlusion':{'hideCharacterPieces':occ.get('hide',[]),'clearsSlots':occ.get('clears',[]),**({'hideSlots':occ['hideSlots']} if 'hideSlots' in occ else {})}}
     if pid=='socks_long': fit_socks_to_legs(out)
-    if slot=='socks': out=leg_sock(pid,out,short=(pid=='socks_short')); j['pieces']=out
+    if slot=='socks': out=leg_sock(pid,out,short=(pid=='socks_short'))
     if slot=='shoes':
         kp=shoe_keep(out); kps=shoe_keep(out,margin=10); fp=next(p for p in char['pieces'] if p['key']=='feet')
-        j['occlusion']['replaceCharacterPieces']={'feet':masked_piece(fp,kp,f'siha-feet-{pid}')}; j['occlusion']['hideCharacterPieces']=[]
+        base['occlusion']['replaceCharacterPieces']={'feet':masked_piece(fp,kp,f'siha-feet-{pid}')}; base['occlusion']['hideCharacterPieces']=[]
         for sid in [x for x in order if x.startswith('socks')]:
-            sj=json.load(open(f'{DATA}/parts/{sid}.json')); base_pc=next(x for x in sj['pieces'] if x.get('unlessSlot'))
+            sj=json.load(open(f'{DATA}/parts/{sid}.json')); base_pc=next(x for x in partjson.pieces_of(sj) if x.get('unlessSlot'))
             v=dict(base_pc); v.pop('unlessSlot'); v['onlyWith']=pid; v['src']=masked_piece(base_pc,kp,f'{sid}-in-{pid}')
-            sj['pieces'].append(v); json.dump(sj,open(f'{DATA}/parts/{sid}.json','w'),ensure_ascii=False,indent=1)
+            sj.setdefault('front',[]).append(v); json.dump(sj,open(f'{DATA}/parts/{sid}.json','w'),ensure_ascii=False,indent=1)
+    j=partjson.dump_part(base,out)
     json.dump(j,open(f'{DATA}/parts/{pid}.json','w'),ensure_ascii=False,indent=1); order.append(pid); print('part',pid,flush=True)
 for aid,name,cat,f,crownW,anchors in ACCS:
     arr=load(f); s=min(1.0,crownW/arr.shape[1])      # 정수리 크기에서도 확대하지 않음
     p,w,h=process(arr,s,aid)
-    j={'id':aid,'name':name,'category':cat,'slot':None,'layer':'hair_acc','multi':True,'anchors':anchors,'freePlacement':True,
-       'size':{'w':w,'h':h},'pieces':[{'src':p,'w':w,'h':h,'from':f}],'occlusion':{'hideCharacterPieces':[],'clearsSlots':[]}}
-    if aid in ACC_OFFSET: j['anchorOffset']=ACC_OFFSET[aid]
+    base={'id':aid,'name':name,'category':cat,'slot':None,'layer':'hair_acc','multi':True,'anchors':anchors,'scale':1,
+          'size':{'w':w,'h':h},'occlusion':{'hideCharacterPieces':[],'clearsSlots':[]}}
+    if aid in ACC_OFFSET: base['anchorOffset']=ACC_OFFSET[aid]
+    j=partjson.dump_part(base,[{'src':p,'w':w,'h':h,'from':f}])
     json.dump(j,open(f'{DATA}/parts/{aid}.json','w'),ensure_ascii=False,indent=1); order.append(aid); print('acc',aid,flush=True)
 LAYERS=['back_hair','body','underwear','socks','shoes','bottom','top','outer','arms','face','front_hair','hair_acc','hand_prop']
-json.dump({'order':LAYERS,'labels':{'back_hair':'뒷머리','body':'몸','underwear':'속옷','socks':'양말','shoes':'신발','bottom':'하의','top':'상의·원피스','outer':'겉옷','arms':'팔·소매','face':'얼굴','front_hair':'앞머리','hair_acc':'머리장식','hand_prop':'손 소품'},
+json.dump({'note':'아래→위 13겹. 부품 JSON의 layer 값이 이 표의 id와 같아야 한다.',
+ 'order':LAYERS,'labels':{'back_hair':'뒷머리','body':'몸','underwear':'속옷','socks':'양말','shoes':'신발','bottom':'하의','top':'상의','outer':'겉옷','arms':'팔·소매','face':'얼굴','front_hair':'앞머리','hair_acc':'머리장식','hand_prop':'손 소품'},
+ 'slots':['dress','top','bottom','socks','shoes','head','neck'],
  'categories':[{'id':'dress','label':'원피스'},{'id':'top','label':'상의'},{'id':'bottom','label':'하의'},{'id':'socks','label':'양말'},{'id':'shoes','label':'신발'},{'id':'head','label':'머리'},{'id':'ribbon','label':'리본'},{'id':'flower','label':'꽃'},{'id':'neck','label':'목'},{'id':'charm','label':'소품'}],
  'partOrder':order},open(f'{DATA}/layers.json','w'),ensure_ascii=False,indent=1)
 # ── 틈 메우기 조각: 부품을 몸에 입혔을 때 몸과 부품 사이에 갇힌 배경(틈)을 가까운 색으로 메운다 ──
@@ -302,13 +312,13 @@ for pid in order:
     if j.get('multi'): continue
     pt=make_patch([pid],pid)
     if pt:
-        j['pieces'].append(pt); json.dump(j,open(f'{DATA}/parts/{pid}.json','w'),ensure_ascii=False,indent=1); print('patch',pid,round(pt['w']*pt['h']))
+        j.setdefault('connectors',[]).append(pt); json.dump(j,open(f'{DATA}/parts/{pid}.json','w'),ensure_ascii=False,indent=1); print('patch',pid,round(pt['w']*pt['h']))
 # 양말+신발처럼 두 부품이 만날 때만 생기는 틈은 양말 쪽에 '함께 입을 때만' 조각으로
 for sid in [p for p in order if p.startswith('socks')]:
     j=json.load(open(f'{DATA}/parts/{sid}.json'))
     for sh in [p for p in order if p.startswith('shoes')]:
         pt=make_patch([sid,sh],f'{sid}-{sh}')
-        if pt: pt['onlyWith']=sh; j['pieces'].append(pt); print('patch',sid,sh)
+        if pt: pt['onlyWith']=sh; j.setdefault('front',[]).append(pt); print('patch',sid,sh)
     json.dump(j,open(f'{DATA}/parts/{sid}.json','w'),ensure_ascii=False,indent=1)
 # ── 배경: 올린 모눈종이 PNG 의 구멍을 같은 모눈으로 메워 사용 ────────────
 bgs=[('grid_blue','하늘 모눈종이','4e40d8/grid-paper-background.png',39),('grid_soft','연한 모눈종이','8d0099/grid-background.png',58)]

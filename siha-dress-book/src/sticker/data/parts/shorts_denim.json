@@ -1,0 +1,20 @@
+{
+ "id": "shorts_denim",
+ "name": "청 반바지",
+ "category": "bottom",
+ "layer": "bottom",
+ "scale": 1,
+ "slot": "bottom",
+ "anchor": "waist",
+ "front": [
+  {
+   "src": "x4/shorts_denim.png",
+   "x": 111.25,
+   "y": 300.0,
+   "w": 137.5,
+   "h": 100.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

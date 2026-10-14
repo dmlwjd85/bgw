@@ -1,0 +1,27 @@
+{
+ "id": "bag_tote",
+ "name": "캔버스 토트백",
+ "category": "charm",
+ "layer": "hand_prop",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "hand",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 90.0,
+  "h": 127.25
+ },
+ "front": [
+  {
+   "src": "x4/bag_tote.png",
+   "w": 90.0,
+   "h": 127.25
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,20 @@
+{
+ "id": "neck_idol_ribbon",
+ "name": "아이돌 넥리본",
+ "category": "neck",
+ "layer": "outer",
+ "scale": 1,
+ "slot": "neck",
+ "anchor": "neck",
+ "front": [
+  {
+   "src": "x4/neck_idol_ribbon.png",
+   "x": 150.75,
+   "y": 184.8,
+   "w": 58.5,
+   "h": 60.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

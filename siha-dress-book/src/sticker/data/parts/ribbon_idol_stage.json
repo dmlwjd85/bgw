@@ -1,0 +1,27 @@
+{
+ "id": "ribbon_idol_stage",
+ "name": "아이돌 무대 리본",
+ "category": "ribbon",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "crown",
+  "waist"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 90.0,
+  "h": 86.75
+ },
+ "front": [
+  {
+   "src": "x4/ribbon_idol_stage.png",
+   "w": 90.0,
+   "h": 86.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

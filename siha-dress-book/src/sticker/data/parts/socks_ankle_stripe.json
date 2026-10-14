@@ -1,0 +1,107 @@
+{
+ "id": "socks_ankle_stripe",
+ "name": "줄무늬 발목 양말",
+ "theme": "운동",
+ "category": "socks",
+ "slot": "socks",
+ "layer": "socks",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/socks_ankle_stripe.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "unlessSlot": "shoes",
+   "from": "gen_new/socks_ankle_stripe.jpg (10차 재추출: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_balletflat_pink.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_balletflat_pink",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_hightop_purple.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_hightop_purple",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_loafer_navy.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_loafer_navy",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_maryjane_red.png",
+   "x": 105.5,
+   "y": 534.75,
+   "w": 158.25,
+   "h": 72.25,
+   "onlyWith": "shoes_maryjane_red",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_rainboot_yellow.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 71.75,
+   "onlyWith": "shoes_rainboot_yellow",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_slipper_bunny.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_slipper_bunny",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_sneaker_blue.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_sneaker_blue",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_sneaker_mint.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_sneaker_mint",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_ankle_stripe-in-shoes_winterboot_tan.png",
+   "x": 105.25,
+   "y": 534.75,
+   "w": 158.5,
+   "h": 72.25,
+   "onlyWith": "shoes_winterboot_tan",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
+}

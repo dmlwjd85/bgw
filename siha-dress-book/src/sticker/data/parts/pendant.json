@@ -2,8 +2,9 @@
  "id": "pendant",
  "name": "하트 펜던트",
  "category": "charm",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "neck",
@@ -14,7 +15,7 @@
   "w": 42.0,
   "h": 53.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/pendant.png",
    "w": 42.0,
@@ -22,8 +23,6 @@
    "from": "adb08a/pink-gem-pendant.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

@@ -1,0 +1,27 @@
+{
+ "id": "mic_headset",
+ "name": "헤드셋 마이크",
+ "category": "charm",
+ "layer": "hand_prop",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "hand",
+  "head"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 70.0,
+  "h": 58.75
+ },
+ "front": [
+  {
+   "src": "x4/mic_headset.png",
+   "w": 70.0,
+   "h": 58.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,25 @@
+{
+ "id": "shoes_hightop_purple",
+ "name": "보라 하이탑",
+ "theme": "운동",
+ "category": "shoes",
+ "slot": "shoes",
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/shoes_hightop_purple.png",
+   "x": 98.0,
+   "y": 527.75,
+   "w": 167.25,
+   "h": 81.0,
+   "from": "gen_new/shoes_hightop_purple.jpg (10차 재추출: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
+}

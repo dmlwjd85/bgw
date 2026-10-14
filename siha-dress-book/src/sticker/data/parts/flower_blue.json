@@ -2,8 +2,9 @@
  "id": "flower_blue",
  "name": "파란 꽃",
  "category": "flower",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "side",
@@ -14,7 +15,7 @@
   "w": 41.0,
   "h": 70.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/flower_blue.png",
    "w": 41.0,
@@ -22,8 +23,6 @@
    "from": "8d0099/blue-flower-hair-accessory/blue-flower-hair-accessory-1.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

@@ -18,7 +18,10 @@
  ],
  "occlusion": {
   "hideCharacterPieces": [],
-  "clearsSlots": []
+  "clearsSlots": [],
+  "hideSlots": [
+   "socks"
+  ]
  },
  "character": "siha-v2",
  "anchor": "feet"

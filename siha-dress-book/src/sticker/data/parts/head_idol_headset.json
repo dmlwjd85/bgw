@@ -1,0 +1,20 @@
+{
+ "id": "head_idol_headset",
+ "name": "아이돌 헤드셋",
+ "category": "head",
+ "layer": "hair_acc",
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
+  {
+   "src": "x4/head_idol_headset.png",
+   "x": 122.0,
+   "y": 21.5,
+   "w": 116.0,
+   "h": 90.0
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

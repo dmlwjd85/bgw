@@ -2,8 +2,9 @@
  "id": "lollipop",
  "name": "무지개 막대사탕",
  "category": "charm",
- "slot": null,
  "layer": "hair_acc",
+ "scale": 1,
+ "slot": null,
  "multi": true,
  "anchors": [
   "hand"
@@ -13,7 +14,7 @@
   "w": 60.0,
   "h": 168.0
  },
- "pieces": [
+ "front": [
   {
    "src": "x4/lollipop.png",
    "w": 60.0,
@@ -21,8 +22,6 @@
    "from": "8d0099/rainbow-swirl-lollipop.png"
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

@@ -1,0 +1,20 @@
+{
+ "id": "top_hoodie_pink",
+ "name": "분홍 후드",
+ "category": "top",
+ "layer": "top",
+ "scale": 1,
+ "slot": "top",
+ "anchor": "torso",
+ "front": [
+  {
+   "src": "x4/top_hoodie_pink.png",
+   "x": 95.0,
+   "y": 188.0,
+   "w": 170.0,
+   "h": 178.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

@@ -1,0 +1,20 @@
+{
+ "id": "top_idol_sailor",
+ "name": "아이돌 세일러 블라우스",
+ "category": "top",
+ "layer": "top",
+ "scale": 1,
+ "slot": "top",
+ "anchor": "torso",
+ "front": [
+  {
+   "src": "x4/top_idol_sailor.png",
+   "x": 110.0,
+   "y": 198.0,
+   "w": 140.0,
+   "h": 122.5
+  }
+ ],
+ "back": [],
+ "connectors": []
+}

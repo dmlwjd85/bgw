@@ -2,9 +2,11 @@
  "id": "hb_rose",
  "name": "검은 장미 머리띠",
  "category": "head",
- "slot": "head",
  "layer": "hair_acc",
- "pieces": [
+ "scale": 1,
+ "slot": "head",
+ "anchor": "head",
+ "front": [
   {
    "src": "x4/hb_rose-0.png",
    "x": 101.0,
@@ -12,20 +14,8 @@
    "w": 160.0,
    "h": 148.0,
    "from": "8d0099/black-rose-headband/black-rose-headband-2.png"
-  },
-  {
-   "src": "x4/patch-hb_rose.png",
-   "layer": "underwear",
-   "x": 114.75,
-   "y": 92.5,
-   "w": 4.75,
-   "h": 11.75,
-   "from": "자동 틈 메우기",
-   "patch": true
   }
  ],
- "occlusion": {
-  "hideCharacterPieces": [],
-  "clearsSlots": []
- }
+ "back": [],
+ "connectors": []
 }

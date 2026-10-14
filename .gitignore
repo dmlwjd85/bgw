@@ -4,6 +4,8 @@ dist/
 .env.local
 .DS_Store
 _tmp_clone/
+__pycache__/
+*.pyc
 # Capacitor 네이티브 프로젝트는 나중에 깨끗이 생성한다
 /ios/
 /android/

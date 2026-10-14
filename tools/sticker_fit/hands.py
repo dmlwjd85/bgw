@@ -2,7 +2,8 @@
 import json,os,numpy as np
 from PIL import Image
 from scipy import ndimage
-SRC=os.environ.get('STICKER_SRC','/workspace/sticker_upload/')
+_SRC=os.environ.get('STICKER_SRC', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'archive/siha-sticker-original/'))
+SRC=_SRC if _SRC.endswith(os.sep) else _SRC+os.sep
 HERE=os.path.dirname(__file__)
 reg=json.load(open(os.path.join(HERE,'reg.json')))
 def hand(comp_i,piece_file,fitrec,box,placement):

@@ -1,0 +1,26 @@
+{
+ "id": "prop_lightstick",
+ "name": "아이돌 응원봉",
+ "category": "charm",
+ "layer": "hand_prop",
+ "scale": 1,
+ "slot": null,
+ "multi": true,
+ "anchors": [
+  "hand"
+ ],
+ "freePlacement": true,
+ "size": {
+  "w": 40.0,
+  "h": 100.75
+ },
+ "front": [
+  {
+   "src": "x4/prop_lightstick.png",
+   "w": 40.0,
+   "h": 100.75
+  }
+ ],
+ "back": [],
+ "connectors": []
+}
