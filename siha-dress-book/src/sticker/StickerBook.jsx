@@ -50,6 +50,24 @@ function anchorOf(part) {
   return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
+// 장식을 (x,y)에 놓았을 때의 모습: 위치는 놓은 곳 그대로(스냅 없음). 크기·층은 가장 가까운 자리의 것.
+function accLook(part, x, y, prev) {
+  const near = CHARACTER.anchors[nearestAnchor(part, x, y, Infinity) || part.anchors[0]]
+  return { x, y, size: prev?.size ?? near.size, layer: prev?.layer ?? near.layer }
+}
+// 트레이에서 눌러 붙일 때의 처음 자리: 그 장식의 첫 번째 몸 자리(위치·크기·층)
+function accFitted(part) {
+  const id = part.anchors[0]
+  const b = accBox({ id: part.id, anchor: id })
+  const anc = CHARACTER.anchors[id]
+  return { x: b.x + b.w / 2, y: b.y + b.h / 2, size: anc.size, layer: anc.layer }
+}
+// 옷을 (x,y)에 놓았을 때: 놓은 곳 그대로
+function partOffset(part, x, y) {
+  const a = anchorOf(part)
+  return { dx: x - a.x, dy: y - a.y }
+}
+
 export default function StickerBook() {
   const saved = useRef(load())
   const [worn, setWorn] = useState(saved.current?.worn || {})
@@ -89,11 +107,10 @@ export default function StickerBook() {
     flash(part.id)
   }
   function takeOff(part) { setWorn((w) => { const n = { ...w }; delete n[part.slot]; return n }); setPos((p) => { const n = { ...p }; delete n[part.slot]; return n }) }
-  function placeAcc(part, x, y, uid) {
-    // 놓은 자리에 그대로. 크기·층은 가장 가까운 자리의 것을 씀(위치는 바꾸지 않음)
+  function placeAcc(part, x, y, uid, look) {
     const prev = uid && accs.find((a) => a.uid === uid)
-    const near = CHARACTER.anchors[nearestAnchor(part, x, y, Infinity) || part.anchors[0]]
-    const next = { id: part.id, uid: uid || `${part.id}-${Date.now()}`, anchor: null, x, y, size: prev?.size ?? near.size, layer: prev?.layer ?? near.layer }
+    const L = look || accLook(part, x, y, prev)
+    const next = { id: part.id, uid: uid || `${part.id}-${Date.now()}`, anchor: null, x: L.x, y: L.y, size: L.size, layer: L.layer }
     setAccs((list) => {
       const rest = list.filter((a) => a.uid !== next.uid)
       if (!uid && rest.length >= ACC_LIMIT) { setToast(`장식은 ${ACC_LIMIT}개까지 붙일 수 있어요`); return list }
@@ -120,7 +137,20 @@ export default function StickerBook() {
     if (!d) return
     if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8) return
     d.moved = true
-    setGhost({ id: d.id, x: e.clientX, y: e.clientY })
+    const p = pt(e)
+    const part = PART[d.id]
+    const r = stageRef.current.getBoundingClientRect()
+    const rect = { left: r.left, top: r.top, width: r.width, height: r.height }
+    if (part.multi) {
+      const prev = d.uid && accs.find((a) => a.uid === d.uid)
+      const L = accLook(part, p.x - d.grab.x, p.y - d.grab.y, prev)
+      const b = accBox({ id: part.id, x: L.x, y: L.y, size: L.size })
+      setGhost({ id: d.id, uid: d.uid, rect, out: !p.inside, pieces: [{ src: part.pieces[0].src, ...b }] })
+    } else {
+      const o = partOffset(part, p.x - d.grab.x, p.y - d.grab.y)
+      const pcs = part.pieces.filter((pc) => !pc.onlyWith && !pc.patch).map((pc) => ({ ...pc, x: pc.x + o.dx, y: pc.y + o.dy }))
+      setGhost({ id: d.id, rect, out: !p.inside, pieces: pcs })
+    }
   }
   function end(e) {
     const d = drag.current
@@ -131,7 +161,7 @@ export default function StickerBook() {
     const p = pt(e)
     if (!d.moved) {
       if (d.from !== 'tray') return
-      if (part.multi) placeAcc(part, CHARACTER.anchors[part.anchors[0]].x, CHARACTER.anchors[part.anchors[0]].y)
+      if (part.multi) { const f = accFitted(part); placeAcc(part, f.x, f.y, undefined, f) }
       else if (worn[part.slot] === part.id) takeOff(part)
       else put(part)
       return
@@ -144,8 +174,7 @@ export default function StickerBook() {
       placeAcc(part, p.x - d.grab.x, p.y - d.grab.y, d.uid)
       return
     }
-    const a = anchorOf(part)
-    if (p.inside) put(part, { dx: p.x - d.grab.x - a.x, dy: p.y - d.grab.y - a.y })
+    if (p.inside) put(part, partOffset(part, p.x - d.grab.x, p.y - d.grab.y))
     else if (d.from === 'stage') { takeOff(part); setToast(`${part.name}을(를) 벗었어요`) }
   }
 
@@ -194,14 +223,15 @@ export default function StickerBook() {
             {layers.map((l) => {
               const draggable = l.partId || l.accUid
               const flashOn = snapKey && (snapKey === l.partId || snapKey === l.accUid)
+              const lifted = ghost && ((l.accUid && l.accUid === ghost.uid) || (!ghost.uid && l.partId && l.partId === ghost.id))
               return (
                 <img key={l.key} className={`sb-piece ${draggable ? 'sb-drag' : ''} ${flashOn ? 'snap' : ''}`} src={BASE + l.p.src} alt="" draggable={false}
                   onPointerDown={draggable ? (e) => start(e, l.accUid ? { id: accs.find((a) => a.uid === l.accUid).id, uid: l.accUid, from: 'stage' } : { id: l.partId, from: 'stage' }) : undefined}
-                  style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z }} />
+                  style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z, opacity: lifted ? 0 : undefined }} />
               )
             })}
           </div>
-          <p className="sb-hint">스티커는 놓은 자리에 그대로 붙어요. 누르면 제자리에 입혀지고, 무대 밖으로 끌어내면 떼어져요.</p>
+          <p className="sb-hint">누르면 몸에 맞는 자리에 붙고, 끌어다 놓으면 놓은 자리에 그대로 붙어요. 끌 때 보이는 크기 그대로 놓여요. 무대 밖으로 끌어내면 떼어져요.</p>
         </section>
         <section className="sb-sheet" aria-label="스티커 시트">
           <div className="sb-cats" role="tablist">
@@ -224,8 +254,8 @@ export default function StickerBook() {
         </section>
       </main>
       {ghost && (
-        <div className="sb-ghost" style={{ left: ghost.x, top: ghost.y }}>
-          {PART[ghost.id].pieces.filter((pc) => !pc.layer).slice(0, 2).map((pc) => <img key={pc.src} src={BASE + pc.src} alt="" />)}
+        <div className={`sb-ghost ${ghost.out ? 'out' : ''}`} data-testid="ghost" style={{ left: ghost.rect.left, top: ghost.rect.top, width: ghost.rect.width, height: ghost.rect.height }}>
+          {ghost.pieces.map((pc, i) => <img key={i} src={BASE + pc.src} alt="" style={{ left: pct(pc.x, SW), top: pct(pc.y, SH), width: pct(pc.w, SW), height: pct(pc.h, SH) }} />)}
         </div>
       )}
       {toast && <div className="sb-toast" role="status">{toast}</div>}
