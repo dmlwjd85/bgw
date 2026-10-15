@@ -1,27 +1,25 @@
 {
  "id": "flower_cherry",
  "name": "벚꽃",
+ "theme": "꽃",
  "category": "flower",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "side",
-  "hand"
- ],
- "freePlacement": true,
- "size": {
-  "w": 55.0,
-  "h": 59.75
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/flower_cherry.png",
-   "w": 55.0,
-   "h": 59.75
+   "x": 223.94,
+   "y": 90.6,
+   "w": 46.25,
+   "h": 50.25,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

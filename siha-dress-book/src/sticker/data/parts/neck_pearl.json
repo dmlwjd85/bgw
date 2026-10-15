@@ -1,20 +1,25 @@
 {
  "id": "neck_pearl",
  "name": "진주 목걸이",
+ "theme": "목",
  "category": "neck",
- "layer": "outer",
- "scale": 1,
  "slot": "neck",
- "anchor": "neck",
- "front": [
+ "layer": "outer",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/neck_pearl.png",
-   "x": 141.75,
-   "y": 183.6,
-   "w": 76.5,
-   "h": 70.0
+   "x": 163.45,
+   "y": 209.98,
+   "w": 56.75,
+   "h": 48.75,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "neck"
 }

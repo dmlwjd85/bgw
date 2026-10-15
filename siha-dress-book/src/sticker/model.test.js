@@ -123,8 +123,9 @@ describe('layersFor', () => {
 
   it('옷 PNG에는 원본 시트에서 떼 온 손·발 이음이 없다', () => {
     for (const p of Object.values(PART)) {
+      // -hand/-sleeve 이음만 금지. 검토 통과 옷이 원본 끈·스트랩을 arms 층에 두는 것은 허용한다.
       expect(p.pieces.every((pc) => !(pc.src || '').includes('-hand'))).toBe(true)
-      expect(p.pieces.every((pc) => (pc.layer || p.layer) !== 'arms')).toBe(true)
+      expect(p.pieces.every((pc) => !(pc.src || '').includes('-sleeve'))).toBe(true)
     }
   })
 
@@ -153,6 +154,28 @@ describe('layersFor', () => {
     expect(['mic_handheld', 'mic_headset', 'mic_stand'].every((id) => PART[id])).toBe(true)
     expect(PART.bag_tote).toBeTruthy()
     expect(PART.bag_tote_canvas).toBeTruthy()
+    // 검토 통과 34종은 트레이·착용에 보인다
+    const frozen34 = [
+      'bag_tote', 'dress_check_red', 'dress_idol_stage', 'dress_idol_star', 'dress_sailor_mint',
+      'flower_cherry', 'flower_daisy', 'flower_idol_corsage', 'flower_idol_crown', 'flower_tulip_pink',
+      'head_beret_red', 'head_cat_ears', 'head_clip_heart', 'head_idol_headset',
+      'mic_headset', 'mic_stand', 'neck_idol_ribbon', 'neck_pearl', 'neck_scarf',
+      'pants_jeans_wide', 'ribbon_gingham', 'ribbon_idol_stage', 'ribbon_idol_twin', 'ribbon_navy',
+      'shoes_boots_brown', 'shoes_idol_platform', 'shorts_denim', 'shorts_idol_stage',
+      'skirt_idol_pleat', 'skirt_tulle_pastel', 'socks_idol_overknee', 'socks_idol_stripe',
+      'socks_pink_ankle', 'top_tee_star',
+    ]
+    expect(frozen34.every((id) => PART[id])).toBe(true)
+    for (const id of frozen34) {
+      const part = PART[id]
+      if (part.multi) {
+        const layers = layersFor({}, [{ id, uid: `${id}-1`, x: 180, y: 200, size: 0.6, layer: part.layer }])
+        expect(layers.some((l) => l.accUid === `${id}-1`), id).toBe(true)
+      } else {
+        const layers = layersFor(wear({}, part), [])
+        expect(layers.some((l) => l.partId === id), id).toBe(true)
+      }
+    }
     expect(PART.hanbok).toBeTruthy()
     expect(PART.hair_long_default).toBeTruthy()
     expect(BACKGROUNDS.some((b) => b.id === 'concert_purple')).toBe(true)

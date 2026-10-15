@@ -1,27 +1,25 @@
 {
  "id": "flower_tulip_pink",
  "name": "분홍 튤립",
+ "theme": "꽃",
  "category": "flower",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "side",
-  "hand"
- ],
- "freePlacement": true,
- "size": {
-  "w": 50.0,
-  "h": 84.5
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/flower_tulip_pink.png",
-   "w": 50.0,
-   "h": 84.5
+   "x": 227.98,
+   "y": 96.25,
+   "w": 37.5,
+   "h": 46.25,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

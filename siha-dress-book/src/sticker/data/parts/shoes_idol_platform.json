@@ -1,23 +1,25 @@
 {
  "id": "shoes_idol_platform",
  "name": "아이돌 플랫폼",
+ "theme": "아이돌",
  "category": "shoes",
- "layer": "shoes",
- "scale": 1,
  "slot": "shoes",
- "anchor": "feet",
- "hides": [
-  "feet"
- ],
- "front": [
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
   {
    "src": "x4/shoes_idol_platform.png",
-   "x": 96.0,
-   "y": 549.5,
-   "w": 178.75,
-   "h": 79.0
+   "x": 105.25,
+   "y": 498.25,
+   "w": 161.75,
+   "h": 107.25,
+   "from": "gen_new/shoes_idol_platform.jpg (NEW50 n50 원본: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
 }

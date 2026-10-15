@@ -1,28 +1,25 @@
 {
  "id": "ribbon_navy",
  "name": "남색 새틴 리본",
+ "theme": "리본",
  "category": "ribbon",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "crown",
-  "side",
-  "neck"
- ],
- "freePlacement": true,
- "size": {
-  "w": 75.0,
-  "h": 75.0
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/ribbon_navy.png",
-   "w": 75.0,
-   "h": 75.0
+   "x": 144.9,
+   "y": 59.15,
+   "w": 139.0,
+   "h": 93.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

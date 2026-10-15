@@ -1,24 +1,37 @@
 {
  "id": "dress_idol_star",
  "name": "아이돌 별 드레스",
+ "theme": "아이돌",
  "category": "dress",
- "layer": "top",
- "scale": 1,
  "slot": "dress",
- "anchor": "torso",
- "hides": [
-  "top",
-  "bottom"
- ],
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/dress_idol_star.png",
-   "x": 75.0,
-   "y": 186.0,
-   "w": 210.0,
-   "h": 222.25
+   "src": "x4/dress_idol_star-0.png",
+   "x": 101.0,
+   "y": 216.0,
+   "w": 182.0,
+   "h": 109.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
+  },
+  {
+   "src": "x4/dress_idol_star-1.png",
+   "x": 68.0,
+   "y": 320.0,
+   "w": 228.0,
+   "h": 168.0,
+   "layer": "bottom",
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }

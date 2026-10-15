@@ -1,20 +1,25 @@
 {
  "id": "head_cat_ears",
  "name": "고양이 귀 머리띠",
+ "theme": "머리",
  "category": "head",
- "layer": "hair_acc",
- "scale": 1,
  "slot": "head",
- "anchor": "head",
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/head_cat_ears.png",
-   "x": 127.12,
-   "y": 28.0,
-   "w": 105.75,
-   "h": 80.0
+   "x": 110.22,
+   "y": 48.66,
+   "w": 147.0,
+   "h": 87.5,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
 }

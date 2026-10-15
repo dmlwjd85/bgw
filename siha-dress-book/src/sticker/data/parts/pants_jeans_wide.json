@@ -1,20 +1,25 @@
 {
  "id": "pants_jeans_wide",
  "name": "와이드 청바지",
+ "theme": "하의",
  "category": "bottom",
- "layer": "bottom",
- "scale": 1,
  "slot": "bottom",
- "anchor": "waist",
- "front": [
+ "layer": "bottom",
+ "pieces": [
   {
-   "src": "x4/pants_jeans_wide.png",
-   "x": 105.0,
-   "y": 300.0,
-   "w": 150.0,
-   "h": 268.75
+   "src": "x4/pants_jeans_wide-0.png",
+   "x": 107.0,
+   "y": 324.0,
+   "w": 171.0,
+   "h": 279.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "waist"
 }

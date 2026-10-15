@@ -1,27 +1,25 @@
 {
  "id": "bag_tote",
  "name": "캔버스 토트백",
+ "theme": "소품",
  "category": "charm",
- "layer": "hand_prop",
- "scale": 1,
- "slot": null,
- "multi": true,
- "anchors": [
-  "hand",
-  "waist"
- ],
- "freePlacement": true,
- "size": {
-  "w": 90.0,
-  "h": 127.25
- },
- "front": [
+ "slot": "bag",
+ "layer": "bag",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/bag_tote.png",
-   "w": 90.0,
-   "h": 127.25
+   "x": 210.23,
+   "y": 307.57,
+   "w": 106.0,
+   "h": 156.75,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "waist"
 }

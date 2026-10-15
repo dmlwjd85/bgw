@@ -1,27 +1,25 @@
 {
  "id": "flower_idol_crown",
  "name": "아이돌 꽃관",
+ "theme": "아이돌",
  "category": "flower",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "crown",
-  "head"
- ],
- "freePlacement": true,
- "size": {
-  "w": 160.0,
-  "h": 91.25
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/flower_idol_crown.png",
-   "w": 160.0,
-   "h": 91.25
+   "x": 86.02,
+   "y": 45.43,
+   "w": 203.5,
+   "h": 112.5,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

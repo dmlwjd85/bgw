@@ -1,20 +1,25 @@
 {
  "id": "top_tee_star",
  "name": "별 티셔츠",
+ "theme": "상의",
  "category": "top",
- "layer": "top",
- "scale": 1,
  "slot": "top",
- "anchor": "torso",
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/top_tee_star.png",
-   "x": 115.0,
-   "y": 198.0,
-   "w": 130.0,
-   "h": 116.75
+   "src": "x4/top_tee_star-0.png",
+   "x": 78.0,
+   "y": 201.0,
+   "w": 239.0,
+   "h": 209.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }
