@@ -1,0 +1,21 @@
+{
+ "id": "skirt_denim2",
+ "name": "청치마 2",
+ "category": "bottom",
+ "layer": "bottom",
+ "scale": 1,
+ "slot": "bottom",
+ "anchor": "waist",
+ "front": [
+  {
+   "src": "x4/skirt_denim2-0.png",
+   "x": 94.47,
+   "y": 299.57,
+   "w": 172.25,
+   "h": 104.25,
+   "from": "4e40d8/denim-skirt/denim-skirt-1.png"
+  }
+ ],
+ "back": [],
+ "connectors": []
+}
