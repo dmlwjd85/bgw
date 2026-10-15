@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ACC_LIMIT } from './const.js'
 import { cycleId, isTypingTarget, swipeDir } from './bgnav.js'
 import LAYERS_JSON from './data/layers.json'
-import { SAVE_HOP_MS, SHIMMER_MS, PERIOD, keyframesFor, motionFor, motionPlan, originCss, parseMotionConfig, prefersReducedMotion, savePoseAt } from './motion.js'
+import { BLINK_REPEAT_MS, SAVE_HOP_MS, SHIMMER_MS, PERIOD, blinkKeyframes, blinkLoopStart, keyframesFor, motionFor, motionPlan, originCss, parseMotionConfig, prefersReducedMotion, savePoseAt } from './motion.js'
 import { loadImage, makeGif, recordBrag } from './brag.js'
 import { saveToGallery, savedMessage } from './gallerySave.js'
-import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, thumbPieces, wear, withDefaults } from './model.js'
+import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, blinkLayers, fixId, layersFor, nearestAnchor, thumbPieces, wear, withDefaults } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
 const BASE = `${import.meta.env.BASE_URL}sticker/`
@@ -125,6 +125,7 @@ export default function StickerBook() {
   const list = useMemo(() => PARTS.filter((p) => p.category === cat), [cat])
   const wornView = withDefaults(worn)
   const layers = layersFor(worn, accs, pos)
+  const blinks = blinkLayers(layers) // 눈 깜빡임 겹침(평소엔 안 보임)
   const bgItem = BACKGROUNDS.find((b) => b.id === bg) || BACKGROUNDS.find((b) => b.id === DEFAULT_BG) || BACKGROUNDS[0]
 
   function pt(e) {
@@ -229,7 +230,7 @@ export default function StickerBook() {
   const shineRef = useRef(null)
   const hopped = useRef(0)
   const [alive, setAlive] = useState(0) // 저장 누른 횟수(0 = 아직 안 움직임)
-  const sig = layers.map((l) => l.key).join('|')
+  const sig = [...layers, ...blinks].map((l) => l.key).join('|')
   useEffect(() => {
     const root = stageRef.current
     const ch = charRef.current
@@ -249,6 +250,15 @@ export default function StickerBook() {
         play(el, keyframesFor(type, { w: +el.dataset.w || 0, h: +el.dataset.h || 0 }), { duration: PERIOD[type], iterations: Infinity, delay: +el.dataset.lag || 0 })
       })
     }
+    const blinkEls = [...root.querySelectorAll('[data-blink]')]
+    const blinkLoop = (delay) => blinkEls.forEach((el) => play(el, blinkKeyframes(el.dataset.blink, BLINK_REPEAT_MS, plan, blinkLoopStart()), { duration: BLINK_REPEAT_MS, iterations: Infinity, delay }))
+    if (plan.blink) {
+      if (fresh) { // 저장 순간부터 영상과 같은 시각표: 2초 안에 두 번 → 그 뒤 반복
+        const first = blinkLoopStart()
+        blinkEls.forEach((el) => play(el, blinkKeyframes(el.dataset.blink, first, plan), { duration: first }))
+        blinkLoop(first)
+      } else blinkLoop(0)
+    }
     if (fresh) {
       if (plan.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) { try { navigator.vibrate([30, 40, 30]) } catch { /* 진동 없음 */ } }
       const sh = shineRef.current
@@ -265,7 +275,7 @@ export default function StickerBook() {
   function bragScene() {
     return Promise.all([
       bgItem ? loadImage(BASE + bgItem.src).catch(() => null) : null,
-      ...layers.map((l) => loadImage(BASE + l.p.src).then((img) => ({ img, p: l.p, type: motionFor(MOTION, l.layer, l.motion) }))),
+      ...[...layers, ...blinks].sort((a, b) => a.z - b.z).map((l) => loadImage(BASE + l.p.src).then((img) => ({ img, p: l.p, type: l.blink ? 'none' : motionFor(MOTION, l.layer, l.motion), blink: l.blink }))),
     ]).then(([bg, ...pieces]) => ({ w: SW, h: SH, bg, char: MOTION.character, pieces }))
   }
 
@@ -355,6 +365,10 @@ export default function StickerBook() {
                   style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z, opacity: lifted ? 0 : undefined }} />
               )
             })}
+            {alive > 0 && blinks.map((l) => (
+              <img key={l.key} className="sb-piece sb-blink" src={BASE + l.p.src} alt="" aria-hidden="true" draggable={false} data-blink={l.blink} data-layer="blink"
+                style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z }} />
+            ))}
             </div>
             {alive > 0 && GLITTER.map(([x, y, lag], i) => <span key={i} className="sb-glitter" data-motion="pulse" data-layer="glitter" data-lag={lag} aria-hidden="true" style={{ left: `${x * 100}%`, top: `${y * 100}%` }}>✦</span>)}
             <div className="sb-shine" ref={shineRef} aria-hidden="true" />

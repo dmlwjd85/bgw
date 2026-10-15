@@ -120,6 +120,18 @@
     "shoe_r": [242.7, 582.9],
     "hand": [72.6, 174.1]
   },
+  "blink": {
+    "note": "눈 깜빡임 겹침 그림(몸 그림은 그대로). 4x 몸 캔버스 (412,396)-(824,572) 자리에 1:1. 눈 뜬 상태는 아무것도 안 그림. 몸 바로 위·머리카락 아래, 캐릭터 전체 움직임만 몸과 똑같이 따름.",
+    "layer": "blink",
+    "x": 133,
+    "y": 139,
+    "w": 103,
+    "h": 44,
+    "frames": {
+      "half": "x4/siha-blink-half.png",
+      "closed": "x4/siha-blink-closed.png"
+    }
+  },
   "defaultParts": {
     "hair": "hair_long_default"
   }
