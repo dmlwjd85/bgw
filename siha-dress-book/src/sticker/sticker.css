@@ -56,3 +56,10 @@
 .sb-sticker.off{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
 .sb-sticker.off .sb-name{text-decoration:none}
 .sb-lock{font-size:10px;white-space:nowrap;color:#a05b7c;background:#fff0f6;border-radius:8px;padding:1px 6px}
+
+/* 배경 넘기기 화살표: 아이 손가락 크기(64px 이상) */
+.sb-bgnav{position:absolute;top:50%;transform:translateY(-50%);z-index:1000;width:64px;height:64px;min-width:64px;border-radius:50%;border:3px solid #fff;background:#f06292cc;color:#fff;font-size:40px;line-height:1;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 0 6px;cursor:pointer;box-shadow:0 2px 8px #0003;touch-action:manipulation}
+.sb-bgnav.prev{left:8px}
+.sb-bgnav.next{right:8px}
+.sb-bgnav:active{transform:translateY(-50%) scale(.92)}
+.sb-bgnav:focus-visible{outline:4px solid #ffd54f;outline-offset:2px}
