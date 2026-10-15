@@ -22,6 +22,7 @@
 .sb-stage-wrap{display:flex;flex-direction:column;align-items:center}
 .sb-stage{position:relative;background:#fffdf8 center/cover no-repeat;width:min(100%,420px,calc((100svh - 300px) * 360 / 650));min-width:240px;aspect-ratio:360/650;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #d78aa933;touch-action:none}
 .sb-piece{position:absolute;max-width:none;pointer-events:none;image-rendering:auto}
+.sb-blink{opacity:0} /* 눈 깜빡임 겹침: 뜬 눈일 땐 안 보임, WAAPI 가 잠깐씩 켬 */
 .sb-drag{pointer-events:auto;cursor:grab;touch-action:none}
 .sb-piece.snap{animation:sb-pop .35s ease-out}
 @keyframes sb-pop{0%{transform:scale(1.04)}100%{transform:scale(1)}}

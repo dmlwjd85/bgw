@@ -179,6 +179,14 @@ export function resolvePiece(part, pc, sizes) {
 }
 
 // 화면에 그릴 조각 목록 (z 오름차순)
+// 눈 깜빡임 겹침 그림: 몸이 보일 때만, 몸 바로 위(머리카락·옷 아래) z. 기본은 안 보임(StickerBook·영상이 잠깐씩만 켬).
+export function blinkLayers(layers) {
+  const b = CHARACTER.blink
+  const body = b && layers.find((l) => l.key === 'c-body')
+  if (!body || !b.frames || body.p.src !== CHARACTER.pieces.find((p) => p.key === 'body')?.src) return [] // 몸 그림이 바뀌면 눈 자리가 달라서 안 씀
+  return Object.entries(b.frames).map(([frame, src]) => ({ key: `blink-${frame}`, z: body.z + 50, p: { src, x: b.x, y: b.y, w: b.w, h: b.h }, layer: 'blink', blink: frame }))
+}
+
 export function layersFor(wornIn, accs, pos = {}) {
   const worn = withDefaults(wornIn)
   const off = (slot) => pos[slot] || { dx: 0, dy: 0 }

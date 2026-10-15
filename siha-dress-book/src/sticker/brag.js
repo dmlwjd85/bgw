@@ -1,5 +1,5 @@
 // 2초 자랑 영상 만들기: 캔버스에 같은 움직임(poseAt)을 그려서 MediaRecorder 로 녹화(mp4, 안 되면 webm). GIF 는 골랐을 때만.
-import { FEET_ORIGIN, ORIGIN, characterPoseAt, motionPlan, pickVideoMime, poseAt, shimmerAt } from './motion.js'
+import { FEET_ORIGIN, ORIGIN, blinkFrameAt, characterPoseAt, motionPlan, pickVideoMime, poseAt, shimmerAt } from './motion.js'
 
 export const BRAG_MS = 2000
 
@@ -9,7 +9,7 @@ export function loadImage(src) {
 
 const GLITTER = [[0.18, 0.2, 0], [0.82, 0.28, 400], [0.12, 0.58, 800], [0.86, 0.66, 200], [0.5, 0.1, 600], [0.3, 0.82, 1000]]
 
-// scene: { w, h, bg, char, pieces: [{ img, p:{x,y,w,h}, type }] } (스테이지 px). t: 저장 누른 뒤 ms
+// scene: { w, h, bg, char, pieces: [{ img, p:{x,y,w,h}, type, blink? }] } — blink 조각은 그 순간 눈 모양일 때만 그림 (스테이지 px). t: 저장 누른 뒤 ms
 export function drawFrame(g, scene, t, k, plan = motionPlan(false)) {
   const { w, h } = scene
   g.save()
@@ -23,9 +23,11 @@ export function drawFrame(g, scene, t, k, plan = motionPlan(false)) {
   g.beginPath(); g.ellipse(w * 0.5, h * 0.945, 70 * sh.sx, 9 * sh.sx, 0, 0, Math.PI * 2); g.fill(); g.restore()
   // 캐릭터 전체(발끝 기준)
   const c = characterPoseAt(scene.char, t, plan)
+  const eye = blinkFrameAt(t, plan)
   g.save()
   applyPose(g, c, w * FEET_ORIGIN.x, h * FEET_ORIGIN.y)
   for (const pc of scene.pieces) {
+    if (pc.blink && pc.blink !== eye) continue
     const q = plan.idle ? poseAt(pc.type, t) : { tx: 0, ty: 0, rot: 0, sx: 1, sy: 1, op: 1 }
     const o = ORIGIN[pc.type] || ORIGIN.none
     g.save()

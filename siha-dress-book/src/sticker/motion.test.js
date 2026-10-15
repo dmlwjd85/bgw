@@ -48,7 +48,7 @@ describe('parseMotionConfig', () => {
 
 describe('reduced motion', () => {
   it('줄이기 켜면 뛰기·계속 움직임·진동 없음, 빛은 제자리 페이드', () => {
-    expect(motionPlan(true)).toEqual({ level: 'minimal', hop: false, idle: false, shimmer: 'fade', vibrate: false })
+    expect(motionPlan(true)).toEqual({ level: 'minimal', hop: false, idle: false, blink: false, shimmer: 'fade', vibrate: false })
     expect(motionPlan(false)).toMatchObject({ level: 'full', hop: true, idle: true, shimmer: 'sweep' })
   })
   it('줄이기면 캐릭터는 늘 제자리', () => {

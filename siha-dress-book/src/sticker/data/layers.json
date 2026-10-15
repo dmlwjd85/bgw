@@ -22,6 +22,7 @@
   "labels": {
     "back_hair": "뒷머리",
     "body": "몸",
+    "blink": "눈 깜빡임",
     "underwear": "속옷",
     "socks": "양말",
     "shoes": "신발",
@@ -43,6 +44,7 @@
     "_note": "레이어별 움직임(저장 누르면 시작). 새 부품은 layer만 맞으면 자동으로 움직여요. 부품 JSON에 \"motion\"을 쓰면 그 부품만 바꿈. none=안 움직임. 몸(body)은 혼자 안 움직이고 캐릭터 전체(character)와 같이만 움직임",
     "character": "breathe",
     "body": "none",
+    "blink": "none",
     "back_hair": "sway",
     "hair": "sway",
     "front_hair": "sway-late",
