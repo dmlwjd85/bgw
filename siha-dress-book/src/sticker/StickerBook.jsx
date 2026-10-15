@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ACC_LIMIT } from './const.js'
 import { cycleId, isTypingTarget, swipeDir } from './bgnav.js'
+import LAYERS_JSON from './data/layers.json'
+import { SAVE_HOP_MS, SHIMMER_MS, PERIOD, keyframesFor, motionFor, motionPlan, originCss, parseMotionConfig, prefersReducedMotion, savePoseAt } from './motion.js'
+import { loadImage, makeGif, recordBrag } from './brag.js'
 import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, thumbPieces, wear, withDefaults } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
 const BASE = `${import.meta.env.BASE_URL}sticker/`
 const { w: SW, h: SH } = STAGE
+const MOTION = parseMotionConfig(LAYERS_JSON)
+const CHAR_BOX = { w: SW, h: SH }
+const GLITTER = [[0.18, 0.2, 0], [0.82, 0.28, 400], [0.12, 0.58, 800], [0.86, 0.66, 200], [0.5, 0.1, 600], [0.3, 0.82, 1000]]
 
 function load() {
   try {
@@ -217,6 +223,74 @@ export default function StickerBook() {
     setAccs([])
   }
 
+  // 저장 → 통통 뛰기 + 반짝 빛 한 번 → 계속 살랑살랑 (layers.json "motion" 대로)
+  const charRef = useRef(null)
+  const shineRef = useRef(null)
+  const hopped = useRef(0)
+  const [alive, setAlive] = useState(0) // 저장 누른 횟수(0 = 아직 안 움직임)
+  const [brag, setBrag] = useState(null) // null | 'menu' | 'busy'
+  const sig = layers.map((l) => l.key).join('|')
+  useEffect(() => {
+    const root = stageRef.current
+    const ch = charRef.current
+    if (!alive || !root || !ch || !ch.animate) return
+    const plan = motionPlan(prefersReducedMotion())
+    const fresh = hopped.current !== alive
+    hopped.current = alive
+    const anims = []
+    const play = (el, kf, opt) => { const a = el.animate(kf, opt); anims.push(a); return a }
+    const idle = () => {
+      if (!plan.idle) return
+      play(ch, keyframesFor(MOTION.character, CHAR_BOX), { duration: PERIOD[MOTION.character] || 2400, iterations: Infinity })
+      root.querySelectorAll('[data-motion]').forEach((el) => {
+        const type = el.dataset.motion
+        if (!type || type === 'none') return
+        el.style.transformOrigin = originCss(type)
+        play(el, keyframesFor(type, { w: +el.dataset.w || 0, h: +el.dataset.h || 0 }), { duration: PERIOD[type], iterations: Infinity, delay: +el.dataset.lag || 0 })
+      })
+    }
+    if (fresh) {
+      if (plan.vibrate && typeof navigator !== 'undefined' && navigator.vibrate) { try { navigator.vibrate([30, 40, 30]) } catch { /* 진동 없음 */ } }
+      const sh = shineRef.current
+      if (sh) {
+        if (plan.shimmer === 'sweep') play(sh, [{ transform: 'translateX(-130%)', opacity: 1 }, { transform: 'translateX(130%)', opacity: 1 }], { duration: SHIMMER_MS, easing: 'ease-out' })
+        else play(sh, [{ transform: 'none', opacity: 0 }, { transform: 'none', opacity: 0.5 }, { transform: 'none', opacity: 0 }], { duration: 600 })
+      }
+      if (plan.hop) play(ch, keyframesFor('hop', CHAR_BOX, 28, savePoseAt), { duration: SAVE_HOP_MS }).finished.then(idle, () => {})
+      else idle()
+    } else idle()
+    return () => anims.forEach((a) => a.cancel())
+  }, [alive, sig]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function bragScene() {
+    return Promise.all([
+      bgItem ? loadImage(BASE + bgItem.src).catch(() => null) : null,
+      ...layers.map((l) => loadImage(BASE + l.p.src).then((img) => ({ img, p: l.p, type: motionFor(MOTION, l.layer, l.motion) }))),
+    ]).then(([bg, ...pieces]) => ({ w: SW, h: SH, bg, char: MOTION.character, pieces }))
+  }
+
+  async function makeBrag(kind) {
+    setBrag('busy')
+    try {
+      const scene = await bragScene()
+      let out
+      if (kind === 'gif') out = await makeGif(scene)
+      else {
+        try { out = await recordBrag(scene) } catch { out = await makeGif(scene) }
+      }
+      const a = document.createElement('a')
+      a.download = `siha-jarang.${out.ext}`
+      a.href = URL.createObjectURL(out.blob)
+      a.click()
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000)
+      setToast(out.ext === 'gif' ? '움짤(GIF)을 만들었어요! 🎉' : '2초 자랑 영상을 만들었어요! 🎬')
+      window.__bragLast = { ext: out.ext, mime: out.mime, size: out.blob.size }
+    } catch {
+      setToast('앗, 영상을 못 만들었어요. 다시 해 볼까요?')
+    }
+    setBrag(null)
+  }
+
   async function saveImage() {
     const R = CHARACTER.res
     const c = document.createElement('canvas')
@@ -231,7 +305,8 @@ export default function StickerBook() {
     a.download = 'siha-sticker.png'
     a.href = c.toDataURL('image/png')
     a.click()
-    setToast('코디를 그림으로 저장했어요')
+    setToast('코디를 그림으로 저장했어요! 시하가 신났어요 ✨')
+    setAlive((n) => n + 1)
   }
 
   // 덮는 옷(곰 우주복)이 가리는 슬롯 → 그 칸 스티커는 흐리게, 누르면 짧은 안내
@@ -244,7 +319,8 @@ export default function StickerBook() {
         <div className="sb-tools">
           <button type="button" onClick={() => stepBg(1)}>배경: {bgItem?.name}</button>
           <button type="button" onClick={reset}>초기화</button>
-          <button type="button" className="main" onClick={saveImage}>저장</button>
+          <button type="button" className="main" data-testid="save" onClick={saveImage}>저장</button>
+          {alive > 0 && <button type="button" data-testid="brag" onClick={() => setBrag(brag ? null : 'menu')} disabled={brag === 'busy'}>{brag === 'busy' ? '만드는 중… 🎬' : '자랑 영상 🎬'}</button>}
         </div>
       </header>
       <main className="sb-layout">
@@ -253,17 +329,31 @@ export default function StickerBook() {
             onPointerDown={swipeStart} onPointerUp={swipeEnd} onPointerCancel={() => { swipe.current = null }}>
             <button type="button" className="sb-bgnav prev" data-testid="bg-prev" aria-label="이전 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(-1)}>‹</button>
             <button type="button" className="sb-bgnav next" data-testid="bg-next" aria-label="다음 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(1)}>›</button>
+            {alive > 0 && <span className="sb-shadow" data-motion="pulse" data-layer="shadow" data-w="140" data-h="18" aria-hidden="true" />}
+            <div className="sb-char" ref={charRef} data-testid="char">
             {layers.map((l) => {
               const draggable = l.partId || l.accUid
               const flashOn = snapKey && (snapKey === l.partId || snapKey === l.accUid)
               const lifted = ghost && ((l.accUid && l.accUid === ghost.uid) || (!ghost.uid && l.partId && l.partId === ghost.id))
               return (
                 <img key={l.key} className={`sb-piece ${draggable ? 'sb-drag' : ''} ${flashOn ? 'snap' : ''}`} src={BASE + l.p.src} alt="" draggable={false}
+                  data-motion={motionFor(MOTION, l.layer, l.motion)} data-layer={l.layer} data-w={l.p.w} data-h={l.p.h}
                   onPointerDown={draggable ? (e) => start(e, l.accUid ? { id: accs.find((a) => a.uid === l.accUid).id, uid: l.accUid, from: 'stage' } : { id: l.partId, from: 'stage' }) : undefined}
                   style={{ left: pct(l.p.x, SW), top: pct(l.p.y, SH), width: pct(l.p.w, SW), height: pct(l.p.h, SH), zIndex: l.z, opacity: lifted ? 0 : undefined }} />
               )
             })}
+            </div>
+            {alive > 0 && GLITTER.map(([x, y, lag], i) => <span key={i} className="sb-glitter" data-motion="pulse" data-layer="glitter" data-lag={lag} aria-hidden="true" style={{ left: `${x * 100}%`, top: `${y * 100}%` }}>✦</span>)}
+            <div className="sb-shine" ref={shineRef} aria-hidden="true" />
           </div>
+          {brag === 'menu' && (
+            <div className="sb-brag" role="dialog" aria-label="자랑 영상 만들기">
+              <p>움직이는 시하를 2초 영상으로 만들어서 자랑해요!</p>
+              <button type="button" className="main" data-testid="brag-video" onClick={() => makeBrag('video')}>🎬 2초 영상 만들기</button>
+              <button type="button" data-testid="brag-gif" onClick={() => makeBrag('gif')}>움짤(GIF)로 만들기</button>
+              <button type="button" onClick={() => setBrag(null)}>닫기</button>
+            </div>
+          )}
           <p className="sb-hint">누르면 몸에 맞는 자리에 붙고, 끌어다 놓으면 놓은 자리에 그대로 붙어요. 끌 때 보이는 크기 그대로 놓여요. 무대 밖으로 끌어내면 떼어져요.</p>
         </section>
         <section className="sb-sheet" aria-label="스티커 시트">
