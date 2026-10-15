@@ -1,0 +1,34 @@
+{
+ "id": "hair_braid_blonde",
+ "name": "옆 땋은 머리 (금발)",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_braid_blonde-0.png",
+   "x": 122.5,
+   "y": 68.92,
+   "w": 134.5,
+   "h": 225.25,
+   "layer": "hair",
+   "from": "x4/hair_braid_blonde-0.png ← hair_braid 색 바꿈(라운드2)"
+  },
+  {
+   "src": "x4/hair_braid_blonde-1.png",
+   "x": 96.5,
+   "y": 55.92,
+   "w": 192.25,
+   "h": 248.0,
+   "layer": "back_hair",
+   "from": "x4/hair_braid_blonde-1.png ← hair_braid 색 바꿈(라운드2)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

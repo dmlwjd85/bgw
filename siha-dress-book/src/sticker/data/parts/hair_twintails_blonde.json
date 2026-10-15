@@ -1,0 +1,34 @@
+{
+ "id": "hair_twintails_blonde",
+ "name": "트윈테일 (금발)",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_twintails_blonde-0.png",
+   "x": 75.55,
+   "y": 69.11,
+   "w": 181.5,
+   "h": 177.5,
+   "layer": "hair",
+   "from": "x4/hair_twintails_blonde-0.png ← hair_twintails 색 바꿈(라운드2)"
+  },
+  {
+   "src": "x4/hair_twintails_blonde-1.png",
+   "x": 47.3,
+   "y": 55.11,
+   "w": 290.75,
+   "h": 260.0,
+   "layer": "back_hair",
+   "from": "x4/hair_twintails_blonde-1.png ← hair_twintails 색 바꿈(라운드2)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}
