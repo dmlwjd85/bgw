@@ -1,20 +1,25 @@
 {
  "id": "head_clip_heart",
  "name": "하트 머리핀",
+ "theme": "머리",
  "category": "head",
- "layer": "hair_acc",
- "scale": 1,
  "slot": "head",
- "anchor": "head",
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/head_clip_heart.png",
-   "x": 165.0,
-   "y": 54.0,
-   "w": 30.0,
-   "h": 40.0
+   "x": 229.59,
+   "y": 110.77,
+   "w": 31.0,
+   "h": 27.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
 }

@@ -1,20 +1,25 @@
 {
  "id": "head_beret_red",
  "name": "빨간 베레모",
+ "theme": "머리",
  "category": "head",
- "layer": "hair_acc",
- "scale": 1,
  "slot": "head",
- "anchor": "head",
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/head_beret_red.png",
-   "x": 131.25,
-   "y": 34.5,
-   "w": 97.5,
-   "h": 70.0
+   "x": 120.7,
+   "y": 45.43,
+   "w": 164.75,
+   "h": 102.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
 }

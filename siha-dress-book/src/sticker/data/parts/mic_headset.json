@@ -1,27 +1,25 @@
 {
  "id": "mic_headset",
  "name": "헤드셋 마이크",
+ "theme": "아이돌",
  "category": "charm",
- "layer": "hand_prop",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "hand",
-  "head"
- ],
- "freePlacement": true,
- "size": {
-  "w": 70.0,
-  "h": 58.75
- },
- "front": [
+ "layer": "hand_prop",
+ "set": "n50",
+ "pieces": [
   {
-   "src": "x4/mic_headset.png",
-   "w": 70.0,
-   "h": 58.75
+   "src": "x4/head_idol_headset.png",
+   "x": 200.55,
+   "y": 154.32,
+   "w": 59.25,
+   "h": 53.5,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "hand"
 }

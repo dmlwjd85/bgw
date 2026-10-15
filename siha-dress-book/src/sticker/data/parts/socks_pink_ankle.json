@@ -1,20 +1,152 @@
 {
  "id": "socks_pink_ankle",
  "name": "분홍 발목 양말",
+ "theme": "양말",
  "category": "socks",
- "layer": "socks",
- "scale": 1,
  "slot": "socks",
- "anchor": "legs",
- "front": [
+ "layer": "socks",
+ "set": "new",
+ "pieces": [
   {
    "src": "x4/socks_pink_ankle.png",
-   "x": 108.0,
-   "y": 557.0,
-   "w": 156.0,
-   "h": 60.0
+   "x": 105.25,
+   "y": 529.75,
+   "w": 158.5,
+   "h": 76.0,
+   "unlessSlot": "shoes",
+   "from": "gen_new/socks_pink_ankle.jpg (NEW50 n50 원본: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_balletflat_pink.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_balletflat_pink",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_boots_brown.png",
+   "x": 106.25,
+   "y": 530.0,
+   "w": 157.25,
+   "h": 75.5,
+   "onlyWith": "shoes_boots_brown",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_hightop_purple.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_hightop_purple",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_idol_glitter.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_idol_glitter",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_idol_platform.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_idol_platform",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_loafer_navy.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_loafer_navy",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_maryjane.png",
+   "x": 107.75,
+   "y": 530.0,
+   "w": 155.75,
+   "h": 75.5,
+   "onlyWith": "shoes_maryjane",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_maryjane_red.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_maryjane_red",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_rainboot_yellow.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_rainboot_yellow",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_slipper_bunny.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_slipper_bunny",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_sneaker_blue.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_sneaker_blue",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_sneaker_mint.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_sneaker_mint",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_white_sneaker.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 155.5,
+   "h": 71.25,
+   "onlyWith": "shoes_white_sneaker",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_pink_ankle-in-shoes_winterboot_tan.png",
+   "x": 105.5,
+   "y": 530.0,
+   "w": 158.0,
+   "h": 75.5,
+   "onlyWith": "shoes_winterboot_tan",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
 }

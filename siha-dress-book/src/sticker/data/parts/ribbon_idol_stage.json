@@ -1,27 +1,25 @@
 {
  "id": "ribbon_idol_stage",
  "name": "아이돌 무대 리본",
+ "theme": "아이돌",
  "category": "ribbon",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "crown",
-  "waist"
- ],
- "freePlacement": true,
- "size": {
-  "w": 90.0,
-  "h": 86.75
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/ribbon_idol_stage.png",
-   "w": 90.0,
-   "h": 86.75
+   "x": 217.49,
+   "y": 96.25,
+   "w": 62.5,
+   "h": 66.5,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

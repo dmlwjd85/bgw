@@ -1,20 +1,25 @@
 {
  "id": "skirt_tulle_pastel",
  "name": "파스텔 튤 치마",
+ "theme": "하의",
  "category": "bottom",
- "layer": "bottom",
- "scale": 1,
  "slot": "bottom",
- "anchor": "waist",
- "front": [
+ "layer": "bottom",
+ "pieces": [
   {
-   "src": "x4/skirt_tulle_pastel.png",
-   "x": 90.0,
-   "y": 300.0,
-   "w": 180.0,
-   "h": 111.25
+   "src": "x4/skirt_tulle_pastel-0.png",
+   "x": 67.0,
+   "y": 288.0,
+   "w": 254.0,
+   "h": 275.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "waist"
 }

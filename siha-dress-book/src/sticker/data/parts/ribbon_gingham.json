@@ -1,28 +1,25 @@
 {
  "id": "ribbon_gingham",
  "name": "체크 리본",
+ "theme": "리본",
  "category": "ribbon",
- "layer": "hair_acc",
- "scale": 1,
  "slot": null,
- "multi": true,
- "anchors": [
-  "crown",
-  "side",
-  "waist"
- ],
- "freePlacement": true,
- "size": {
-  "w": 75.0,
-  "h": 39.5
- },
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/ribbon_gingham.png",
-   "w": 75.0,
-   "h": 39.5
+   "x": 243.3,
+   "y": 93.02,
+   "w": 52.75,
+   "h": 68.75,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "side"
 }

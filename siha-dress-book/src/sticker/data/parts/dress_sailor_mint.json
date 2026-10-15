@@ -1,24 +1,37 @@
 {
  "id": "dress_sailor_mint",
  "name": "민트 세일러 원피스",
+ "theme": "원피스",
  "category": "dress",
- "layer": "top",
- "scale": 1,
  "slot": "dress",
- "anchor": "torso",
- "hides": [
-  "top",
-  "bottom"
- ],
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/dress_sailor_mint.png",
-   "x": 75.0,
-   "y": 186.0,
-   "w": 210.0,
-   "h": 279.25
+   "src": "x4/dress_sailor_mint-0.png",
+   "x": 103.0,
+   "y": 217.0,
+   "w": 180.0,
+   "h": 108.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
+  },
+  {
+   "src": "x4/dress_sailor_mint-1.png",
+   "x": 94.0,
+   "y": 320.0,
+   "w": 180.0,
+   "h": 203.0,
+   "layer": "bottom",
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }

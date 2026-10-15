@@ -1,20 +1,25 @@
 {
  "id": "head_idol_headset",
  "name": "아이돌 헤드셋",
+ "theme": "아이돌",
  "category": "head",
- "layer": "hair_acc",
- "scale": 1,
  "slot": "head",
- "anchor": "head",
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
-   "src": "x4/head_idol_headset.png",
-   "x": 122.0,
-   "y": 21.5,
-   "w": 116.0,
-   "h": 90.0
+   "src": "x4/mic_headset.png",
+   "x": 148.12,
+   "y": 61.57,
+   "w": 118.0,
+   "h": 138.25,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
 }
