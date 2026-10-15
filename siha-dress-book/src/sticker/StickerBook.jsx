@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ACC_LIMIT } from './const.js'
+import { cycleId, isTypingTarget, swipeDir } from './bgnav.js'
 import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, thumbPieces, wear, withDefaults } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
@@ -80,6 +81,30 @@ export default function StickerBook() {
   const [snapKey, setSnapKey] = useState(null)
   const stageRef = useRef(null)
   const drag = useRef(null)
+  const swipe = useRef(null)
+  const stepBg = (dir) => setBg((cur) => cycleId(BACKGROUNDS, cur, dir))
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      if (e.altKey || e.ctrlKey || e.metaKey || isTypingTarget(document.activeElement)) return
+      e.preventDefault()
+      stepBg(e.key === 'ArrowRight' ? 1 : -1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+  // 배경(스티커가 아닌 곳)에서만 가로 스와이프
+  function swipeStart(e) {
+    if (e.target !== e.currentTarget || drag.current) return
+    swipe.current = { x: e.clientX, y: e.clientY, id: e.pointerId }
+  }
+  function swipeEnd(e) {
+    const s = swipe.current
+    swipe.current = null
+    if (!s || s.id !== e.pointerId || drag.current) return
+    const d = swipeDir(e.clientX - s.x, e.clientY - s.y)
+    if (d) stepBg(d)
+  }
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 3, worn, pos, accs, bg }))
@@ -209,8 +234,6 @@ export default function StickerBook() {
     setToast('코디를 그림으로 저장했어요')
   }
 
-  const bgIndex = Math.max(0, BACKGROUNDS.findIndex((b) => b.id === bg))
-
   // 덮는 옷(곰 우주복)이 가리는 슬롯 → 그 칸 스티커는 흐리게, 누르면 짧은 안내
   const covered = new Map()
   Object.values(worn).forEach((id) => (PART[id]?.occlusion?.hideSlots || []).forEach((sl) => covered.set(sl, PART[id].name)))
@@ -219,14 +242,17 @@ export default function StickerBook() {
       <header className="sb-head">
         <h1>시하 스티커북</h1>
         <div className="sb-tools">
-          <button type="button" onClick={() => setBg(BACKGROUNDS[(bgIndex + 1) % BACKGROUNDS.length].id)}>배경: {bgItem?.name}</button>
+          <button type="button" onClick={() => stepBg(1)}>배경: {bgItem?.name}</button>
           <button type="button" onClick={reset}>초기화</button>
           <button type="button" className="main" onClick={saveImage}>저장</button>
         </div>
       </header>
       <main className="sb-layout">
         <section className="sb-stage-wrap">
-          <div className="sb-stage" ref={stageRef} data-testid="stage" style={{ backgroundImage: bgItem ? `url(${BASE + bgItem.src})` : undefined }}>
+          <div className="sb-stage" ref={stageRef} data-testid="stage" style={{ backgroundImage: bgItem ? `url(${BASE + bgItem.src})` : undefined }}
+            onPointerDown={swipeStart} onPointerUp={swipeEnd} onPointerCancel={() => { swipe.current = null }}>
+            <button type="button" className="sb-bgnav prev" data-testid="bg-prev" aria-label="이전 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(-1)}>‹</button>
+            <button type="button" className="sb-bgnav next" data-testid="bg-next" aria-label="다음 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(1)}>›</button>
             {layers.map((l) => {
               const draggable = l.partId || l.accUid
               const flashOn = snapKey && (snapKey === l.partId || snapKey === l.accUid)
