@@ -1,23 +1,25 @@
 {
  "id": "shoes_maryjane",
  "name": "메리제인",
+ "theme": "신발",
  "category": "shoes",
- "layer": "shoes",
- "scale": 1,
  "slot": "shoes",
- "anchor": "feet",
- "hides": [
-  "feet"
- ],
- "front": [
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
   {
    "src": "x4/shoes_maryjane.png",
-   "x": 102.75,
-   "y": 573.0,
-   "w": 167.0,
-   "h": 50.0
+   "x": 107.75,
+   "y": 498.0,
+   "w": 157.0,
+   "h": 110.75,
+   "from": "gen_new/shoes_maryjane.jpg (NEW50 n50 원본: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
 }

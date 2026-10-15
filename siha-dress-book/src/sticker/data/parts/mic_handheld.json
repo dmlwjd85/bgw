@@ -1,26 +1,37 @@
 {
  "id": "mic_handheld",
  "name": "핸드마이크",
+ "theme": "아이돌",
  "category": "charm",
- "layer": "hand_prop",
- "scale": 1,
  "slot": null,
+ "layer": "hand_prop",
+ "set": "n50",
+ "pieces": [
+  {
+   "src": "x4/mic_handheld.png",
+   "w": 89.0909,
+   "h": 176.3636,
+   "from": "gen_new/n50_D4.jpg 소품을 들어 올린 손에 회전·배치(wand_star 방식, hand_prop), 손가락·손바닥은 v2 몸 손 픽셀 윤곽 그대로 위에 합성"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
  "multi": true,
  "anchors": [
   "hand"
  ],
  "freePlacement": true,
  "size": {
-  "w": 45.0,
-  "h": 125.25
+  "w": 89.0909,
+  "h": 176.3636
  },
- "front": [
-  {
-   "src": "x4/mic_handheld.png",
-   "w": 45.0,
-   "h": 125.25
+ "anchorOffset": {
+  "hand": {
+   "dx": 14.3,
+   "dy": -41.1
   }
- ],
- "back": [],
- "connectors": []
+ }
 }

@@ -1,23 +1,25 @@
 {
  "id": "shoes_idol_glitter",
  "name": "아이돌 글리터 구두",
+ "theme": "아이돌",
  "category": "shoes",
- "layer": "shoes",
- "scale": 1,
  "slot": "shoes",
- "anchor": "feet",
- "hides": [
-  "feet"
- ],
- "front": [
+ "layer": "shoes",
+ "set": "new",
+ "pieces": [
   {
    "src": "x4/shoes_idol_glitter.png",
-   "x": 92.25,
-   "y": 555.0,
-   "w": 187.25,
-   "h": 74.0
+   "x": 103.0,
+   "y": 499.75,
+   "w": 161.5,
+   "h": 111.5,
+   "from": "gen_new/shoes_idol_glitter.jpg (NEW50 n50 원본: 윤곽선 안 전체, 가장자리 정리, v2 정합)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
 }
