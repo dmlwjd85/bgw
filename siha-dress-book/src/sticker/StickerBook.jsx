@@ -4,6 +4,7 @@ import { cycleId, isTypingTarget, swipeDir } from './bgnav.js'
 import LAYERS_JSON from './data/layers.json'
 import { SAVE_HOP_MS, SHIMMER_MS, PERIOD, keyframesFor, motionFor, motionPlan, originCss, parseMotionConfig, prefersReducedMotion, savePoseAt } from './motion.js'
 import { loadImage, makeGif, recordBrag } from './brag.js'
+import { saveToGallery, savedMessage } from './gallerySave.js'
 import { BACKGROUNDS, CATEGORIES, CHARACTER, DEFAULT_BG, PART, PARTS, STAGE, accBox, fixId, layersFor, nearestAnchor, thumbPieces, wear, withDefaults } from './model.js'
 
 const STORAGE_KEY = 'siha-sticker-book-v1'
@@ -228,7 +229,6 @@ export default function StickerBook() {
   const shineRef = useRef(null)
   const hopped = useRef(0)
   const [alive, setAlive] = useState(0) // 저장 누른 횟수(0 = 아직 안 움직임)
-  const [brag, setBrag] = useState(null) // null | 'menu' | 'busy'
   const sig = layers.map((l) => l.key).join('|')
   useEffect(() => {
     const root = stageRef.current
@@ -269,26 +269,37 @@ export default function StickerBook() {
     ]).then(([bg, ...pieces]) => ({ w: SW, h: SH, bg, char: MOTION.character, pieces }))
   }
 
-  async function makeBrag(kind) {
-    setBrag('busy')
+  // 저장 → 사진(PNG)은 바로, 2초 영상은 뒤에서 미리 만들어 둔다(공유 시트는 누른 직후에만 열려서).
+  const made = useRef(null) // { photo: Blob, video: Promise<{blob,ext}> }
+  const [saveMenu, setSaveMenu] = useState(false)
+  const [videoReady, setVideoReady] = useState(false)
+  const [busy, setBusy] = useState(false)
+  useEffect(() => { made.current = null; setSaveMenu(false); setVideoReady(false) }, [sig, bg])
+
+  function startVideo(kind = 'video') {
+    setVideoReady(false)
+    const p = bragScene().then((scene) => (kind === 'gif' ? makeGif(scene) : recordBrag(scene).catch(() => makeGif(scene))))
+    p.then((v) => { window.__bragLast = { ext: v.ext, mime: v.mime, size: v.blob.size }; setVideoReady(true) }, () => setVideoReady(true))
+    return p
+  }
+
+  async function keep(kind) {
+    const m = made.current
+    if (!m || busy) return
+    setBusy(true)
     try {
-      const scene = await bragScene()
-      let out
-      if (kind === 'gif') out = await makeGif(scene)
-      else {
-        try { out = await recordBrag(scene) } catch { out = await makeGif(scene) }
+      let blob, name
+      if (kind === 'photo') { blob = m.photo; name = 'siha-sticker.png' } else {
+        const v = await (kind === 'gif' ? startVideo('gif') : m.video)
+        blob = v.blob; name = `siha-jarang.${v.ext}`
       }
-      const a = document.createElement('a')
-      a.download = `siha-jarang.${out.ext}`
-      a.href = URL.createObjectURL(out.blob)
-      a.click()
-      setTimeout(() => URL.revokeObjectURL(a.href), 60000)
-      setToast(out.ext === 'gif' ? '움짤(GIF)을 만들었어요! 🎉' : '2초 자랑 영상을 만들었어요! 🎬')
-      window.__bragLast = { ext: out.ext, mime: out.mime, size: out.blob.size }
+      const res = await saveToGallery(blob, name, kind === 'photo' ? 'photo' : 'video')
+      window.__saveLast = { ...res, name, type: blob.type, size: blob.size }
+      setToast(savedMessage(res, kind === 'photo' ? 'photo' : 'video'))
     } catch {
-      setToast('앗, 영상을 못 만들었어요. 다시 해 볼까요?')
+      setToast('앗, 저장을 못 했어요. 다시 해 볼까요?')
     }
-    setBrag(null)
+    setBusy(false)
   }
 
   async function saveImage() {
@@ -301,11 +312,12 @@ export default function StickerBook() {
     const img = (src) => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = BASE + src })
     if (bgItem) g.drawImage(await img(bgItem.src), 0, 0, c.width, c.height)
     for (const l of layers) g.drawImage(await img(l.p.src), l.p.x * R, l.p.y * R, l.p.w * R, l.p.h * R)
-    const a = document.createElement('a')
-    a.download = 'siha-sticker.png'
-    a.href = c.toDataURL('image/png')
-    a.click()
-    setToast('코디를 그림으로 저장했어요! 시하가 신났어요 ✨')
+    const photo = await new Promise((ok) => c.toBlob(ok, 'image/png'))
+    const video = startVideo()
+    video.catch(() => {})
+    made.current = { photo, video }
+    setSaveMenu(true)
+    setToast('시하가 신났어요 ✨ 사진이나 영상으로 저장해요!')
     setAlive((n) => n + 1)
   }
 
@@ -317,18 +329,19 @@ export default function StickerBook() {
       <header className="sb-head">
         <h1>시하 스티커북</h1>
         <div className="sb-tools">
-          <button type="button" onClick={() => stepBg(1)}>배경: {bgItem?.name}</button>
+          <span className="sb-bgpick" role="group" aria-label="배경 고르기">
+            <button type="button" className="sb-bgnav prev" data-testid="bg-prev" aria-label="이전 배경" onClick={() => stepBg(-1)}>‹</button>
+            <button type="button" className="sb-bgname" data-testid="bg-name" onClick={() => stepBg(1)}>{bgItem?.name}</button>
+            <button type="button" className="sb-bgnav next" data-testid="bg-next" aria-label="다음 배경" onClick={() => stepBg(1)}>›</button>
+          </span>
           <button type="button" onClick={reset}>초기화</button>
           <button type="button" className="main" data-testid="save" onClick={saveImage}>저장</button>
-          {alive > 0 && <button type="button" data-testid="brag" onClick={() => setBrag(brag ? null : 'menu')} disabled={brag === 'busy'}>{brag === 'busy' ? '만드는 중… 🎬' : '자랑 영상 🎬'}</button>}
         </div>
       </header>
       <main className="sb-layout">
         <section className="sb-stage-wrap">
           <div className="sb-stage" ref={stageRef} data-testid="stage" style={{ backgroundImage: bgItem ? `url(${BASE + bgItem.src})` : undefined }}
             onPointerDown={swipeStart} onPointerUp={swipeEnd} onPointerCancel={() => { swipe.current = null }}>
-            <button type="button" className="sb-bgnav prev" data-testid="bg-prev" aria-label="이전 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(-1)}>‹</button>
-            <button type="button" className="sb-bgnav next" data-testid="bg-next" aria-label="다음 배경" onPointerDown={(e) => e.stopPropagation()} onClick={() => stepBg(1)}>›</button>
             {alive > 0 && <span className="sb-shadow" data-motion="pulse" data-layer="shadow" data-w="140" data-h="18" aria-hidden="true" />}
             <div className="sb-char" ref={charRef} data-testid="char">
             {layers.map((l) => {
@@ -346,12 +359,12 @@ export default function StickerBook() {
             {alive > 0 && GLITTER.map(([x, y, lag], i) => <span key={i} className="sb-glitter" data-motion="pulse" data-layer="glitter" data-lag={lag} aria-hidden="true" style={{ left: `${x * 100}%`, top: `${y * 100}%` }}>✦</span>)}
             <div className="sb-shine" ref={shineRef} aria-hidden="true" />
           </div>
-          {brag === 'menu' && (
-            <div className="sb-brag" role="dialog" aria-label="자랑 영상 만들기">
-              <p>움직이는 시하를 2초 영상으로 만들어서 자랑해요!</p>
-              <button type="button" className="main" data-testid="brag-video" onClick={() => makeBrag('video')}>🎬 2초 영상 만들기</button>
-              <button type="button" data-testid="brag-gif" onClick={() => makeBrag('gif')}>움짤(GIF)로 만들기</button>
-              <button type="button" onClick={() => setBrag(null)}>닫기</button>
+          {saveMenu && (
+            <div className="sb-keep" role="group" aria-label="어떻게 저장할까요?">
+              <p>어떻게 저장할까요?</p>
+              <button type="button" className="sb-keep-btn photo" data-testid="save-photo" disabled={busy} onClick={() => keep('photo')}><span aria-hidden="true">📸</span>사진으로 저장</button>
+              <button type="button" className="sb-keep-btn video" data-testid="save-video" disabled={busy || !videoReady} onClick={() => keep('video')}><span aria-hidden="true">🎬</span>{videoReady ? '영상으로 저장' : '영상 만드는 중…'}</button>
+              <button type="button" className="sb-keep-gif" data-testid="save-gif" disabled={busy} onClick={() => keep('gif')}>움짤(GIF)로 저장</button>
             </div>
           )}
           <p className="sb-hint">누르면 몸에 맞는 자리에 붙고, 끌어다 놓으면 놓은 자리에 그대로 붙어요. 끌 때 보이는 크기 그대로 놓여요. 무대 밖으로 끌어내면 떼어져요.</p>
