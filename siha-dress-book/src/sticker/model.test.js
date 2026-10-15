@@ -56,26 +56,26 @@ describe('normalizePart', () => {
 
 describe('wear', () => {
   it('원피스를 입으면 따로 입은 상의·하의를 벗긴다', () => {
-    const next = wear({ top: 'top_yellow', bottom: 'skirt_navy' }, PART.dress_idol_star)
+    const next = wear({ top: 'top_crop_mint', bottom: 'skirt_pleat_pink' }, PART.dress_idol_star)
     expect(next.dress).toBe('dress_idol_star')
     expect(next.top).toBeUndefined()
     expect(next.bottom).toBeUndefined()
   })
 
   it('상의를 입으면 원피스를 벗긴다', () => {
-    const next = wear({ dress: 'dress_idol_star' }, PART.top_yellow)
-    expect(next.top).toBe('top_yellow')
+    const next = wear({ dress: 'dress_idol_star' }, PART.top_crop_mint)
+    expect(next.top).toBe('top_crop_mint')
     expect(next.dress).toBeUndefined()
   })
 })
 
 describe('snapDrop', () => {
   it('슬롯이 있는 옷은 스테이지 위에 놓으면 정해진 자리에 붙는다', () => {
-    expect(snapDrop(PART.skirt_navy, 10, 10, true)).toEqual({ action: 'wear' })
+    expect(snapDrop(PART.skirt_pleat_pink, 10, 10, true)).toEqual({ action: 'wear' })
   })
 
   it('스테이지 밖이면 버린다', () => {
-    expect(snapDrop(PART.skirt_navy, 10, 10, false)).toEqual({ action: 'discard' })
+    expect(snapDrop(PART.skirt_pleat_pink, 10, 10, false)).toEqual({ action: 'discard' })
   })
 
   it('장식은 가까운 앵커에 붙고, 멀면 그 자리에 남는다', () => {
@@ -88,7 +88,7 @@ describe('snapDrop', () => {
 
 describe('layersFor', () => {
   it('레이어 순서대로 그린다', () => {
-    const layers = layersFor({ shoes: 'shoes_sandal_brown', bottom: 'skirt_navy', top: 'top_yellow' }, [])
+    const layers = layersFor({ shoes: 'shoes_sandal_brown', bottom: 'skirt_pleat_pink', top: 'top_crop_mint' }, [])
     const zs = layers.map((l) => l.z)
     expect(zs).toEqual([...zs].sort((a, b) => a - b))
     expect(LAYER_Z.socks).toBeLessThan(LAYER_Z.shoes)
@@ -139,7 +139,7 @@ describe('layersFor', () => {
   it('코드로 자른 소매·앞뒤 조각과 그려 넣은 옛 양말은 카탈로그에 없다', () => {
     expect(PART.socks_long).toBeUndefined()
     expect(PART.socks_short).toBeUndefined()
-    expect(PART.top_yellow.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
+    expect(PART.top_crop_mint.pieces.every((p) => !(p.src || '').includes('sleeve'))).toBe(true)
     expect(PART.hat_straw.pieces.every((p) => !(p.src || '').includes('-front') && !(p.src || '').includes('-back'))).toBe(true)
   })
 

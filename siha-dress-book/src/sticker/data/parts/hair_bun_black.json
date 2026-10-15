@@ -1,0 +1,56 @@
+{
+ "id": "hair_bun_black",
+ "name": "올림머리 번 (검은 머리)",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_bun_black-0.png",
+   "x": 122.48,
+   "y": 68.93,
+   "w": 134.5,
+   "h": 157.5,
+   "layer": "hair",
+   "from": "x4/hair_bun_black-0.png ← hair_bun 색 바꿈(라운드2)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_bun_black-0-beanie.png",
+   "x": 122.48,
+   "y": 68.93,
+   "w": 134.5,
+   "h": 157.5,
+   "layer": "hair",
+   "from": "x4/hair_bun_black-0-beanie.png ← hair_bun 색 바꿈(라운드2)",
+   "onlyWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_bun_black-1.png",
+   "x": 99.73,
+   "y": 20.43,
+   "w": 169.75,
+   "h": 203.25,
+   "layer": "back_hair",
+   "from": "x4/hair_bun_black-1.png ← hair_bun 색 바꿈(라운드2)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_bun_black-1-beanie.png",
+   "x": 99.73,
+   "y": 20.43,
+   "w": 169.75,
+   "h": 203.25,
+   "layer": "back_hair",
+   "from": "x4/hair_bun_black-1-beanie.png ← hair_bun 색 바꿈(라운드2)",
+   "onlyWith": "beanie_winter"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

@@ -1,0 +1,22 @@
+{
+ "id": "top_crop_mint",
+ "name": "민트 리본 크롭 상의",
+ "category": "top",
+ "layer": "top",
+ "scale": 1,
+ "slot": "top",
+ "anchor": "torso",
+ "front": [
+  {
+   "src": "x4/top_crop_mint-0.png",
+   "x": 120.0,
+   "y": 201.7,
+   "w": 116.0,
+   "h": 100.0,
+   "from": "라운드2: top_yellow 실루엣을 다듬어 새로 칠함"
+  }
+ ],
+ "back": [],
+ "connectors": [],
+ "theme": "기본"
+}

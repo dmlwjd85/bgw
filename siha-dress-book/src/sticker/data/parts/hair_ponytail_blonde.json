@@ -1,0 +1,56 @@
+{
+ "id": "hair_ponytail_blonde",
+ "name": "포니테일 (금발)",
+ "theme": "머리",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "set": "new",
+ "pieces": [
+  {
+   "src": "x4/hair_ponytail_blonde-0.png",
+   "x": 122.56,
+   "y": 68.93,
+   "w": 148.5,
+   "h": 250.25,
+   "layer": "hair",
+   "from": "x4/hair_ponytail_blonde-0.png ← hair_ponytail 색 바꿈(라운드2)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail_blonde-0-beanie.png",
+   "x": 122.56,
+   "y": 68.93,
+   "w": 148.5,
+   "h": 250.25,
+   "layer": "hair",
+   "from": "x4/hair_ponytail_blonde-0-beanie.png ← hair_ponytail 색 바꿈(라운드2)",
+   "onlyWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail_blonde-1.png",
+   "x": 97.31,
+   "y": 20.43,
+   "w": 223.0,
+   "h": 293.25,
+   "layer": "back_hair",
+   "from": "x4/hair_ponytail_blonde-1.png ← hair_ponytail 색 바꿈(라운드2)",
+   "unlessWith": "beanie_winter"
+  },
+  {
+   "src": "x4/hair_ponytail_blonde-1-beanie.png",
+   "x": 97.31,
+   "y": 20.43,
+   "w": 223.0,
+   "h": 293.25,
+   "layer": "back_hair",
+   "from": "x4/hair_ponytail_blonde-1-beanie.png ← hair_ponytail 색 바꿈(라운드2)",
+   "onlyWith": "beanie_winter"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}

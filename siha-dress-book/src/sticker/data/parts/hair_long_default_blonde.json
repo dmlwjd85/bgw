@@ -1,0 +1,24 @@
+{
+ "id": "hair_long_default_blonde",
+ "name": "기본 긴 머리 (금발)",
+ "theme": "기본",
+ "category": "hair",
+ "slot": "hair",
+ "layer": "hair",
+ "pieces": [
+  {
+   "src": "x4/hair_long_default_blonde-0.png",
+   "x": 71.0,
+   "y": 55.0,
+   "w": 259.0,
+   "h": 327.0,
+   "layer": "hair",
+   "from": "x4/hair_long_default_blonde-0.png ← hair_long_default 색 바꿈(라운드2)"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2"
+}
