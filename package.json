@@ -8,8 +8,10 @@
     "cap:sync": "npm run build:web && cap sync"
   },
   "dependencies": {
+    "@capacitor-community/media": "^9.1.0",
     "@capacitor/android": "^8.5.3",
     "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.5",
     "@capacitor/ios": "^8.5.3"
   },
   "devDependencies": {

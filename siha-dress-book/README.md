@@ -38,3 +38,8 @@ npm run dev
 **투명 PNG 한 장 + 부품 JSON 한 파일**이면 됩니다. 자세한 절차는 [docs/부품-추가하기.md](docs/부품-추가하기.md) 를 보세요.
 
 자동으로 잘 안 되는 그림 작업(앞/뒤 분리, 속바지 손칠, 구멍 메움 검수)은 [docs/수동-작업.md](docs/수동-작업.md) 에 모아 두었습니다.
+
+## 사진첩 저장 (사진·영상)
+- 웹: `navigator.canShare({ files })` 가 되면 공유 시트 → iOS '이미지/비디오 저장', 안드로이드 갤러리. 안 되면 내려받기. (`src/sticker/gallerySave.js`)
+- Capacitor 앱: 루트에 `@capacitor/filesystem` + `@capacitor-community/media`(둘 다 무료·MIT). `npm run cap:sync` 뒤 네이티브에서 `window.Capacitor.Plugins` 로 찾아 사진첩 '시하 스티커북' 앨범에 바로 저장. 웹 번들은 플러그인을 import 하지 않아서 웹 빌드에 영향 없음.
+- 네이티브 권한: iOS `Info.plist` 에 `NSPhotoLibraryAddUsageDescription`(예: "시하 스티커북 그림과 영상을 사진첩에 저장해요"). 안드로이드(API 29+)는 앱 앨범 저장에 따로 권한이 필요 없음(28 이하만 `WRITE_EXTERNAL_STORAGE`).
