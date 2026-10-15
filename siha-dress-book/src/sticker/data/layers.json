@@ -39,6 +39,21 @@
     "bag": "가방",
     "pet": "반려동물"
   },
+  "motion": {
+    "_note": "레이어별 움직임(저장 누르면 시작). 새 부품은 layer만 맞으면 자동으로 움직여요. 부품 JSON에 \"motion\"을 쓰면 그 부품만 바꿈. none=안 움직임. 몸(body)은 혼자 안 움직이고 캐릭터 전체(character)와 같이만 움직임",
+    "character": "breathe",
+    "body": "none",
+    "back_hair": "sway",
+    "hair": "sway",
+    "front_hair": "sway-late",
+    "hair_acc": "bob",
+    "hand_prop": "bob",
+    "bag": "bob",
+    "bag_back": "bob",
+    "pet": "hop",
+    "glitter": "pulse",
+    "shadow": "pulse"
+  },
   "slots": [
     "dress",
     "top",

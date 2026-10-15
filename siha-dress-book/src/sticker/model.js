@@ -196,7 +196,7 @@ export function layersFor(wornIn, accs, pos = {}) {
   CHARACTER.pieces.forEach((p, i) => {
     if (hidden.has(p.key)) return
     const q = replaced[p.key] ? { ...p, src: replaced[p.key] } : p
-    out.push({ key: `c-${p.key}`, z: zOf(p.layer) + i, p: q })
+    out.push({ key: `c-${p.key}`, z: zOf(p.layer) + i, p: q, layer: p.layer })
   })
   const ids = Object.values(worn)
   parts.forEach((part) => {
@@ -210,7 +210,7 @@ export function layersFor(wornIn, accs, pos = {}) {
       const alt0 = pc.alt && has(pc.alt.when) ? { ...pc, ...pc.alt } : pc
       const o = off(part.slot)
       const alt = { ...alt0, x: alt0.x + (sh.dx || 0) + o.dx, y: alt0.y + (sh.dy || 0) + o.dy }
-      out.push({ key: `${part.id}-${i}`, z: zOf(pc.layer || part.layer) + 10 + i, p: alt, partId: part.id })
+      out.push({ key: `${part.id}-${i}`, z: zOf(pc.layer || part.layer) + 10 + i, p: alt, partId: part.id, layer: pc.layer || part.layer, motion: pc.motion || part.motion })
     })
   })
   accs.forEach((a, i) => {
@@ -218,7 +218,7 @@ export function layersFor(wornIn, accs, pos = {}) {
     if (!part) return
     const box = accBox(a)
     const layer = a.layer || (a.anchor ? CHARACTER.anchors[a.anchor]?.layer : 'hand_prop')
-    out.push({ key: `acc-${a.uid}`, z: zOf(layer) + 50 + i, p: { src: part.pieces[0].src, ...box }, accUid: a.uid })
+    out.push({ key: `acc-${a.uid}`, z: zOf(layer) + 50 + i, p: { src: part.pieces[0].src, ...box }, accUid: a.uid, layer, motion: part.motion })
   })
   return out.sort((a, b) => a.z - b.z)
 }
