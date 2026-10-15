@@ -22,15 +22,6 @@
    "h": 203.0,
    "layer": "bottom",
    "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
-  },
-  {
-   "src": "x4/dress_idol_stage-2.png",
-   "x": 315.0,
-   "y": 201.0,
-   "w": 17.0,
-   "h": 103.0,
-   "layer": "arms",
-   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
  "occlusion": {
