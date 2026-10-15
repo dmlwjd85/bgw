@@ -176,6 +176,28 @@ describe('layersFor', () => {
         expect(layers.some((l) => l.partId === id), id).toBe(true)
       }
     }
+    // 검토 통과 남은 16종
+    const rest16 = [
+      'shoes_idol_glitter', 'head_idol_tiara', 'dress_knit_cream', 'shoes_maryjane', 'shoes_white_sneaker',
+      'top_cardigan_white', 'socks_black_knee', 'top_hoodie_pink', 'top_idol_sailor', 'top_idol_sparkle',
+      'ribbon_organza', 'socks_white_frill', 'neck_idol_choker', 'neck_star', 'mic_handheld', 'prop_lightstick',
+    ]
+    expect(rest16.every((id) => PART[id])).toBe(true)
+    for (const id of rest16) {
+      const part = PART[id]
+      if (part.multi) {
+        const layers = layersFor({}, [{ id, uid: `${id}-1`, x: 180, y: 200, size: 0.6, layer: part.layer }])
+        expect(layers.some((l) => l.accUid === `${id}-1`), id).toBe(true)
+      } else {
+        const layers = layersFor(wear({}, part), [])
+        expect(layers.some((l) => l.partId === id), id).toBe(true)
+      }
+    }
+    // 핸드마이크·응원봉은 올린 손(hand)에만 붙는다
+    expect(PART.mic_handheld.multi).toBe(true)
+    expect(PART.mic_handheld.anchors).toEqual(['hand'])
+    expect(PART.prop_lightstick.multi).toBe(true)
+    expect(PART.prop_lightstick.anchors).toEqual(['hand'])
     expect(PART.hanbok).toBeTruthy()
     expect(PART.hair_long_default).toBeTruthy()
     expect(BACKGROUNDS.some((b) => b.id === 'concert_purple')).toBe(true)

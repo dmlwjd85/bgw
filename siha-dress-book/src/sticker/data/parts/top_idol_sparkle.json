@@ -1,20 +1,25 @@
 {
  "id": "top_idol_sparkle",
  "name": "아이돌 스팽글 크롭",
+ "theme": "아이돌",
  "category": "top",
- "layer": "top",
- "scale": 1,
  "slot": "top",
- "anchor": "torso",
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/top_idol_sparkle.png",
-   "x": 115.0,
-   "y": 198.0,
-   "w": 130.0,
-   "h": 92.5
+   "src": "x4/top_idol_sparkle-0.png",
+   "x": 103.0,
+   "y": 217.0,
+   "w": 176.0,
+   "h": 130.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }

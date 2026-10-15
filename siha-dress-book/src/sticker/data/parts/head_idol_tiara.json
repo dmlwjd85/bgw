@@ -1,20 +1,25 @@
 {
  "id": "head_idol_tiara",
  "name": "아이돌 별 티아라",
+ "theme": "아이돌",
  "category": "head",
- "layer": "hair_acc",
- "scale": 1,
  "slot": "head",
- "anchor": "head",
- "front": [
+ "layer": "hair_acc",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/head_idol_tiara.png",
-   "x": 120.62,
-   "y": 34.5,
-   "w": 118.75,
-   "h": 70.0
+   "x": 116.67,
+   "y": 47.85,
+   "w": 137.5,
+   "h": 74.5,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "crown"
 }

@@ -1,24 +1,37 @@
 {
  "id": "dress_knit_cream",
  "name": "크림 니트 원피스",
+ "theme": "원피스",
  "category": "dress",
- "layer": "top",
- "scale": 1,
  "slot": "dress",
- "anchor": "torso",
- "hides": [
-  "top",
-  "bottom"
- ],
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/dress_knit_cream.png",
-   "x": 80.0,
-   "y": 186.0,
-   "w": 200.0,
-   "h": 243.25
+   "src": "x4/dress_knit_cream-0.png",
+   "x": 53.0,
+   "y": 201.0,
+   "w": 240.0,
+   "h": 124.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
+  },
+  {
+   "src": "x4/dress_knit_cream-1.png",
+   "x": 108.0,
+   "y": 320.0,
+   "w": 171.0,
+   "h": 203.0,
+   "layer": "bottom",
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": [
+   "top",
+   "bottom"
+  ]
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }

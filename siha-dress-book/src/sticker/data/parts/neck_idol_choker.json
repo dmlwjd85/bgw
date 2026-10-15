@@ -1,20 +1,25 @@
 {
  "id": "neck_idol_choker",
  "name": "아이돌 보석 초커",
+ "theme": "아이돌",
  "category": "neck",
- "layer": "outer",
- "scale": 1,
  "slot": "neck",
- "anchor": "neck",
- "front": [
+ "layer": "outer",
+ "set": "n50",
+ "pieces": [
   {
    "src": "x4/neck_idol_choker.png",
-   "x": 149.5,
-   "y": 184.8,
-   "w": 61.0,
-   "h": 60.0
+   "x": 178.77,
+   "y": 213.2,
+   "w": 32.5,
+   "h": 27.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 윤곽선 마스크)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "neck"
 }

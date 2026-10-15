@@ -1,26 +1,37 @@
 {
  "id": "prop_lightstick",
  "name": "아이돌 응원봉",
+ "theme": "아이돌",
  "category": "charm",
- "layer": "hand_prop",
- "scale": 1,
  "slot": null,
+ "layer": "hand_prop",
+ "set": "n50",
+ "pieces": [
+  {
+   "src": "x4/prop_lightstick.png",
+   "w": 116.3636,
+   "h": 190.9091,
+   "from": "gen_new/n50_D4.jpg 소품을 들어 올린 손에 회전·배치(wand_star 방식, hand_prop), 손가락·손바닥은 v2 몸 손 픽셀 윤곽 그대로 위에 합성"
+  }
+ ],
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
  "multi": true,
  "anchors": [
   "hand"
  ],
  "freePlacement": true,
  "size": {
-  "w": 40.0,
-  "h": 100.75
+  "w": 116.3636,
+  "h": 190.9091
  },
- "front": [
-  {
-   "src": "x4/prop_lightstick.png",
-   "w": 40.0,
-   "h": 100.75
+ "anchorOffset": {
+  "hand": {
+   "dx": 16.8,
+   "dy": -45.1
   }
- ],
- "back": [],
- "connectors": []
+ }
 }

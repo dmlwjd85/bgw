@@ -1,20 +1,25 @@
 {
  "id": "top_hoodie_pink",
  "name": "분홍 후드",
+ "theme": "상의",
  "category": "top",
- "layer": "top",
- "scale": 1,
  "slot": "top",
- "anchor": "torso",
- "front": [
+ "layer": "top",
+ "pieces": [
   {
-   "src": "x4/top_hoodie_pink.png",
-   "x": 95.0,
-   "y": 188.0,
-   "w": 170.0,
-   "h": 178.75
+   "src": "x4/top_hoodie_pink-0.png",
+   "x": 53.0,
+   "y": 201.0,
+   "w": 268.0,
+   "h": 189.0,
+   "from": "gen_new/n50 원본 (NEW50, v2 정합·차분, 항목 영역 제한)"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "set": "n50",
+ "anchor": "torso"
 }

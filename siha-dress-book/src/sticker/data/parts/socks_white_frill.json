@@ -1,20 +1,161 @@
 {
  "id": "socks_white_frill",
  "name": "흰 프릴 양말",
+ "theme": "양말",
  "category": "socks",
- "layer": "socks",
- "scale": 1,
  "slot": "socks",
- "anchor": "legs",
- "front": [
+ "layer": "socks",
+ "set": "new",
+ "pieces": [
   {
    "src": "x4/socks_white_frill.png",
    "x": 101.0,
-   "y": 528.0,
-   "w": 169.75,
-   "h": 87.0
+   "y": 521.5,
+   "w": 165.75,
+   "h": 89.5,
+   "unlessSlot": "shoes",
+   "from": "gen_n50/socks_white_frill.jpg (V1) 윤곽선 마스크 재추출, 양쪽 프릴 원본 그대로, v2 발 윤곽에 행별 정합"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_balletflat_pink.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.5,
+   "h": 79.0,
+   "onlyWith": "shoes_balletflat_pink",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_boots_brown.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 161.0,
+   "h": 79.0,
+   "onlyWith": "shoes_boots_brown",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_hightop_purple.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.75,
+   "h": 79.0,
+   "onlyWith": "shoes_hightop_purple",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_idol_glitter.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.25,
+   "h": 79.0,
+   "onlyWith": "shoes_idol_glitter",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_idol_platform.png",
+   "x": 105.25,
+   "y": 527.0,
+   "w": 159.75,
+   "h": 78.25,
+   "onlyWith": "shoes_idol_platform",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_loafer_navy.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.0,
+   "h": 79.0,
+   "onlyWith": "shoes_loafer_navy",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_maryjane.png",
+   "x": 103.0,
+   "y": 525.5,
+   "w": 163.0,
+   "h": 82.0,
+   "onlyWith": "shoes_maryjane",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_maryjane_red.png",
+   "x": 105.5,
+   "y": 527.0,
+   "w": 158.5,
+   "h": 79.0,
+   "onlyWith": "shoes_maryjane_red",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_rainboot_yellow.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 161.0,
+   "h": 79.0,
+   "onlyWith": "shoes_rainboot_yellow",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_sandal_brown.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 159.75,
+   "h": 79.0,
+   "onlyWith": "shoes_sandal_brown",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_slipper_bunny.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 161.0,
+   "h": 79.0,
+   "onlyWith": "shoes_slipper_bunny",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_sneaker_blue.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.5,
+   "h": 79.0,
+   "onlyWith": "shoes_sneaker_blue",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_sneaker_mint.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 161.0,
+   "h": 79.0,
+   "onlyWith": "shoes_sneaker_mint",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_white_sneaker.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 160.5,
+   "h": 79.0,
+   "onlyWith": "shoes_white_sneaker",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
+  },
+  {
+   "src": "x4/socks_white_frill-in-shoes_winterboot_tan.png",
+   "x": 104.0,
+   "y": 527.0,
+   "w": 161.0,
+   "h": 79.0,
+   "onlyWith": "shoes_winterboot_tan",
+   "from": "양말에서 신발 밖으로 나오는 부분 제거"
   }
  ],
- "back": [],
- "connectors": []
+ "occlusion": {
+  "hideCharacterPieces": [],
+  "clearsSlots": []
+ },
+ "character": "siha-v2",
+ "anchor": "feet"
 }
