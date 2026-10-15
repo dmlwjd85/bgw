@@ -44,39 +44,12 @@
    "from": "양말에서 신발 밖으로 나오는 부분 제거"
   },
   {
-   "src": "x4/socks_idol_overknee-in-shoes_idol_glitter.png",
-   "x": 105.25,
-   "y": 424.75,
-   "w": 158.25,
-   "h": 183.75,
-   "onlyWith": "shoes_idol_glitter",
-   "from": "양말에서 신발 밖으로 나오는 부분 제거"
-  },
-  {
-   "src": "x4/socks_idol_overknee-in-shoes_idol_platform.png",
-   "x": 105.25,
-   "y": 424.75,
-   "w": 158.5,
-   "h": 180.5,
-   "onlyWith": "shoes_idol_platform",
-   "from": "양말에서 신발 밖으로 나오는 부분 제거"
-  },
-  {
    "src": "x4/socks_idol_overknee-in-shoes_loafer_navy.png",
    "x": 105.25,
    "y": 424.75,
    "w": 158.5,
    "h": 183.0,
    "onlyWith": "shoes_loafer_navy",
-   "from": "양말에서 신발 밖으로 나오는 부분 제거"
-  },
-  {
-   "src": "x4/socks_idol_overknee-in-shoes_maryjane.png",
-   "x": 107.75,
-   "y": 424.75,
-   "w": 156.0,
-   "h": 183.75,
-   "onlyWith": "shoes_maryjane",
    "from": "양말에서 신발 밖으로 나오는 부분 제거"
   },
   {

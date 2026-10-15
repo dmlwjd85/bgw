@@ -102,9 +102,17 @@ describe('layersFor', () => {
     expect(layers.some((l) => l.partId === 'shoes_sandal_brown')).toBe(true)
   })
 
-  it('새 아이돌 신발을 신으면 그 조각이 그려진다', () => {
-    const layers = layersFor({ shoes: 'shoes_idol_platform' }, [])
-    expect(layers.some((l) => l.partId === 'shoes_idol_platform')).toBe(true)
+  it('신발을 신으면 그 조각이 그려진다', () => {
+    const layers = layersFor({ shoes: 'shoes_boots_brown' }, [])
+    expect(layers.some((l) => l.partId === 'shoes_boots_brown')).toBe(true)
+  })
+
+  it('선생님 지시로 지운 신발(검은 메리제인·아이돌 플랫폼·아이돌 글리터)은 어디에도 없다', () => {
+    for (const id of ['shoes_maryjane', 'shoes_idol_platform', 'shoes_idol_glitter']) {
+      expect(PART[id], id).toBeFalsy()
+      const layers = layersFor({ shoes: id, socks: 'socks_pink_ankle' }, [])
+      expect(layers.some((l) => l.partId === id || String(l.src || '').includes(id)), id).toBe(false)
+    }
   })
 
   it('시하 조각은 v2 민머리 몸 한 장이고, 기본 머리가 붙는다', () => {
@@ -154,14 +162,14 @@ describe('layersFor', () => {
     expect(['mic_handheld', 'mic_headset', 'mic_stand'].every((id) => PART[id])).toBe(true)
     expect(PART.bag_tote).toBeTruthy()
     expect(PART.bag_tote_canvas).toBeTruthy()
-    // 검토 통과 34종은 트레이·착용에 보인다
+    // 검토 통과 34종(이후 선생님 지시로 shoes_idol_platform 삭제 → 33종)은 트레이·착용에 보인다
     const frozen34 = [
       'bag_tote', 'dress_check_red', 'dress_idol_stage', 'dress_idol_star', 'dress_sailor_mint',
       'flower_cherry', 'flower_daisy', 'flower_idol_corsage', 'flower_idol_crown', 'flower_tulip_pink',
       'head_beret_red', 'head_cat_ears', 'head_clip_heart', 'head_idol_headset',
       'mic_headset', 'mic_stand', 'neck_idol_ribbon', 'neck_pearl', 'neck_scarf',
       'pants_jeans_wide', 'ribbon_gingham', 'ribbon_idol_stage', 'ribbon_idol_twin', 'ribbon_navy',
-      'shoes_boots_brown', 'shoes_idol_platform', 'shorts_denim', 'shorts_idol_stage',
+      'shoes_boots_brown', 'shorts_denim', 'shorts_idol_stage',
       'skirt_idol_pleat', 'skirt_tulle_pastel', 'socks_idol_overknee', 'socks_idol_stripe',
       'socks_pink_ankle', 'top_tee_star',
     ]
@@ -176,9 +184,9 @@ describe('layersFor', () => {
         expect(layers.some((l) => l.partId === id), id).toBe(true)
       }
     }
-    // 검토 통과 남은 16종
+    // 검토 통과 남은 16종(선생님 지시로 shoes_idol_glitter·shoes_maryjane 삭제 → 14종)
     const rest16 = [
-      'shoes_idol_glitter', 'head_idol_tiara', 'dress_knit_cream', 'shoes_maryjane', 'shoes_white_sneaker',
+      'head_idol_tiara', 'dress_knit_cream', 'shoes_white_sneaker',
       'top_cardigan_white', 'socks_black_knee', 'top_hoodie_pink', 'top_idol_sailor', 'top_idol_sparkle',
       'ribbon_organza', 'socks_white_frill', 'neck_idol_choker', 'neck_star', 'mic_handheld', 'prop_lightstick',
     ]
