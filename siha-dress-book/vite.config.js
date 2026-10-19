@@ -42,11 +42,12 @@ function sihaPwaPlugin() {
         .map((p) => relative(dist, p).split('\\').join('/'))
         .filter((r) => r !== 'sw.js' && !r.endsWith('.map'))
         .sort()
-      const fingerprint = rels.map((r) => `${r}:${statSync(join(dist, r)).size}`).join('|')
+      let sw = readFileSync(join(dist, 'sw.js'), 'utf8')
+      // sw.js 본문이 바뀌어도(캐시 규칙 수정 등) 캐시 버전이 새로 나오게 본문도 지문에 넣는다.
+      const fingerprint = rels.map((r) => `${r}:${statSync(join(dist, r)).size}`).join('|') + `|sw:${sw}`
       const version = `siha-stickerbook-v${createHash('sha256').update(fingerprint).digest('hex').slice(0, 10)}`
       const urls = ['./', ...rels.map((r) => `./${r}`)]
 
-      let sw = readFileSync(join(dist, 'sw.js'), 'utf8')
       sw = sw.replace("'__SIHA_CACHE_VERSION__'", JSON.stringify(version))
       sw = sw.replace("['__SIHA_PRECACHE__']", JSON.stringify(urls))
       writeFileSync(join(dist, 'sw.js'), sw)
