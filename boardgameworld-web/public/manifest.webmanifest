@@ -1,10 +1,11 @@
 {
+  "id": "/bgw/",
   "name": "보드게임 월드",
   "short_name": "보드게임 월드",
   "description": "다 같이 모여 노는 교실 보드게임",
   "lang": "ko",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/bgw/index.html",
+  "scope": "/bgw/index.html",
   "display": "standalone",
   "background_color": "#141414",
   "theme_color": "#141414",
